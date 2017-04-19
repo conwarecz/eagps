@@ -13,6 +13,7 @@ import net.aineuron.eagps.R;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.res.ColorRes;
@@ -30,6 +31,7 @@ public class MainActivity extends MainActivityBase {
 	public static final String STATE_BUSY = "busy5646";
 	public static final String STATE_UNAVAILABLE = "unavailable65413";
 	public static final String STATE_NO_CAR = "no_car646";
+	public static final String STATE_BUSY_ORDER = "busy646";
 	public static String STATE = "ready456";
 
 	@ColorRes(R.color.colorPrimary)
@@ -52,7 +54,7 @@ public class MainActivity extends MainActivityBase {
 
 	@AfterInject
 	void afterViews() {
-		setUpActionBar();
+
 	}
 
 	@Override
@@ -69,9 +71,16 @@ public class MainActivity extends MainActivityBase {
 			finish();
 		});
 
+		setUpActionBar();
+
 		return true;
 	}
 
+	@OptionsItem(R.id.actin_offer)
+	void actionOffer() {
+		OfferActivity_.intent(this).start();
+		finish();
+	}
 
 	private void setUpActionBar() {
 		ActionBar actionBar = getSupportActionBar();

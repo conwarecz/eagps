@@ -17,6 +17,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.StateFragment;
+import net.aineuron.eagps.fragment.TowFragment;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -170,7 +171,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private Fragment rootTabFragment(int tabId) {
 		switch (tabId) {
 			case 0:
-				return StateFragment.newInstance();
+				if (MainActivity.STATE.equals(MainActivity.STATE_BUSY_ORDER)) {
+					return TowFragment.newInstance();
+				} else {
+					return StateFragment.newInstance();
+				}
 			case 1:
 				return OrdersFragment.newInstance();
 			case 2:
