@@ -18,6 +18,8 @@
 		</activity>
 		<activity android:name=".activity.MainActivity_">
 		</activity>
+		<activity android:name=".activity.CarSettingsActivity_">
+		</activity>
 	</application>
 
 </manifest>

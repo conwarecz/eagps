@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="56dp"
+              android:clickable="false"
+              android:orientation="vertical"
+              android:padding="6dp">
+
+	<ImageView
+		android:layout_width="wrap_content"
+		android:layout_height="30dp"
+		android:layout_gravity="center_horizontal"
+		android:adjustViewBounds="true"
+		android:clickable="false"
+		android:padding="6dp"
+		android:scaleType="fitCenter"
+		android:src="@drawable/icon_profile"/>
+
+	<TextView
+		android:id="@+id/profileName"
+		android:layout_width="wrap_content"
+		android:layout_height="14dp"
+		android:layout_gravity="center_horizontal"
+		android:clickable="false"
+		android:text="Jan Novák"
+		android:textColor="#FFF"
+		android:textSize="12sp"
+		android:textStyle="bold"/>
+</LinearLayout>

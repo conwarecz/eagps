@@ -8,17 +8,17 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 
-@EActivity(R.layout.activity_login)
-public class LoginActivity extends AppCompatActivity {
+@EActivity(R.layout.activity_car_settings)
+public class CarSettingsActivity extends AppCompatActivity {
 
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
 	}
 
-	@Click(R.id.loginImage)
+	@Click(R.id.settingsImage)
 	public void imageClick() {
-		CarSettingsActivity_.intent(this).start();
+		MainActivity_.intent(this).start();
 		finish();
 	}
 }
