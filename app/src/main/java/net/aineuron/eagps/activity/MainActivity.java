@@ -30,7 +30,7 @@ public class MainActivity extends MainActivityBase {
 	public static final String STATE_BUSY = "busy5646";
 	public static final String STATE_UNAVAILABLE = "unavailable65413";
 	public static final String STATE_NO_CAR = "no_car646";
-	public static String STATE = "ready";
+	public static String STATE = "ready456";
 
 	@ColorRes(R.color.colorPrimary)
 	int primary;
@@ -89,6 +89,10 @@ public class MainActivity extends MainActivityBase {
 				break;
 			case MainActivity.STATE_UNAVAILABLE:
 				setActionBarColor(actionBar, unavailable);
+				break;
+			case MainActivity.STATE_NO_CAR:
+				menuState.setVisible(false);
+				setActionBarColor(actionBar, primary);
 				break;
 			default:
 				setActionBarColor(actionBar, primary);
