@@ -1,9 +1,8 @@
 package net.aineuron.eagps.fragment;
 
-import android.support.v4.app.Fragment;
-
 import net.aineuron.eagps.R;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 
 /**
@@ -12,9 +11,14 @@ import org.androidannotations.annotations.EFragment;
  */
 
 @EFragment(R.layout.fragment_tow)
-public class TowFragment extends Fragment {
+public class TowFragment extends BaseFragment {
 
 	public static TowFragment newInstance() {
 		return TowFragment_.builder().build();
+	}
+
+	@AfterViews
+	void afterViews() {
+		setAppbarTitle("Odtah");
 	}
 }

@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/action_state"
+		android:orderInCategory="40"
+		android:title=""
+		app:actionLayout="@layout/menu_state"
+		app:showAsAction="always"/>
+
 	<item
 		android:id="@+id/action_profile"
 		android:orderInCategory="50"
-		android:title="Test"
+		android:title=""
 		app:actionLayout="@layout/menu_profile"
 		app:showAsAction="always"/>
 </menu>

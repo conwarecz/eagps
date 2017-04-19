@@ -7,6 +7,7 @@
               android:padding="6dp">
 
 	<ImageView
+		android:id="@+id/stateIcon"
 		android:layout_width="wrap_content"
 		android:layout_height="30dp"
 		android:layout_gravity="center_horizontal"
@@ -14,15 +15,15 @@
 		android:clickable="false"
 		android:padding="3dp"
 		android:scaleType="fitCenter"
-		android:src="@drawable/icon_profile"/>
+		android:src="@drawable/icon_ready"/>
 
 	<TextView
-		android:id="@+id/profileName"
+		android:id="@+id/licenePlate"
 		android:layout_width="wrap_content"
 		android:layout_height="14dp"
 		android:layout_gravity="center_horizontal"
 		android:clickable="false"
-		android:text="Jan Novák"
+		android:text="1T8 1234"
 		android:textColor="#FFF"
 		android:textSize="12sp"
 		android:textStyle="bold"/>

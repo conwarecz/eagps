@@ -1,9 +1,8 @@
 package net.aineuron.eagps.fragment;
 
-import android.support.v4.app.Fragment;
-
 import net.aineuron.eagps.R;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 
 /**
@@ -12,8 +11,13 @@ import org.androidannotations.annotations.EFragment;
  */
 
 @EFragment(R.layout.fragment_orders)
-public class OrdersFragment extends Fragment {
+public class OrdersFragment extends BaseFragment {
 	public static OrdersFragment newInstance() {
 		return OrdersFragment_.builder().build();
+	}
+
+	@AfterViews
+	void afterViews() {
+		setAppbarTitle("Zakázky");
 	}
 }
