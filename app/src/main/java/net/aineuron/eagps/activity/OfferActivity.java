@@ -5,6 +5,7 @@ import android.widget.ImageView;
 
 import net.aineuron.eagps.R;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -14,6 +15,11 @@ public class OfferActivity extends AppCompatActivity {
 
 	@ViewById(R.id.offerImage)
 	ImageView offerImage;
+
+	@AfterViews
+	void afterViews() {
+		getSupportActionBar().hide();
+	}
 
 	@Click(R.id.offerImage)
 	void offerImageClicked() {

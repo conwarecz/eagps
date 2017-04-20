@@ -92,16 +92,23 @@ public class MainActivity extends MainActivityBase {
 		switch (MainActivity.STATE) {
 			case MainActivity.STATE_READY:
 				setActionBarColor(actionBar, ready);
+				stateIcon.setImageResource(R.drawable.icon_ready_vect);
 				break;
 			case MainActivity.STATE_BUSY:
 				setActionBarColor(actionBar, busy);
+				stateIcon.setImageResource(R.drawable.icon_busy);
 				break;
 			case MainActivity.STATE_UNAVAILABLE:
 				setActionBarColor(actionBar, unavailable);
+				stateIcon.setImageResource(R.drawable.icon_unavailable);
 				break;
 			case MainActivity.STATE_NO_CAR:
 				menuState.setVisible(false);
 				setActionBarColor(actionBar, primary);
+				break;
+			case MainActivity.STATE_BUSY_ORDER:
+				setActionBarColor(actionBar, busy);
+				stateIcon.setImageResource(R.drawable.icon_busy);
 				break;
 			default:
 				setActionBarColor(actionBar, primary);

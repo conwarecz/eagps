@@ -123,7 +123,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 		bottomNavigation
 				.setActiveColor(R.color.tabIconHighlight)
-				.setInActiveColor(R.color.tabIconColor)
+				.setInActiveColor(R.color.colorPrimary)
 				.setBarBackgroundColor(R.color.backgroundWhite);
 
 		bottomNavigation

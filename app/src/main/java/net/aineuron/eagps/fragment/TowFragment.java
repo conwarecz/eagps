@@ -3,8 +3,11 @@ package net.aineuron.eagps.fragment;
 import android.widget.ImageView;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.activity.MainActivity;
+import net.aineuron.eagps.activity.MainActivity_;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
@@ -27,6 +30,13 @@ public class TowFragment extends BaseFragment {
 	void afterViews() {
 		setAppbarTitle("Odtah");
 		setContent();
+	}
+
+	@Click(R.id.stateImage)
+	void finishClicked() {
+		MainActivity.STATE = MainActivity.STATE_READY;
+		MainActivity_.intent(this).start();
+		getActivity().finish();
 	}
 
 	private void setContent() {
