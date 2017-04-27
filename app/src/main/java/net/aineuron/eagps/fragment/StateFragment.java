@@ -28,7 +28,7 @@ public class StateFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		setAppbarTitle("Odtah");
+		setAppbarTitle("Zásah");
 		setContent();
 	}
 

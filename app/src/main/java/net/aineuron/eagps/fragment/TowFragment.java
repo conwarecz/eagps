@@ -28,7 +28,7 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		setAppbarTitle("Odtah");
+		setAppbarTitle("Zásah");
 		setContent();
 	}
 

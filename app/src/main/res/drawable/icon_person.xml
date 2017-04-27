@@ -12,7 +12,7 @@
 			android:translateX="120.000000"
 			android:translateY="286.000000">
 			<path
-				android:fillColor="#FFF"
+				android:fillColor="#184080"
 				android:fillType="evenOdd"
 				android:pathData="M75.0823125,0 C33.5345416,0 0,33.5345416 0,75.0823125 C0,100.439
 12.6783437,122.963694 32.0306707,136.487408 C32.7002937,137.154807

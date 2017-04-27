@@ -127,7 +127,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setBarBackgroundColor(R.color.backgroundWhite);
 
 		bottomNavigation
-				.addItem(new BottomNavigationItem(R.drawable.icon_home, "Odtah"))
+				.addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
 				.addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
 				.addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
 				.setFirstSelectedPosition(0)
