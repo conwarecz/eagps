@@ -53,7 +53,7 @@
 
     <EditText
         android:id="@+id/login"
-        android:hint="Váš e-mail"
+        android:hint="Uživatelské jméno"
         android:textColorHint="@color/hintText"
         android:layout_width="0dp"
         android:layout_height="60dp"
