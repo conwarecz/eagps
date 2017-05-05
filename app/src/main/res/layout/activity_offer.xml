@@ -55,57 +55,6 @@
                 android:layout_marginTop="16dp">
 
                 <ImageView
-                    android:id="@+id/iconPerson"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:src="@drawable/icon_person"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <TextView
-                    android:id="@+id/textName"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Jméno, Příjmení"
-                    android:textColor="@color/grayText"
-                    android:textSize="8sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconPerson"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/customerName"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Jan Novák, tel.: 777 888 999"
-                    android:textColor="@color/grayText"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconPerson"
-                    app:layout_constraintTop_toBottomOf="@+id/textName" />
-            </android.support.constraint.ConstraintLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <ImageView
                     android:id="@+id/iconCar"
                     android:layout_width="44dp"
                     android:layout_height="44dp"
@@ -124,7 +73,7 @@
                     android:layout_marginRight="30dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
-                    android:text="Automobil"
+                    android:text="Vozidlo"
                     android:textColor="@color/grayText"
                     android:textSize="8sp"
                     android:textStyle="bold"
@@ -142,7 +91,7 @@
                     android:layout_marginRight="30dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
-                    android:text="Škoda Octavia III, 1AB 22 33, 2.3t"
+                    android:text="Škoda Octavia III, 2.3t"
                     android:textColor="@color/grayText"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -195,7 +144,7 @@
                     android:layout_marginRight="30dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
-                    android:text="Havířov, 1.máje 2"
+                    android:text="Havířov, 1.máje 2, 16504"
                     android:textColor="@color/grayText"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -248,7 +197,7 @@
                     android:layout_marginRight="30dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
-                    android:text="Autoservis Škoda, Na rovince 1252, Ostrava"
+                    android:text="Autoservis Škoda, Na rovince 1252, Ostrava, 16843"
                     android:textColor="@color/grayText"
                     android:textSize="16sp"
                     android:textStyle="bold"

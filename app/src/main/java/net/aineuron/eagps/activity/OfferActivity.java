@@ -30,17 +30,6 @@ public class OfferActivity extends AppCompatActivity {
 		getSupportActionBar().hide();
 	}
 
-	@Click(R.id.customerName)
-	void customerNameClicked() {
-		Intent intent = new Intent(Intent.ACTION_DIAL);
-		intent.setData(Uri.parse("+420774339220"));
-		try {
-			startActivity(intent);
-		} catch (android.content.ActivityNotFoundException ex) {
-			Toast.makeText(this, "Could not find an activity to place the call.", Toast.LENGTH_SHORT).show();
-		}
-	}
-
 	@Click(R.id.accept)
 	void acceptClicked() {
 		MainActivity.STATE = MainActivity.STATE_BUSY_ORDER;
