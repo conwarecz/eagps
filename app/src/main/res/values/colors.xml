@@ -4,7 +4,7 @@
 	<color name="colorPrimaryDark">#184080</color>
 	<color name="colorAccent">#0076FF</color>
 	<color name="grayText">#9B9B9B</color>
-	<color name="hintText">#DDDDDD</color>
+	<color name="hintText">#90BAFF</color>
 
 	<!-- Tab bar -->
 	<color name="backgroundWhite">#FFFFFF</color>

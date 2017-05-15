@@ -46,6 +46,8 @@ dependencies {
 	// View
 	compile 'com.ashokvarma.android:bottom-navigation-bar:1.4.1'
 	compile 'com.github.jetradarmobile:multibackstack:1.2.0'
+	compile 'com.afollestad.material-dialogs:core:0.9.4.4'
+	compile 'com.mobsandgeeks:android-saripaar:2.0.3'
 
 	// AA
 	annotationProcessor 'org.androidannotations:androidannotations:4.3.0'
