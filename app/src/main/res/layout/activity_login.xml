@@ -1,19 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	tools:context="net.aineuron.eagps.LoginActivity">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="net.aineuron.eagps.activity.LoginActivity">
 
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="Hello World!"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toRightOf="parent"
-		app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:srcCompat="@drawable/bottom_pattern" />
+
+    <ImageView
+        android:id="@+id/loginLogo"
+        android:layout_width="0dp"
+        android:layout_height="130dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="44dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_ea" />
+
+    <ImageView
+        android:id="@+id/credentialsBackground"
+        android:scaleType="centerCrop"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        app:srcCompat="@drawable/bg_login_blue"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginLogo" />
+
+    <EditText
+        android:id="@+id/login"
+        android:hint="Uživatelské jméno"
+        android:textColorHint="@color/hintText"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="0dp"
+        android:backgroundTint="@color/backgroundWhite"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/backgroundWhite"
+        app:layout_constraintLeft_toLeftOf="@id/credentialsBackground"
+        app:layout_constraintRight_toRightOf="@id/credentialsBackground"
+        app:layout_constraintTop_toTopOf="@id/credentialsBackground" />
+
+
+    <EditText
+        android:id="@+id/password"
+        android:hint="Heslo"
+        android:textColorHint="@color/hintText"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="0dp"
+        android:backgroundTint="@color/backgroundWhite"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:textColor="@color/backgroundWhite"
+        app:layout_constraintLeft_toLeftOf="@id/credentialsBackground"
+        app:layout_constraintRight_toRightOf="@id/credentialsBackground"
+        app:layout_constraintTop_toBottomOf="@id/login" />
+
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/btn_lg_red"
+        android:text="Přihlásit se"
+        android:textAllCaps="false"
+        android:textColor="@color/backgroundWhite"
+        app:layout_constraintEnd_toEndOf="@+id/credentialsBackground"
+        app:layout_constraintStart_toStartOf="@+id/credentialsBackground"
+        app:layout_constraintTop_toBottomOf="@+id/credentialsBackground" />
+
+    <Button
+        android:id="@+id/webButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="www.europ-assistance.cz"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginButton" />
+
 
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="colorPrimary">#3F51B5</color>
-	<color name="colorPrimaryDark">#303F9F</color>
-	<color name="colorAccent">#FF4081</color>
+	<color name="colorPrimary">#214C92</color>
+	<color name="colorPrimaryDark">#184080</color>
+	<color name="colorAccent">#0076FF</color>
+	<color name="grayText">#9B9B9B</color>
+	<color name="hintText">#DDDDDD</color>
+
+	<!-- Tab bar -->
+	<color name="backgroundWhite">#FFFFFF</color>
+	<color name="tabIconColor">#333333</color>
+	<color name="tabIconHighlight">#DC383A</color>
+
+	<!-- States -->
+	<color name="ready">#2ECC71</color>
+	<color name="busy">#E67E22</color>
+	<color name="unavailable">#DC383A</color>
 </resources>
