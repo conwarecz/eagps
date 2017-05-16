@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
@@ -41,6 +42,8 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@EventBusGreenRobot
 	EventBus bus;
 
+	private MaterialDialog progressDialog;
+
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
@@ -52,24 +55,30 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@Click(R.id.skipButton)
 	public void onSkip() {
 		// TODO: Make state no car
+		MainActivity.STATE = MainActivity.STATE_NO_CAR;
 		finishSettings();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
-		carsRefresh.setRefreshing(true);
+		progressDialog = new MaterialDialog.Builder(this)
+				.title("Vybírám auto")
+				.content("Prosím čekejte...")
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
 		clientProvider.getEaClient().selectCar(e.selectedCarId);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {
-		carsRefresh.setRefreshing(false);
+		progressDialog.dismiss();
 		finishSettings();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
-		carsRefresh.setRefreshing(false);
+		progressDialog.dismiss();
 	}
 
 	private void finishSettings() {
