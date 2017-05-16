@@ -56,9 +56,10 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 		WorkerSelectCarViewModel item = items.get(position);
 		BaseWorkerSelectCarItemView view = holder.getView();
 		view.bind(item);
+		view.setOnChangeListener(this::notifyDataChanged);
 	}
 
-	private void notifyDataChanged() {
+	public void notifyDataChanged() {
 		items = new ArrayList<>();
 		long selectedCarId = carsManager.getSelectedCarId();
 
@@ -76,5 +77,9 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 
 	private void initCars() {
 		cars = carsManager.getAvailableCars();
+	}
+
+	public interface OnItemChange {
+		void onChange();
 	}
 }

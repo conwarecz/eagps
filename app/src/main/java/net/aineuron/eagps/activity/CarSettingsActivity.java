@@ -78,6 +78,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
+		carAdapter.notifyDataChanged();
 		progressDialog.dismiss();
 	}
 
