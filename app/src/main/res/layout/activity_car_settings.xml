@@ -18,17 +18,23 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"/>
 
-	<android.support.v7.widget.RecyclerView
-		android:id="@+id/carsView"
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/carsRefresh"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
-		android:clipToPadding="false"
-		android:paddingLeft="@dimen/padding_sides"
-		android:paddingRight="@dimen/padding_sides"
 		app:layout_constraintBottom_toTopOf="@+id/buttonBackground"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/titleView"/>
+		app:layout_constraintTop_toBottomOf="@+id/titleView">
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/carsView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:clipToPadding="false"
+			android:paddingLeft="@dimen/padding_sides"
+			android:paddingRight="@dimen/padding_sides"/>
+	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<android.support.constraint.Guideline
 		android:id="@+id/guideline"

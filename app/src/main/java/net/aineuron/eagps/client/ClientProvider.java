@@ -27,7 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
-	public static final String END_POINT = "";
+	public static final String END_POINT = "http://xyz.cz";
 
 	@RootContext
 	Context context;

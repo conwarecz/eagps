@@ -1,5 +1,6 @@
 package net.aineuron.eagps.activity;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +9,9 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.adapter.WorkerSelectCarAdapter;
+import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
 
 import org.androidannotations.annotations.AfterViews;
@@ -25,8 +29,14 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@ViewById(R.id.carsView)
 	RecyclerView carsView;
 
+	@ViewById(R.id.carsRefresh)
+	SwipeRefreshLayout carsRefresh;
+
 	@Bean
 	WorkerSelectCarAdapter carAdapter;
+
+	@Bean
+	ClientProvider clientProvider;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -36,6 +46,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 		getSupportActionBar().hide();
 		carsView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		carsView.setAdapter(carAdapter);
+		carsRefresh.setOnRefreshListener(() -> carsRefresh.setRefreshing(false));
 	}
 
 	@Click(R.id.skipButton)
@@ -46,8 +57,19 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
-		// TODO: Make state ready
+		carsRefresh.setRefreshing(true);
+		clientProvider.getEaClient().selectCar(e.selectedCarId);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {
+		carsRefresh.setRefreshing(false);
 		finishSettings();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
+		carsRefresh.setRefreshing(false);
 	}
 
 	private void finishSettings() {
