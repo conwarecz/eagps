@@ -1,4 +1,4 @@
-package net.aineuron.eagps.model;
+package net.aineuron.eagps.model.database;
 
 /**
  * Created by Vit Veres on 26-Apr-17

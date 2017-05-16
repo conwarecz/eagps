@@ -4,12 +4,18 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatRadioButton;
 
-import net.aineuron.eagps.R;
-import net.aineuron.eagps.model.Car;
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
+import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
+import net.aineuron.eagps.model.CarsManager;
+import net.aineuron.eagps.model.database.Car;
+
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Vit Veres on 15-May-17
@@ -27,6 +33,12 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 	@ColorRes(R.color.grayText)
 	int gray;
 
+	@Bean
+	CarsManager carsManager;
+
+	@EventBusGreenRobot
+	EventBus bus;
+
 	public WorkerSelectCarItemView(@NonNull Context context) {
 		super(context);
 	}
@@ -36,6 +48,8 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 		Car car = item.getCar();
 		boolean isSelected = item.isSelected();
 
+		carRadioText.setOnCheckedChangeListener(null);
+
 		carRadioText.setChecked(isSelected);
 		carRadioText.setText(String.format("%s - %s", car.getLicensePlate(), car.getModel()));
 
@@ -44,5 +58,10 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 		} else {
 			carRadioText.setTextColor(gray);
 		}
+
+		carRadioText.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			carsManager.setSelectedCarId(car.getId());
+			bus.post(new WorkerCarSelectedEvent(car.getId()));
+		});
 	}
 }

@@ -1,6 +1,6 @@
 package net.aineuron.eagps.model.viewmodel;
 
-import net.aineuron.eagps.model.Car;
+import net.aineuron.eagps.model.database.Car;
 
 /**
  * Created by Vit Veres on 15-May-17

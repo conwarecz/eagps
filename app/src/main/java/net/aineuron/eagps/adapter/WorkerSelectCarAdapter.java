@@ -4,12 +4,14 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import net.aineuron.eagps.model.Car;
+import net.aineuron.eagps.model.CarsManager;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.viewmodel.WorkerSelectCarViewModel;
 import net.aineuron.eagps.view.ItemViewWrapper;
 import net.aineuron.eagps.view.workerselectcar.BaseWorkerSelectCarItemView;
 import net.aineuron.eagps.view.workerselectcar.WorkerSelectCarItemView_;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
@@ -26,6 +28,9 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 
 	@RootContext
 	Context context;
+
+	@Bean
+	CarsManager carsManager;
 
 	private List<Car> cars = new ArrayList<>();
 
@@ -55,10 +60,14 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 
 	private void notifyDataChanged() {
 		items = new ArrayList<>();
+		long selectedCarId = carsManager.getSelectedCarId();
 
 		for (Car car : cars) {
 			WorkerSelectCarViewModel carViewModel = new WorkerSelectCarViewModel();
 			carViewModel.withCar(car);
+			if (selectedCarId == car.getId()) {
+				carViewModel.isSelected(true);
+			}
 			items.add(carViewModel);
 		}
 
@@ -66,18 +75,6 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 	}
 
 	private void initCars() {
-		cars = new ArrayList<>();
-
-		// TODO: Get real cars :)
-		// Mock
-		for (int i = 0; i < 20; i++) {
-			Car car = new Car();
-			car.setId(i);
-			car.setStatus(0);
-			car.setUserId(0);
-			car.setLicensePlate(String.format("1AB %04d", i));
-			car.setModel("Peugeot Expert");
-			cars.add(car);
-		}
+		cars = carsManager.getAvailableCars();
 	}
 }
