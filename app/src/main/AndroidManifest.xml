@@ -2,7 +2,7 @@
 <manifest package="net.aineuron.eagps"
           xmlns:android="http://schemas.android.com/apk/res/android">
 	<application
-		android:name=".Appl"
+		android:name=".Appl_"
 		android:allowBackup="true"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
@@ -17,6 +17,10 @@
 
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
+		</activity>
+		<activity
+			android:name=".activity.MainActivityBase_"
+			android:screenOrientation="sensorPortrait">
 		</activity>
 		<activity
 			android:name=".activity.MainActivity_"
