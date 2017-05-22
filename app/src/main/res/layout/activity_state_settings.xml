@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+
+	<TextView
+		android:id="@+id/titleView"
+		android:layout_width="0dp"
+		android:layout_height="?attr/actionBarSize"
+		android:background="@drawable/top_bar_small_pattern"
+		android:gravity="center"
+		android:text="@string/worker_select_state_title"
+		android:textColor="@color/colorPrimary"
+		android:textSize="@dimen/title_text_size"
+		android:textStyle="bold"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<android.support.constraint.Guideline
+		android:id="@+id/guideline"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintGuide_percent="0.85"/>
+
+	<ImageView
+		android:id="@+id/buttonBackground"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:adjustViewBounds="true"
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/guideline"
+		app:srcCompat="@drawable/bottom_small_pattern"/>
+
+
+	<android.support.constraint.ConstraintLayout
+		android:id="@+id/readyLayout"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/big_button_height"
+		android:layout_marginLeft="@dimen/padding_sides"
+		android:layout_marginRight="@dimen/padding_sides"
+		android:background="@drawable/btn_large_green_top"
+		app:layout_constraintBottom_toTopOf="@+id/busyLayout"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/titleView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:layout_editor_absoluteY="150dp">
+
+		<ImageView
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:padding="8dp"
+			android:src="@drawable/icon_small_waiting"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="48dp"
+			android:gravity="center"
+			android:text="Připraven"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/title_text_size"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="Test text"/>
+	</android.support.constraint.ConstraintLayout>
+
+	<android.support.constraint.ConstraintLayout
+		android:id="@+id/busyLayout"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/big_button_height"
+		android:layout_marginLeft="@dimen/padding_sides"
+		android:layout_marginRight="@dimen/padding_sides"
+		android:background="@color/busy"
+		app:layout_constraintBottom_toTopOf="@+id/unavailableLayout"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/readyLayout"
+		tools:layout_editor_absoluteY="198dp">
+
+		<ImageView
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:padding="8dp"
+			android:src="@drawable/icon_small_busy"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="48dp"
+			android:gravity="center"
+			android:text="Zaneprázněn"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/title_text_size"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+	</android.support.constraint.ConstraintLayout>
+
+	<android.support.constraint.ConstraintLayout
+		android:id="@+id/unavailableLayout"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/big_button_height"
+		android:layout_marginLeft="@dimen/padding_sides"
+		android:layout_marginRight="@dimen/padding_sides"
+		android:background="@color/unavailable"
+		app:layout_constraintBottom_toTopOf="@+id/skipLayout"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/busyLayout"
+		tools:layout_editor_absoluteY="246dp">
+
+		<ImageView
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:padding="8dp"
+			android:src="@drawable/icon_small_unavailable"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="48dp"
+			android:gravity="center"
+			android:text="Nedostupný"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/title_text_size"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintHorizontal_bias="0.0"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			tools:text="Test text"
+			/>
+	</android.support.constraint.ConstraintLayout>
+
+	<android.support.constraint.ConstraintLayout
+		android:id="@+id/skipLayout"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/big_button_height"
+		android:layout_marginLeft="@dimen/padding_sides"
+		android:layout_marginRight="@dimen/padding_sides"
+		android:background="@drawable/btn_large_rounded_blue"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/unavailableLayout">
+
+		<ImageView
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:padding="8dp"
+			android:src="@drawable/icon_skip"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="48dp"
+			android:gravity="center"
+			android:text="Přeskočit"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/title_text_size"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="Test text"/>
+	</android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

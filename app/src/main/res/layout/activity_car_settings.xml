@@ -55,21 +55,40 @@
 		app:layout_constraintTop_toTopOf="@+id/guideline"
 		app:srcCompat="@drawable/bottom_small_pattern"/>
 
-	<Button
-		android:id="@+id/skipButton"
+	<android.support.constraint.ConstraintLayout
+		android:id="@+id/skipLayout"
 		android:layout_width="0dp"
 		android:layout_height="48dp"
 		android:layout_marginLeft="@dimen/padding_sides"
 		android:layout_marginRight="@dimen/padding_sides"
 		android:layout_marginTop="8dp"
 		android:background="@drawable/btn_large_rounded_blue"
-		android:gravity="center"
-		android:text="Přeskočit"
-		android:textAllCaps="false"
-		android:textColor="@color/backgroundWhite"
-		android:textSize="@dimen/title_text_size"
 		app:layout_constraintBottom_toBottomOf="@+id/buttonBackground"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/buttonBackground"/>
+		app:layout_constraintTop_toTopOf="@+id/buttonBackground">
+
+		<ImageView
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:padding="8dp"
+			android:src="@drawable/icon_skip"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="48dp"
+			android:gravity="center"
+			android:text="Přeskočit"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/title_text_size"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+	</android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

@@ -1,9 +1,6 @@
 package net.aineuron.eagps.activity;
 
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
@@ -19,19 +16,12 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-@EActivity(R.layout.activity_car_settings)
-public class CarSettingsActivity extends AppCompatActivity {
-
-	@ViewById(R.id.carsView)
-	RecyclerView carsView;
-
-	@ViewById(R.id.carsRefresh)
-	SwipeRefreshLayout carsRefresh;
+@EActivity(R.layout.activity_state_settings)
+public class StateSettingsActivity extends AppCompatActivity {
 
 	@Bean
 	WorkerSelectCarAdapter carAdapter;
@@ -47,15 +37,29 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
-		carsView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-		carsView.setAdapter(carAdapter);
-		carsRefresh.setOnRefreshListener(() -> carsRefresh.setRefreshing(false));
 	}
 
-	@Click(R.id.skipButton)
+	@Click(R.id.busyLayout)
+	public void onBusy() {
+		MainActivity.STATE = MainActivity.STATE_BUSY;
+		finishSettings();
+	}
+
+	@Click(R.id.unavailableLayout)
+	public void onUnavailable() {
+		MainActivity.STATE = MainActivity.STATE_UNAVAILABLE;
+		finishSettings();
+	}
+
+	@Click(R.id.readyLayout)
+	public void onReady() {
+		MainActivity.STATE = MainActivity.STATE_READY;
+		finishSettings();
+	}
+
+	@Click(R.id.skipLayout)
 	public void onSkip() {
-		// TODO: Make state no car
-		MainActivity.STATE = MainActivity.STATE_NO_CAR;
+		// Stays same state
 		finishSettings();
 	}
 
@@ -83,7 +87,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
 	private void finishSettings() {
-		StateSettingsActivity_.intent(this).start();
+		MainActivity_.intent(this).start();
 		finish();
 	}
 }

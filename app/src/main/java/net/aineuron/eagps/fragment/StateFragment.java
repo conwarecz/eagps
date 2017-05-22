@@ -3,8 +3,8 @@ package net.aineuron.eagps.fragment;
 import android.widget.ImageView;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.activity.CarSettingsActivity_;
 import net.aineuron.eagps.activity.MainActivity;
+import net.aineuron.eagps.activity.StateSettingsActivity_;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -34,7 +34,7 @@ public class StateFragment extends BaseFragment {
 
 	@Click(R.id.stateImage)
 	void stateImageClicked() {
-		CarSettingsActivity_.intent(getContext()).start();
+		StateSettingsActivity_.intent(getContext()).start();
 		getActivity().finish();
 	}
 

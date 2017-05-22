@@ -122,8 +122,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		bottomNavigation.setTabSelectedListener(this);
 
 		bottomNavigation
-				.setActiveColor(R.color.tabIconHighlight)
-				.setInActiveColor(R.color.colorPrimary)
+				.setActiveColor(R.color.colorPrimary)
+				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
 
 		bottomNavigation
