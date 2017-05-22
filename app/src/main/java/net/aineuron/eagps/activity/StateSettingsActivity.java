@@ -6,11 +6,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.adapter.WorkerSelectCarAdapter;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
-import net.aineuron.eagps.event.network.car.CarSelectedEvent;
-import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -22,9 +20,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 @EActivity(R.layout.activity_state_settings)
 public class StateSettingsActivity extends AppCompatActivity {
-
-	@Bean
-	WorkerSelectCarAdapter carAdapter;
 
 	@Bean
 	ClientProvider clientProvider;
@@ -41,20 +36,17 @@ public class StateSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.busyLayout)
 	public void onBusy() {
-		MainActivity.STATE = MainActivity.STATE_BUSY;
-		finishSettings();
+		selectState(MainActivity.STATE_BUSY);
 	}
 
 	@Click(R.id.unavailableLayout)
 	public void onUnavailable() {
-		MainActivity.STATE = MainActivity.STATE_UNAVAILABLE;
-		finishSettings();
+		selectState(MainActivity.STATE_UNAVAILABLE);
 	}
 
 	@Click(R.id.readyLayout)
 	public void onReady() {
-		MainActivity.STATE = MainActivity.STATE_READY;
-		finishSettings();
+		selectState(MainActivity.STATE_READY);
 	}
 
 	@Click(R.id.skipLayout)
@@ -64,26 +56,24 @@ public class StateSettingsActivity extends AppCompatActivity {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
-		progressDialog = new MaterialDialog.Builder(this)
-				.title("Vybírám auto")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
-		clientProvider.getEaClient().selectCar(e.selectedCarId);
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {
+	public void onNetworkStateSelectedEvent(StateSelectedEvent e) {
 		progressDialog.dismiss();
 		finishSettings();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
-		carAdapter.notifyDataChanged();
+	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
 		progressDialog.dismiss();
+	}
+
+	private void selectState(String state) {
+		progressDialog = new MaterialDialog.Builder(this)
+				.title("Vybírám stav")
+				.content("Prosím čekejte...")
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
+		clientProvider.getEaClient().setState(state);
 	}
 
 	private void finishSettings() {

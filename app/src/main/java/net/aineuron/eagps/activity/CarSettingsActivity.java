@@ -52,7 +52,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 		carsRefresh.setOnRefreshListener(() -> carsRefresh.setRefreshing(false));
 	}
 
-	@Click(R.id.skipButton)
+	@Click(R.id.skipLayout)
 	public void onSkip() {
 		// TODO: Make state no car
 		MainActivity.STATE = MainActivity.STATE_NO_CAR;
