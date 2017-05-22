@@ -1,9 +1,11 @@
 package net.aineuron.eagps.client.client;
 
+import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.service.EaService;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -19,14 +21,16 @@ import retrofit2.Retrofit;
  * as a part of AlTraceabilitySystem project.
  */
 public class EaClient {
+	private final Pref_ pref;
 	private EaService eaService;
 
-	public EaClient(Retrofit retrofit) {
+	public EaClient(Retrofit retrofit, Pref_ pref) {
 		this.eaService = retrofit.create(EaService.class);
+		this.pref = pref;
 	}
 
 	public void selectCar(long carId) {
-		Observable.timer(2, TimeUnit.SECONDS)
+		Observable.timer(1, TimeUnit.SECONDS)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -44,6 +48,17 @@ public class EaClient {
 				.subscribe(
 						categories -> EventBus.getDefault().post(new CarsDownloadedEvent()),
 						ClientProvider::postNetworkError
+				);
+	}
+
+	public void setState(String state) {
+		Observable.timer(1, TimeUnit.SECONDS)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> EventBus.getDefault().post(new StateSelectedEvent()),
+						ClientProvider::postNetworkError
+
 				);
 	}
 }

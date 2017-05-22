@@ -3,4 +3,5 @@
 	<string name="login_input_invalid_password">Zadejte heslo</string>
 	<string name="login_input_invalid_username">Zadejte uživatelské heslo</string>
 	<string name="worker_select_car_title">Přihlášení na vozidlo</string>
+	<string name="worker_select_state_title">Vyberte stav vozidla</string>
 </resources>

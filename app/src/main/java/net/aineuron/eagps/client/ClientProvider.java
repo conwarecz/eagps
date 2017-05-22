@@ -77,7 +77,7 @@ public class ClientProvider {
 	}
 
 	private void initClients() {
-		eaClient = new EaClient(retrofit);
+		eaClient = new EaClient(retrofit, pref);
 	}
 
 	public EaClient getEaClient() {
