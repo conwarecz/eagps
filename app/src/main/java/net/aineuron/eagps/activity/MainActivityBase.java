@@ -18,8 +18,10 @@ import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.TowFragment;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
@@ -34,6 +36,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@ViewById(R.id.fragmentContainer)
 	FrameLayout fragmentContainer;
+
+	@Bean
+	StateManager stateManager;
 
 	private Bundle savedInstanceState = null;
 	private Fragment currentFragment;
@@ -171,7 +176,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private Fragment rootTabFragment(int tabId) {
 		switch (tabId) {
 			case 0:
-				if (MainActivity.STATE.equals(MainActivity.STATE_BUSY_ORDER)) {
+				if (stateManager.getSelectedStateId() == StateManager.STATE_ID_BUSY_ORDER) {
 					return TowFragment.newInstance();
 				} else {
 					return StateFragment.newInstance();

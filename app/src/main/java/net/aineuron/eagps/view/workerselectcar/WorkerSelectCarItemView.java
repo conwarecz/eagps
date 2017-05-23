@@ -8,10 +8,8 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
-import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.database.Car;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
@@ -32,9 +30,6 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 
 	@ColorRes(R.color.grayText)
 	int gray;
-
-	@Bean
-	CarsManager carsManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -60,7 +55,6 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 		}
 
 		carRadioText.setOnClickListener(v -> {
-			carsManager.setSelectedCarId(car.getId());
 			bus.post(new WorkerCarSelectedEvent(car.getId()));
 			onItemChange.onChange();
 		});

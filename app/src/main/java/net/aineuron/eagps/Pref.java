@@ -1,5 +1,6 @@
 package net.aineuron.eagps;
 
+import org.androidannotations.annotations.sharedpreferences.DefaultInt;
 import org.androidannotations.annotations.sharedpreferences.DefaultLong;
 import org.androidannotations.annotations.sharedpreferences.DefaultString;
 import org.androidannotations.annotations.sharedpreferences.SharedPref;
@@ -19,4 +20,7 @@ public interface Pref {
 
 	@DefaultLong(-1)
 	long selectedCar();
+
+	@DefaultInt(-1)
+	int selectedState();
 }

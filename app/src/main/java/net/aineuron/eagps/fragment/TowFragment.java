@@ -3,10 +3,11 @@ package net.aineuron.eagps.fragment;
 import android.widget.ImageView;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.activity.MainActivity;
 import net.aineuron.eagps.activity.MainActivity_;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -22,6 +23,9 @@ public class TowFragment extends BaseFragment {
 	@ViewById(R.id.stateImage)
 	ImageView stateImage;
 
+	@Bean
+	StateManager stateManager;
+
 	public static TowFragment newInstance() {
 		return TowFragment_.builder().build();
 	}
@@ -34,7 +38,8 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.stateImage)
 	void finishClicked() {
-		MainActivity.STATE = MainActivity.STATE_READY;
+		// TODO: Redo correctly
+		stateManager.setSelectedStateId(StateManager.STATE_ID_READY);
 		MainActivity_.intent(this).start();
 		getActivity().finish();
 	}

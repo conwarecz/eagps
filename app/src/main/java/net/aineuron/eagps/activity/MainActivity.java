@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EActivity;
@@ -26,12 +27,6 @@ import org.androidannotations.annotations.res.ColorRes;
 @EActivity(R.layout.activity_main)
 @OptionsMenu(R.menu.main_menu)
 public class MainActivity extends MainActivityBase {
-
-	public static final String STATE_READY = "ready456";
-	public static final String STATE_BUSY = "busy5646";
-	public static final String STATE_UNAVAILABLE = "unavailable65413";
-	public static final String STATE_NO_CAR = "no_car646";
-	public static final String STATE_BUSY_ORDER = "busy646";
 	public static String STATE = "ready456";
 
 	@ColorRes(R.color.colorPrimary)
@@ -89,24 +84,24 @@ public class MainActivity extends MainActivityBase {
 			return;
 		}
 
-		switch (MainActivity.STATE) {
-			case MainActivity.STATE_READY:
+		switch (stateManager.getSelectedStateId()) {
+			case StateManager.STATE_ID_READY:
 				setActionBarColor(actionBar, ready);
 				stateIcon.setImageResource(R.drawable.icon_ready_vect);
 				break;
-			case MainActivity.STATE_BUSY:
+			case StateManager.STATE_ID_BUSY:
 				setActionBarColor(actionBar, busy);
 				stateIcon.setImageResource(R.drawable.icon_busy);
 				break;
-			case MainActivity.STATE_UNAVAILABLE:
+			case StateManager.STATE_ID_UNAVAILABLE:
 				setActionBarColor(actionBar, unavailable);
 				stateIcon.setImageResource(R.drawable.icon_unavailable);
 				break;
-			case MainActivity.STATE_NO_CAR:
+			case StateManager.STATE_ID_NO_CAR:
 				menuState.setVisible(false);
 				setActionBarColor(actionBar, primary);
 				break;
-			case MainActivity.STATE_BUSY_ORDER:
+			case StateManager.STATE_ID_BUSY_ORDER:
 				setActionBarColor(actionBar, busy);
 				stateIcon.setImageResource(R.drawable.icon_busy);
 				break;
