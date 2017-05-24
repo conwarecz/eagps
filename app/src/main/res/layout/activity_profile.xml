@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context="net.aineuron.eagps.activity.ProfileActivity">
+
+
+	<ImageView
+		android:id="@+id/imageView3"
+		android:layout_width="0dp"
+		android:layout_height="96dp"
+		android:layout_margin="@dimen/padding_sides"
+		app:layout_constraintDimensionRatio="1:1"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/icon_profile_person"/>
+
+	<TextView
+		android:id="@+id/roleView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/padding_elements_half"
+		android:textSize="@dimen/text_size_small"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/imageView3"
+		tools:text="Dispecer"/>
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/padding_elements_half"
+		android:textColor="@color/colorPrimary"
+		android:textSize="@dimen/text_size_big"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/roleView"
+		tools:text="Jan Novak"/>
+
+	<net.aineuron.eagps.view.widget.IcoLabelTextView_
+		android:id="@+id/telephoneView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="@dimen/padding_sides"
+		android:layout_marginStart="@dimen/padding_sides"
+		app:ilt_labelText="Telefon"
+		app:ilt_text="+420 774 789 789"
+		app:layout_constraintEnd_toEndOf="@+id/changeState"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintStart_toStartOf="@+id/changeState"
+		app:layout_constraintTop_toBottomOf="@id/nameView"/>
+
+	<Button
+		android:id="@+id/changeState"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/big_button_height"
+		android:layout_margin="@dimen/padding_sides"
+		android:background="@drawable/btn_lg_red"
+		android:text="Odhlásit"
+		android:textAllCaps="false"
+		android:textColor="@color/backgroundWhite"
+		android:textSize="@dimen/text_size_title"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

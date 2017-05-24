@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.model.StateManager;
@@ -56,11 +55,11 @@ public class MainActivity extends MainActivityBase {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		profileName = (TextView) menuProfile.getActionView().findViewById(R.id.profileName);
+		profileName = (TextView) menuProfile.getActionView().findViewById(R.id.telephoneView);
 		stateIcon = (ImageView) menuState.getActionView().findViewById(R.id.stateIcon);
 		licencePlate = (TextView) menuState.getActionView().findViewById(R.id.licenePlate);
 
-		menuProfile.getActionView().setOnClickListener(v -> Toast.makeText(this, "Profile clicked", Toast.LENGTH_SHORT).show());
+		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {
 			CarSettingsActivity_.intent(this).start();
 			finish();
@@ -87,7 +86,7 @@ public class MainActivity extends MainActivityBase {
 		switch (stateManager.getSelectedStateId()) {
 			case StateManager.STATE_ID_READY:
 				setActionBarColor(actionBar, ready);
-				stateIcon.setImageResource(R.drawable.icon_ready_vect);
+				stateIcon.setImageResource(R.drawable.icon_ready);
 				break;
 			case StateManager.STATE_ID_BUSY:
 				setActionBarColor(actionBar, busy);
