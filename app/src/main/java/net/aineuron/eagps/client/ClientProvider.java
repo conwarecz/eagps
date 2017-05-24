@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.client.EaClient;
+import net.aineuron.eagps.client.client.EaClient_;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 
 import org.androidannotations.annotations.AfterInject;
@@ -77,7 +78,7 @@ public class ClientProvider {
 	}
 
 	private void initClients() {
-		eaClient = new EaClient(retrofit, pref);
+		eaClient = EaClient_.getInstance_(context).withRetrofit(retrofit);
 	}
 
 	public EaClient getEaClient() {

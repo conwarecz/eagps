@@ -6,12 +6,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.tmtron.greenannotations.EventBusGreenRobot;
+
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 @EActivity(R.layout.activity_offer)
 public class OfferActivity extends AppCompatActivity {
@@ -25,6 +35,14 @@ public class OfferActivity extends AppCompatActivity {
 	@ViewById(R.id.showOnMap)
 	Button showOnMap;
 
+	@Bean
+	StateManager stateManager;
+
+	@EventBusGreenRobot
+	EventBus bus;
+
+	private MaterialDialog progressDialog;
+
 	@AfterViews
 	void afterViews() {
 		getSupportActionBar().hide();
@@ -32,17 +50,28 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Click(R.id.accept)
 	void acceptClicked() {
-		MainActivity.STATE = MainActivity.STATE_BUSY_ORDER;
-		MainActivity_.intent(this).start();
-		finish();
+		showProgress();
+		stateManager.setStateBusyOnOrder();
 	}
 
 	@Click(R.id.decline)
 	void declineClicked() {
-		MainActivity.STATE = MainActivity.STATE_READY;
+		// State is the same as before
 		MainActivity_.intent(this).start();
 		finish();
 	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkStateSelectedEvent(StateSelectedEvent e) {
+		finishOfferActivity();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+		finishOfferActivity();
+	}
+
 
 	@Click({R.id.showOnMap, R.id.adress})
 	void openMap() {
@@ -61,5 +90,20 @@ public class OfferActivity extends AppCompatActivity {
 			e.printStackTrace();
 			Toast.makeText(this, "Please install Google Maps application", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void showProgress() {
+		progressDialog = new MaterialDialog.Builder(this)
+				.title("Měním stav")
+				.content("Prosím čekejte...")
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
+	}
+
+	private void finishOfferActivity() {
+		progressDialog.dismiss();
+		MainActivity_.intent(this).start();
+		finish();
 	}
 }

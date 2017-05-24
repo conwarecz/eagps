@@ -1,12 +1,14 @@
 package net.aineuron.eagps.fragment;
 
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.activity.MainActivity;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -19,8 +21,17 @@ import org.androidannotations.annotations.ViewById;
 @EFragment(R.layout.fragment_state)
 public class StateFragment extends BaseFragment {
 
-	@ViewById(R.id.stateImage)
-	ImageView stateImage;
+	@ViewById(R.id.stateIcon)
+	ImageView stateIcon;
+
+	@ViewById(R.id.stateText)
+	TextView stateText;
+
+	@ViewById(R.id.stateSubtext)
+	TextView stateSubtext;
+
+	@Bean
+	StateManager stateManager;
 
 	public static StateFragment newInstance() {
 		return StateFragment_.builder().build();
@@ -32,29 +43,56 @@ public class StateFragment extends BaseFragment {
 		setContent();
 	}
 
-	@Click(R.id.stateImage)
+	@Click(R.id.changeState)
 	void stateImageClicked() {
 		StateSettingsActivity_.intent(getContext()).start();
 		getActivity().finish();
 	}
 
 	private void setContent() {
-		switch (MainActivity.STATE) {
-			case MainActivity.STATE_READY:
-				stateImage.setImageResource(R.drawable.ready);
+		switch (stateManager.getSelectedStateId()) {
+			case StateManager.STATE_ID_READY:
+				setReadyContent();
 				break;
-			case MainActivity.STATE_BUSY:
-				stateImage.setImageResource(R.drawable.busy);
+			case StateManager.STATE_ID_BUSY:
+				setBusyContent();
 				break;
-			case MainActivity.STATE_UNAVAILABLE:
-				stateImage.setImageResource(R.drawable.unavailable);
+			case StateManager.STATE_ID_UNAVAILABLE:
+				setUnavailableContent();
 				break;
-			case MainActivity.STATE_NO_CAR:
-				stateImage.setImageResource(R.drawable.no_car);
+			case StateManager.STATE_ID_NO_CAR:
+				setNoCarContent();
 				break;
 			default:
-				stateImage.setImageBitmap(null);
+				setErrorState();
 				break;
 		}
+	}
+
+	private void setReadyContent() {
+		stateText.setText("Čekání na přidělení zakázky");
+		stateIcon.setImageResource(R.drawable.icon_big_waiting);
+	}
+
+	private void setBusyContent() {
+		stateText.setText("Zaneprázdněn");
+		stateSubtext.setText("Nejste připraven na zakázku a nemůžete být poptáni pro zásahy EA");
+		stateIcon.setImageResource(R.drawable.icon_big_busy);
+	}
+
+	private void setUnavailableContent() {
+		stateText.setText("Nedostupný");
+		stateSubtext.setText("Při statusu nedostupný nejste v systémech EA viditelní (např. vozidlo v service, atd.)");
+		stateIcon.setImageResource(R.drawable.icon_big_unavailable);
+	}
+
+	private void setNoCarContent() {
+		stateText.setText("Vozidlo nevybráno");
+		stateIcon.setImageResource(R.drawable.icon_big_notselected);
+	}
+
+	private void setErrorState() {
+		stateText.setText("Neznámý stav");
+		stateIcon.setImageResource(R.drawable.icon_big_busy);
 	}
 }

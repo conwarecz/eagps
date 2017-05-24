@@ -1,14 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+
+	<TextView
+		android:id="@+id/titleView"
+		android:layout_width="0dp"
+		android:layout_height="?attr/actionBarSize"
+		android:background="@drawable/top_bar_small_pattern"
+		android:gravity="center"
+		android:text="Váš aktuální stav"
+		android:textColor="@color/colorPrimary"
+		android:textSize="@dimen/title_text_size"
+		android:textStyle="bold"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<android.support.constraint.Guideline
+		android:id="@+id/guideline2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintGuide_percent="0.6"/>
+
+	<Button
+		android:id="@+id/changeState"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/big_button_height"
+		android:layout_marginLeft="@dimen/padding_sides"
+		android:layout_marginRight="@dimen/padding_sides"
+		android:background="@drawable/btn_large_rounded_blue"
+		android:text="Změnit stav"
+		android:textAllCaps="false"
+		android:textColor="@color/backgroundWhite"
+		android:textSize="@dimen/title_text_size"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/guideline2"/>
+
+	<TextView
+		android:id="@+id/stateSubtext"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="@dimen/padding_elements"
+		android:gravity="center"
+		android:textColor="@color/grayTextLight"
+		app:layout_constraintBottom_toTopOf="@+id/changeState"
+		app:layout_constraintEnd_toEndOf="@+id/changeState"
+		app:layout_constraintStart_toStartOf="@+id/changeState"
+		tools:text="TextView"/>
+
+	<TextView
+		android:id="@+id/stateText"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="@dimen/padding_elements_half"
+		android:textColor="@color/colorPrimary"
+		android:textSize="@dimen/title_text_size"
+		android:textStyle="bold"
+		app:layout_constraintBottom_toTopOf="@+id/stateSubtext"
+		app:layout_constraintEnd_toEndOf="@+id/changeState"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintStart_toStartOf="@+id/changeState"
+		tools:text="Stav"/>
 
 	<ImageView
-		android:id="@+id/stateImage"
-		android:layout_width="match_parent"
+		android:id="@+id/stateIcon"
+		android:layout_width="0dp"
+		android:layout_height="86dp"
+		android:layout_marginBottom="@dimen/padding_elements"
+		app:layout_constraintBottom_toTopOf="@+id/stateText"
+		app:layout_constraintDimensionRatio="1:1"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:srcCompat="@mipmap/ic_launcher"/>
+
+	<android.support.constraint.Guideline
+		android:id="@+id/guideline"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="top"
+		android:orientation="horizontal"
+		app:layout_constraintGuide_percent="0.75"/>
+
+	<ImageView
+		android:id="@+id/buttonBackground"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
 		android:adjustViewBounds="true"
-		android:scaleType="fitCenter"/>
-</LinearLayout>
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/guideline"
+		app:srcCompat="@drawable/bottom_small_pattern"/>
+
+	<ImageView
+		android:id="@+id/imageView4"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:padding="@dimen/padding_sides"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/buttonBackground"
+		app:srcCompat="@drawable/logo_ea"/>
+
+</android.support.constraint.ConstraintLayout>

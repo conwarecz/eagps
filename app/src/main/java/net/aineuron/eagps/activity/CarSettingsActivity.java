@@ -4,16 +4,18 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.adapter.WorkerSelectCarAdapter;
-import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
+import net.aineuron.eagps.model.CarsManager;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -37,7 +39,10 @@ public class CarSettingsActivity extends AppCompatActivity {
 	WorkerSelectCarAdapter carAdapter;
 
 	@Bean
-	ClientProvider clientProvider;
+	CarsManager carsManager;
+
+	@Bean
+	StateManager stateManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -54,8 +59,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.skipLayout)
 	public void onSkip() {
-		// TODO: Make state no car
-		MainActivity.STATE = MainActivity.STATE_NO_CAR;
+		stateManager.setStateNoCar();
 		finishSettings();
 	}
 
@@ -67,7 +71,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
-		clientProvider.getEaClient().selectCar(e.selectedCarId);
+		carsManager.selectCar(e.selectedCarId);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -80,10 +84,11 @@ public class CarSettingsActivity extends AppCompatActivity {
 	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
 		carAdapter.notifyDataChanged();
 		progressDialog.dismiss();
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 
 	private void finishSettings() {
-		StateSettingsActivity_.intent(this).start();
+		MainActivity_.intent(this).start();
 		finish();
 	}
 }

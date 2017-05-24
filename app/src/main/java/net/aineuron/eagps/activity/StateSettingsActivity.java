@@ -1,14 +1,15 @@
 package net.aineuron.eagps.activity;
 
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.model.StateManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -22,7 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 public class StateSettingsActivity extends AppCompatActivity {
 
 	@Bean
-	ClientProvider clientProvider;
+	StateManager stateManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -34,19 +35,22 @@ public class StateSettingsActivity extends AppCompatActivity {
 		getSupportActionBar().hide();
 	}
 
+	@Click(R.id.readyLayout)
+	public void onReady() {
+		stateManager.setStateReady();
+		showProgress();
+	}
+
 	@Click(R.id.busyLayout)
 	public void onBusy() {
-		selectState(MainActivity.STATE_BUSY);
+		stateManager.setStateBusy();
+		showProgress();
 	}
 
 	@Click(R.id.unavailableLayout)
 	public void onUnavailable() {
-		selectState(MainActivity.STATE_UNAVAILABLE);
-	}
-
-	@Click(R.id.readyLayout)
-	public void onReady() {
-		selectState(MainActivity.STATE_READY);
+		stateManager.setStateUnavailable();
+		showProgress();
 	}
 
 	@Click(R.id.skipLayout)
@@ -64,16 +68,16 @@ public class StateSettingsActivity extends AppCompatActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
 		progressDialog.dismiss();
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 
-	private void selectState(String state) {
+	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)
-				.title("Vybírám stav")
+				.title("Měním stav")
 				.content("Prosím čekejte...")
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
-		clientProvider.getEaClient().setState(state);
 	}
 
 	private void finishSettings() {
