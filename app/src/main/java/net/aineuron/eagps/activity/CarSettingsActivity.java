@@ -88,7 +88,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
 	private void finishSettings() {
-		StateSettingsActivity_.intent(this).start();
+		MainActivity_.intent(this).start();
 		finish();
 	}
 }

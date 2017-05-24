@@ -1,6 +1,7 @@
 package net.aineuron.eagps.fragment;
 
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
@@ -20,8 +21,14 @@ import org.androidannotations.annotations.ViewById;
 @EFragment(R.layout.fragment_state)
 public class StateFragment extends BaseFragment {
 
-	@ViewById(R.id.stateImage)
-	ImageView stateImage;
+	@ViewById(R.id.stateIcon)
+	ImageView stateIcon;
+
+	@ViewById(R.id.stateText)
+	TextView stateText;
+
+	@ViewById(R.id.stateSubtext)
+	TextView stateSubtext;
 
 	@Bean
 	StateManager stateManager;
@@ -36,7 +43,7 @@ public class StateFragment extends BaseFragment {
 		setContent();
 	}
 
-	@Click(R.id.stateImage)
+	@Click(R.id.changeState)
 	void stateImageClicked() {
 		StateSettingsActivity_.intent(getContext()).start();
 		getActivity().finish();
@@ -45,20 +52,47 @@ public class StateFragment extends BaseFragment {
 	private void setContent() {
 		switch (stateManager.getSelectedStateId()) {
 			case StateManager.STATE_ID_READY:
-				stateImage.setImageResource(R.drawable.ready);
+				setReadyContent();
 				break;
 			case StateManager.STATE_ID_BUSY:
-				stateImage.setImageResource(R.drawable.busy);
+				setBusyContent();
 				break;
 			case StateManager.STATE_ID_UNAVAILABLE:
-				stateImage.setImageResource(R.drawable.unavailable);
+				setUnavailableContent();
 				break;
 			case StateManager.STATE_ID_NO_CAR:
-				stateImage.setImageResource(R.drawable.no_car);
+				setNoCarContent();
 				break;
 			default:
-				stateImage.setImageBitmap(null);
+				setErrorState();
 				break;
 		}
+	}
+
+	private void setReadyContent() {
+		stateText.setText("Čekání na přidělení zakázky");
+		stateIcon.setImageResource(R.drawable.icon_big_waiting);
+	}
+
+	private void setBusyContent() {
+		stateText.setText("Zaneprázdněn");
+		stateSubtext.setText("Nejste připraven na zakázku a nemůžete být poptáni pro zásahy EA");
+		stateIcon.setImageResource(R.drawable.icon_big_busy);
+	}
+
+	private void setUnavailableContent() {
+		stateText.setText("Nedostupný");
+		stateSubtext.setText("Při statusu nedostupný nejste v systémech EA viditelní (např. vozidlo v service, atd.)");
+		stateIcon.setImageResource(R.drawable.icon_big_unavailable);
+	}
+
+	private void setNoCarContent() {
+		stateText.setText("Vozidlo nevybráno");
+		stateIcon.setImageResource(R.drawable.icon_big_notselected);
+	}
+
+	private void setErrorState() {
+		stateText.setText("Neznámý stav");
+		stateIcon.setImageResource(R.drawable.icon_big_busy);
 	}
 }

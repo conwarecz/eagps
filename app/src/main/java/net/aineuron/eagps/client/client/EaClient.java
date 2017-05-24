@@ -44,6 +44,7 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						aLong -> {
+							// TODO: Set current state from the selected car
 							carsManager.setSelectedCarId(carId);
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},

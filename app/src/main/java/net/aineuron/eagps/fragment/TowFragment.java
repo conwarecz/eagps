@@ -20,7 +20,7 @@ import org.androidannotations.annotations.ViewById;
 @EFragment(R.layout.fragment_tow)
 public class TowFragment extends BaseFragment {
 
-	@ViewById(R.id.stateImage)
+	@ViewById(R.id.stateIcon)
 	ImageView stateImage;
 
 	@Bean
@@ -36,7 +36,7 @@ public class TowFragment extends BaseFragment {
 		setContent();
 	}
 
-	@Click(R.id.stateImage)
+	@Click(R.id.stateIcon)
 	void finishClicked() {
 		// TODO: Redo correctly
 		stateManager.setSelectedStateId(StateManager.STATE_ID_READY);
