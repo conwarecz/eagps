@@ -1,14 +1,28 @@
 package net.aineuron.eagps.activity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
+import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 @EActivity(R.layout.activity_profile)
 public class ProfileActivity extends AppCompatActivity {
@@ -22,11 +36,68 @@ public class ProfileActivity extends AppCompatActivity {
 	@ViewById(R.id.telephoneView)
 	IcoLabelTextView profile;
 
+	@Bean
+	UserManager userManager;
+
+	@EventBusGreenRobot
+	EventBus bus;
+
+	private MaterialDialog progressDialog;
+
 	@AfterViews
 	public void afterViews() {
-		roleView.setText("Pracovník");
-		nameView.setText("Jan Novák");
-		profile.setLabelText("Label test");
-		profile.setText("Test text");
+		User user = userManager.getUser();
+		if (user == null) {
+			Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		roleView.setText(user.getRoleName());
+		nameView.setText(user.getName());
+		profile.setLabelText("Telefon");
+		profile.setText(user.getPhone());
+	}
+
+	@Click(R.id.logoutButton)
+	public void logoutClicked() {
+		showProgress();
+		userManager.logout();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onLoggedInEvent(UserLoggedOutEvent e) {
+		dismissDialog();
+		showLogin();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onLoginFailed(ApiErrorEvent e) {
+		dismissDialog();
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+	}
+
+	private void showLogin() {
+		LoginActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK).start();
+		finish();
+	}
+
+	private void showProgress() {
+		progressDialog = new MaterialDialog.Builder(this)
+				.title("Přihlašuji stav")
+				.content("Prosím čekejte...")
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
+	}
+
+	private void dismissDialog() {
+		if (progressDialog == null) {
+			return;
+		}
+
+		if (!progressDialog.isShowing()) {
+			return;
+		}
+		progressDialog.dismiss();
 	}
 }

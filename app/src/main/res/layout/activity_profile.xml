@@ -51,14 +51,14 @@
 		android:layout_marginStart="@dimen/padding_sides"
 		app:ilt_labelText="Telefon"
 		app:ilt_text="+420 774 789 789"
-		app:layout_constraintEnd_toEndOf="@+id/changeState"
+		app:layout_constraintEnd_toEndOf="@+id/logoutButton"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
-		app:layout_constraintStart_toStartOf="@+id/changeState"
+		app:layout_constraintStart_toStartOf="@+id/logoutButton"
 		app:layout_constraintTop_toBottomOf="@id/nameView"/>
 
 	<Button
-		android:id="@+id/changeState"
+		android:id="@+id/logoutButton"
 		android:layout_width="0dp"
 		android:layout_height="@dimen/big_button_height"
 		android:layout_margin="@dimen/padding_sides"

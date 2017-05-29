@@ -5,18 +5,27 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
+import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -31,11 +40,23 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	@ViewById(R.id.password)
 	EditText passwordField;
 
+	@Bean
+	UserManager userManager;
+
+	@EventBusGreenRobot
+	EventBus bus;
+
 	private Validator validator;
+	private MaterialDialog progressDialog;
 
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
+
+		if (userManager.getUser() != null) {
+			// User logged in
+			finishLogin();
+		}
 
 		validator = new Validator(this);
 		validator.setValidationListener(this);
@@ -55,10 +76,9 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	@Override
 	public void onValidationSucceeded() {
 		// Fields ok - attempt login
-		// TODO: Perform call to log in
+		showProgress();
 		LoginInfo info = new LoginInfo(loginField.getText().toString(), passwordField.getText().toString());
-		CarSettingsActivity_.intent(this).start();
-		finish();
+		userManager.login(info);
 	}
 
 	@Override
@@ -74,5 +94,42 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 				Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			}
 		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onLoggedInEvent(UserLoggedInEvent e) {
+		dismissDialog();
+		finishLogin();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onLoginFailed(ApiErrorEvent e) {
+		dismissDialog();
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+	}
+
+	private void finishLogin() {
+		CarSettingsActivity_.intent(this).start();
+		finish();
+	}
+
+	private void showProgress() {
+		progressDialog = new MaterialDialog.Builder(this)
+				.title("Přihlašuji stav")
+				.content("Prosím čekejte...")
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
+	}
+
+	private void dismissDialog() {
+		if (progressDialog == null) {
+			return;
+		}
+
+		if (!progressDialog.isShowing()) {
+			return;
+		}
+		progressDialog.dismiss();
 	}
 }

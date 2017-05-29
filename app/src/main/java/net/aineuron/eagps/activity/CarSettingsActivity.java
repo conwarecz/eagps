@@ -16,6 +16,8 @@ import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
 import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.StateManager;
+import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.User;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -44,6 +46,9 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@Bean
 	StateManager stateManager;
 
+	@Bean
+	UserManager userManager;
+
 	@EventBusGreenRobot
 	EventBus bus;
 
@@ -52,6 +57,19 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
+
+		User user = userManager.getUser();
+		if (user == null) {
+			Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		long carId = user.getCarId();
+		if (carId != -1) {
+			// Car Is already selected
+			finishSettings();
+		}
+
 		carsView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		carsView.setAdapter(carAdapter);
 		carsRefresh.setOnRefreshListener(() -> carsRefresh.setRefreshing(false));
