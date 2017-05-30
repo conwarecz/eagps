@@ -30,11 +30,11 @@ public class CarsManager {
 
 		// TODO: Get real cars :)
 		// Mock
-		for (int i = 0; i < 20; i++) {
+		for (long i = 0; i < 20; i++) {
 			Car car = new Car();
 			car.setId(i);
-			car.setStatus(0);
-			car.setUserId(0);
+			car.setStatusId(0L);
+			car.setUserId(0L);
 			car.setLicensePlate(String.format("1AB %04d", i));
 			car.setModel("Peugeot Expert");
 			cars.add(car);

@@ -6,18 +6,19 @@ package net.aineuron.eagps.model.database;
  */
 
 public class User {
-	private long userId = -1;
+	private Long userId;
 	private String name;
 	private String roleName;
-	private int roleId = -1;
+	private Integer roleId;
 	private String phone;
 	private String token;
-	private long carId = -1;
+	private Long carId;
+	private Car car;
 
 	public User() {
 	}
 
-	public User(long userId, String name, String roleName, int roleId, String phone) {
+	public User(long userId, String name, String roleName, Integer roleId, String phone) {
 		this.userId = userId;
 		this.name = name;
 		this.roleName = roleName;
@@ -25,11 +26,11 @@ public class User {
 		this.phone = phone;
 	}
 
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
@@ -49,11 +50,11 @@ public class User {
 		this.roleName = roleName;
 	}
 
-	public int getRoleId() {
+	public Integer getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(int roleId) {
+	public void setRoleId(Integer roleId) {
 		this.roleId = roleId;
 	}
 
@@ -73,11 +74,19 @@ public class User {
 		this.token = token;
 	}
 
-	public long getCarId() {
+	public Long getCarId() {
 		return carId;
 	}
 
-	public void setCarId(long carId) {
+	public void setCarId(Long carId) {
 		this.carId = carId;
+	}
+
+	public Car getCar() {
+		return car;
+	}
+
+	public void setCar(Car car) {
+		this.car = car;
 	}
 }
