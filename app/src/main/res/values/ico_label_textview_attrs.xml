@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<declare-styleable name="IcoLabelTextView">
+		<attr name="ilt_labelText" format="string"/>
+		<attr name="ilt_labelTextColor" format="color"/>
+		<attr name="ilt_text" format="string"/>
+		<attr name="ilt_textColor" format="color"/>
+		<attr name="ilt_icoResource" format="reference"/>
+	</declare-styleable>
+</resources>

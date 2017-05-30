@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import net.aineuron.eagps.model.CarsManager;
+import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.viewmodel.WorkerSelectCarViewModel;
 import net.aineuron.eagps.view.ItemViewWrapper;
@@ -31,6 +32,9 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 
 	@Bean
 	CarsManager carsManager;
+
+	@Bean
+	UserManager userManager;
 
 	private List<Car> cars = new ArrayList<>();
 
@@ -61,7 +65,7 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 
 	public void notifyDataChanged() {
 		items = new ArrayList<>();
-		long selectedCarId = carsManager.getSelectedCarId();
+		long selectedCarId = userManager.getSelectedCarId();
 
 		for (Car car : cars) {
 			WorkerSelectCarViewModel carViewModel = new WorkerSelectCarViewModel();

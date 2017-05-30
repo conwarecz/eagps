@@ -12,8 +12,9 @@ import org.androidannotations.annotations.sharedpreferences.SharedPref;
 
 @SharedPref(value = SharedPref.Scope.UNIQUE)
 public interface Pref {
+
 	@DefaultString("")
-	String userName();
+	String userObjectSerialized();
 
 	@DefaultString("")
 	String token();

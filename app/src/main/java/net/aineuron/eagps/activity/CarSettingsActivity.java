@@ -15,12 +15,14 @@ import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
 import net.aineuron.eagps.model.CarsManager;
-import net.aineuron.eagps.model.StateManager;
+import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.User;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,16 +44,32 @@ public class CarSettingsActivity extends AppCompatActivity {
 	CarsManager carsManager;
 
 	@Bean
-	StateManager stateManager;
+	UserManager userManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
+
+	@Extra
+	boolean resetCar;
 
 	private MaterialDialog progressDialog;
 
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
+
+		User user = userManager.getUser();
+		if (user == null) {
+			Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		Long carId = user.getCarId();
+		if (carId != null && !resetCar) {
+			// Car Is already selected
+			finishSettings();
+		}
+
 		carsView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		carsView.setAdapter(carAdapter);
 		carsRefresh.setOnRefreshListener(() -> carsRefresh.setRefreshing(false));
@@ -59,7 +77,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.skipLayout)
 	public void onSkip() {
-		stateManager.setStateNoCar();
+		userManager.setStateNoCar();
 		finishSettings();
 	}
 
@@ -71,7 +89,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
-		carsManager.selectCar(e.selectedCarId);
+		userManager.selectCar(e.selectedCarId);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="net.aineuron.eagps"
           xmlns:android="http://schemas.android.com/apk/res/android">
+
 	<application
 		android:name=".Appl_"
 		android:allowBackup="true"
@@ -37,6 +38,11 @@
 		<activity
 			android:name=".activity.OfferActivity_"
 			android:screenOrientation="sensorPortrait">
+		</activity>
+		<activity
+			android:name=".activity.ProfileActivity_"
+			android:parentActivityName=".activity.MainActivity_"
+			android:screenOrientation="sensorPortrait">>
 		</activity>
 	</application>
 

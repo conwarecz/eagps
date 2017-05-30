@@ -5,7 +5,7 @@ import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
-import net.aineuron.eagps.model.StateManager;
+import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -31,7 +31,7 @@ public class StateFragment extends BaseFragment {
 	TextView stateSubtext;
 
 	@Bean
-	StateManager stateManager;
+	UserManager userManager;
 
 	public static StateFragment newInstance() {
 		return StateFragment_.builder().build();
@@ -50,17 +50,17 @@ public class StateFragment extends BaseFragment {
 	}
 
 	private void setContent() {
-		switch (stateManager.getSelectedStateId()) {
-			case StateManager.STATE_ID_READY:
+		switch (userManager.getSelectedStateId()) {
+			case UserManager.STATE_ID_READY:
 				setReadyContent();
 				break;
-			case StateManager.STATE_ID_BUSY:
+			case UserManager.STATE_ID_BUSY:
 				setBusyContent();
 				break;
-			case StateManager.STATE_ID_UNAVAILABLE:
+			case UserManager.STATE_ID_UNAVAILABLE:
 				setUnavailableContent();
 				break;
-			case StateManager.STATE_ID_NO_CAR:
+			case UserManager.STATE_ID_NO_CAR:
 				setNoCarContent();
 				break;
 			default:

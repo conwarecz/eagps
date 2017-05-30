@@ -12,7 +12,7 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
-import net.aineuron.eagps.model.StateManager;
+import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -36,7 +36,7 @@ public class OfferActivity extends AppCompatActivity {
 	Button showOnMap;
 
 	@Bean
-	StateManager stateManager;
+	UserManager userManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -51,7 +51,7 @@ public class OfferActivity extends AppCompatActivity {
 	@Click(R.id.accept)
 	void acceptClicked() {
 		showProgress();
-		stateManager.setStateBusyOnOrder();
+		userManager.setStateBusyOnOrder();
 	}
 
 	@Click(R.id.decline)

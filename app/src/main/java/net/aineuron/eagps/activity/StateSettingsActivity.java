@@ -9,7 +9,7 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
-import net.aineuron.eagps.model.StateManager;
+import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -23,7 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 public class StateSettingsActivity extends AppCompatActivity {
 
 	@Bean
-	StateManager stateManager;
+	UserManager userManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -37,19 +37,19 @@ public class StateSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.readyLayout)
 	public void onReady() {
-		stateManager.setStateReady();
+		userManager.setStateReady();
 		showProgress();
 	}
 
 	@Click(R.id.busyLayout)
 	public void onBusy() {
-		stateManager.setStateBusy();
+		userManager.setStateBusy();
 		showProgress();
 	}
 
 	@Click(R.id.unavailableLayout)
 	public void onUnavailable() {
-		stateManager.setStateUnavailable();
+		userManager.setStateUnavailable();
 		showProgress();
 	}
 

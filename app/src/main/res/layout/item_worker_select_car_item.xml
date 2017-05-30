@@ -12,7 +12,7 @@
 		android:id="@+id/carRadioText"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textSize="@dimen/title_text_size"
+		android:textSize="@dimen/text_size_title"
 		tools:text="1AB 2325 - Mercedes Viano"/>
 
 </LinearLayout>
