@@ -90,7 +90,7 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							// TODO: DO a call "WhoAmI" to get user info
-							User user = new User(0, "Jan Noak", "Pracovník", UserManager.WORKER_ID, "+420 123 654 798");
+							User user = new User(0, "Jan Novak", "Pracovník", UserManager.WORKER_ID, "+420 123 654 798");
 							user.setToken("sdfsdfasdfasdf");
 							userManager.setUser(user);
 							EventBus.getDefault().post(new UserLoggedInEvent());

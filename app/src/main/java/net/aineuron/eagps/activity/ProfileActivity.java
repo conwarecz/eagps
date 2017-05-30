@@ -1,7 +1,7 @@
 package net.aineuron.eagps.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,21 +11,21 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
-import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 @EActivity(R.layout.activity_profile)
-public class ProfileActivity extends AppCompatActivity {
+@OptionsMenu(R.menu.main_menu)
+public class ProfileActivity extends AppBarActivity {
 
 	@ViewById(R.id.roleView)
 	TextView roleView;
@@ -35,9 +35,6 @@ public class ProfileActivity extends AppCompatActivity {
 
 	@ViewById(R.id.telephoneView)
 	IcoLabelTextView profile;
-
-	@Bean
-	UserManager userManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -56,6 +53,15 @@ public class ProfileActivity extends AppCompatActivity {
 		nameView.setText(user.getName());
 		profile.setLabelText("Telefon");
 		profile.setText(user.getPhone());
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+
+		menuProfile.getActionView().setOnClickListener(null);
+
+		return true;
 	}
 
 	@Click(R.id.logoutButton)
