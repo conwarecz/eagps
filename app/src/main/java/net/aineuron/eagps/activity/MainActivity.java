@@ -9,9 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.model.StateManager;
+import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.User;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -42,13 +44,15 @@ public class MainActivity extends MainActivityBase {
 	@OptionsMenuItem(R.id.action_state)
 	MenuItem menuState;
 
+	@Bean
+	UserManager userManager;
+
 	private TextView profileName;
 	private ImageView stateIcon;
 	private TextView licencePlate;
 
 	@AfterInject
 	void afterViews() {
-
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public class MainActivity extends MainActivityBase {
 
 		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {
-			CarSettingsActivity_.intent(this).start();
+			CarSettingsActivity_.intent(this).resetCar(true).start();
 			finish();
 		});
 
@@ -83,30 +87,38 @@ public class MainActivity extends MainActivityBase {
 			return;
 		}
 
-		switch (stateManager.getSelectedStateId()) {
-			case StateManager.STATE_ID_READY:
+		switch (userManager.getSelectedStateId()) {
+			case UserManager.STATE_ID_READY:
 				setActionBarColor(actionBar, ready);
 				stateIcon.setImageResource(R.drawable.icon_ready);
 				break;
-			case StateManager.STATE_ID_BUSY:
+			case UserManager.STATE_ID_BUSY:
 				setActionBarColor(actionBar, busy);
 				stateIcon.setImageResource(R.drawable.icon_busy);
 				break;
-			case StateManager.STATE_ID_UNAVAILABLE:
+			case UserManager.STATE_ID_UNAVAILABLE:
 				setActionBarColor(actionBar, unavailable);
 				stateIcon.setImageResource(R.drawable.icon_unavailable);
 				break;
-			case StateManager.STATE_ID_NO_CAR:
+			case UserManager.STATE_ID_NO_CAR:
 				menuState.setVisible(false);
 				setActionBarColor(actionBar, primary);
 				break;
-			case StateManager.STATE_ID_BUSY_ORDER:
+			case UserManager.STATE_ID_BUSY_ORDER:
 				setActionBarColor(actionBar, busy);
 				stateIcon.setImageResource(R.drawable.icon_busy);
 				break;
 			default:
 				setActionBarColor(actionBar, primary);
 				break;
+		}
+
+		User user = userManager.getUser();
+		profileName.setText(user.getName());
+
+		if (user.getCar() != null) {
+			String licensePlate = user.getCar().getLicensePlate();
+			licencePlate.setText(licensePlate);
 		}
 	}
 

@@ -8,7 +8,6 @@ import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.CarsManager;
-import net.aineuron.eagps.model.StateManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.transfer.LoginInfo;
@@ -34,8 +33,6 @@ public class EaClient {
 	@Bean
 	CarsManager carsManager;
 	@Bean
-	StateManager stateManager;
-	@Bean
 	UserManager userManager;
 
 	private EaService eaService;
@@ -52,7 +49,7 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							// TODO: Set current state from the selected car
-							carsManager.setSelectedCarId(carId);
+							userManager.setSelectedCarId(carId);
 							User user = userManager.getUser();
 							user.setCarId(carId);
 							userManager.setUser(user);
@@ -79,7 +76,7 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						aLong -> {
-							stateManager.setSelectedStateId(stateId);
+							userManager.setSelectedStateId(stateId);
 							EventBus.getDefault().post(new StateSelectedEvent());
 						},
 						ClientProvider::postNetworkError
@@ -109,7 +106,7 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							userManager.setUser(null);
-							carsManager.setSelectedCarId(-1);
+							userManager.setSelectedCarId(-1);
 							EventBus.getDefault().post(new UserLoggedOutEvent());
 						},
 						ClientProvider::postNetworkError
