@@ -5,24 +5,24 @@ package net.aineuron.eagps.model.database.offer;
  * as a part of Android-EAGPS project.
  */
 
-public class CustomerCar {
-	private String car;
-	private String weight;
+public class ClientCar {
+	private String model;
+	private double weight;
 	private String licensePlate;
 
-	public String getCar() {
-		return car;
+	public String getModel() {
+		return model;
 	}
 
-	public void setCar(String car) {
-		this.car = car;
+	public void setModel(String model) {
+		this.model = model;
 	}
 
-	public String getWeight() {
+	public double getWeight() {
 		return weight;
 	}
 
-	public void setWeight(String weight) {
+	public void setWeight(double weight) {
 		this.weight = weight;
 	}
 

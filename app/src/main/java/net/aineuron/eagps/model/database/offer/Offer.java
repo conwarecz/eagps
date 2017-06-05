@@ -8,71 +8,70 @@ import java.util.Date;
  */
 
 public class Offer {
-	private Long offerId;
-	private String name;
-	private String phone;
-	private CustomerCar car;
-	private Address customerAddress;
-	private Address destinationAddress;
-	private String description;
-	private Limitation limitation;
+	private Long id;
 	private Date offerDate;
-	private Date offerExpirationDate;
+	private String clientName;
+	private String clientPhone;
+	private ClientCar car;
+	private Address clientAddress;
+	private DestinationAddress destinationAddress;
+	private String eventDescription;
+	private Limitation limitation;
 
-	public Long getOfferId() {
-		return offerId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setOfferId(Long offerId) {
-		this.offerId = offerId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getClientName() {
+		return clientName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
 	}
 
-	public String getPhone() {
-		return phone;
+	public String getClientPhone() {
+		return clientPhone;
 	}
 
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void setClientPhone(String clientPhone) {
+		this.clientPhone = clientPhone;
 	}
 
-	public CustomerCar getCar() {
+	public ClientCar getCar() {
 		return car;
 	}
 
-	public void setCar(CustomerCar car) {
+	public void setCar(ClientCar car) {
 		this.car = car;
 	}
 
-	public Address getCustomerAddress() {
-		return customerAddress;
+	public Address getClientAddress() {
+		return clientAddress;
 	}
 
-	public void setCustomerAddress(Address customerAddress) {
-		this.customerAddress = customerAddress;
+	public void setClientAddress(Address clientAddress) {
+		this.clientAddress = clientAddress;
 	}
 
-	public Address getDestinationAddress() {
+	public DestinationAddress getDestinationAddress() {
 		return destinationAddress;
 	}
 
-	public void setDestinationAddress(Address destinationAddress) {
+	public void setDestinationAddress(DestinationAddress destinationAddress) {
 		this.destinationAddress = destinationAddress;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getEventDescription() {
+		return eventDescription;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setEventDescription(String eventDescription) {
+		this.eventDescription = eventDescription;
 	}
 
 	public Limitation getLimitation() {
@@ -89,13 +88,5 @@ public class Offer {
 
 	public void setOfferDate(Date offerDate) {
 		this.offerDate = offerDate;
-	}
-
-	public Date getOfferExpirationDate() {
-		return offerExpirationDate;
-	}
-
-	public void setOfferExpirationDate(Date offerExpirationDate) {
-		this.offerExpirationDate = offerExpirationDate;
 	}
 }

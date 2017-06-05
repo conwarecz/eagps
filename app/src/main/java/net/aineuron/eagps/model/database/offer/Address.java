@@ -9,8 +9,7 @@ public class Address {
 	private String street;
 	private String city;
 	private String zipCode;
-	private String lat;
-	private String lon;
+	private Location location;
 
 	public String getStreet() {
 		return street;
@@ -36,19 +35,11 @@ public class Address {
 		this.zipCode = zipCode;
 	}
 
-	public String getLat() {
-		return lat;
+	public Location getLocation() {
+		return location;
 	}
 
-	public void setLat(String lat) {
-		this.lat = lat;
-	}
-
-	public String getLon() {
-		return lon;
-	}
-
-	public void setLon(String lon) {
-		this.lon = lon;
+	public void setLocation(Location location) {
+		this.location = location;
 	}
 }

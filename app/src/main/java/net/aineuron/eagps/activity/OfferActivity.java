@@ -13,6 +13,8 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.offer.Offer;
+import net.aineuron.eagps.model.viewmodel.OfferManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -38,14 +40,19 @@ public class OfferActivity extends AppCompatActivity {
 	@Bean
 	UserManager userManager;
 
+	@Bean
+	OfferManager offerManager;
+
 	@EventBusGreenRobot
 	EventBus bus;
 
 	private MaterialDialog progressDialog;
+	private Offer offer;
 
 	@AfterViews
 	void afterViews() {
 		getSupportActionBar().hide();
+		offer = offerManager.getOfferById(16385l);
 	}
 
 	@Click(R.id.accept)
