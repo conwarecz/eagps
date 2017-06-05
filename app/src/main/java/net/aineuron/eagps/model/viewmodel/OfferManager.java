@@ -27,8 +27,8 @@ public class OfferManager {
 		clientCar.setWeight(1.2);
 
 		Location clientLocation = new Location();
-		clientLocation.setLatitude("49.788892");
-		clientLocation.setLongitude("18.2440393");
+		clientLocation.setLatitude(49.788892d);
+		clientLocation.setLongitude(18.2440393d);
 
 		Address clientAddress = new Address();
 		clientAddress.setCity("Ostrava");
@@ -37,8 +37,8 @@ public class OfferManager {
 		clientAddress.setLocation(clientLocation);
 
 		Location destionationLocation = new Location();
-		destionationLocation.setLatitude("49.8359266");
-		destionationLocation.setLongitude("18.2668646");
+		destionationLocation.setLatitude(49.8359266d);
+		destionationLocation.setLongitude(18.2668646d);
 
 		Address destinationAddress = new Address();
 		destinationAddress.setCity("Ostrava");

@@ -3,7 +3,14 @@ package net.aineuron.eagps.util;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
+
+import net.aineuron.eagps.model.database.offer.Location;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Vit Veres on 15-May-17
@@ -20,5 +27,55 @@ public class IntentUtils {
 			e.printStackTrace();
 			Toast.makeText(context, "Please install a web browser", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	public static void openMapLocation(Context context, Location location, String label) {
+		double latitude = location.getLatitude();
+		double longitude = location.getLongitude();
+		String uriBegin = "geo:" + latitude + "," + longitude;
+		String query = latitude + "," + longitude + "(" + label + ")";
+		String encodedQuery = Uri.encode(query);
+		String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
+		Uri uri = Uri.parse(uriString);
+		Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
+		try {
+			context.startActivity(intent);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(context, "Please install Google Maps application", Toast.LENGTH_LONG).show();
+		}
+	}
+
+	public static void openRoute(Context context, @NonNull Location destination, @NonNull Location waypoint) {
+		List<Location> waypoints = new ArrayList<>();
+		waypoints.add(waypoint);
+
+		openRoute(context, destination, waypoints);
+	}
+
+	public static void openRoute(Context context, @NonNull Location destination, List<Location> waypoints) {
+		Uri.Builder builder = new Uri.Builder();
+
+
+		builder.scheme("https")
+				.authority("www.google.com").appendPath("maps").appendPath("dir").appendPath("").appendQueryParameter("api", "1")
+				.appendQueryParameter("destination", destination.getLatitude() + "," + destination.getLongitude());
+
+		if (waypoints != null && waypoints.size() > 0) {
+			StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < waypoints.size(); i++) {
+				Location loca = waypoints.get(i);
+				stringBuilder.append(loca.getLatitude());
+				stringBuilder.append(",");
+				stringBuilder.append(loca.getLongitude());
+			}
+			builder.appendQueryParameter("waypoints", stringBuilder.toString());
+		}
+
+		String url = builder.build().toString();
+		Log.d("Directions", url);
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse(url));
+		context.startActivity(i);
 	}
 }

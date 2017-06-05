@@ -49,217 +49,49 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageView2">
 
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
+		        android:id="@+id/clientCar"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:layout_marginTop="16dp"
+		        app:ilt_icoResource="@drawable/icon_detail_car"
+		        app:ilt_labelText="Vozidlo"
+		        app:ilt_text="Test"/>
 
-                <ImageView
-                    android:id="@+id/iconCar"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:src="@drawable/icon_car"
-                    app:layout_constraintStart_toStartOf="parent" />
+	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
+		        android:id="@+id/clientAddress"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:layout_marginTop="16dp"
+		        app:ilt_icoResource="@drawable/icon_detail_map"
+		        app:ilt_labelText="Adresa události"
+		        app:ilt_text="Test"/>
 
-                <TextView
-                    android:id="@+id/textCar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Vozidlo"
-                    android:textColor="@color/grayText"
-                    android:textSize="8sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconCar"
-                    app:layout_constraintTop_toTopOf="parent" />
+	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
+		        android:id="@+id/destinationAddress"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:layout_marginTop="16dp"
+		        app:ilt_icoResource="@drawable/icon_detail_service"
+		        app:ilt_labelText="Lokace servisu"
+		        app:ilt_text="Test"/>
 
-                <TextView
-                    android:id="@+id/car"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Škoda Octavia III, 2.3t"
-                    android:textColor="@color/grayText"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconCar"
-                    app:layout_constraintTop_toBottomOf="@+id/textCar" />
-
-            </android.support.constraint.ConstraintLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <ImageView
-                    android:id="@+id/iconMap"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:src="@drawable/icon_map"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <TextView
-                    android:id="@+id/textAdress"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Adresa události"
-                    android:textColor="@color/grayText"
-                    android:textSize="8sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconMap"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/adress"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Havířov, 1.máje 2, 16504"
-                    android:textColor="@color/grayText"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconMap"
-                    app:layout_constraintTop_toBottomOf="@+id/textAdress" />
-
-            </android.support.constraint.ConstraintLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <ImageView
-                    android:id="@+id/iconService"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:src="@drawable/icon_service"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <TextView
-                    android:id="@+id/textService"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Lokace servisu"
-                    android:textColor="@color/grayText"
-                    android:textSize="8sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconService"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/adressService"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Autoservis Škoda, Na rovince 1252, Ostrava, 16843"
-                    android:textColor="@color/grayText"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconService"
-                    app:layout_constraintTop_toBottomOf="@+id/textService" />
-
-            </android.support.constraint.ConstraintLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <ImageView
-                    android:id="@+id/iconCrash"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:src="@drawable/icon_crash"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <TextView
-                    android:id="@+id/textCrash"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Událost"
-                    android:textColor="@color/grayText"
-                    android:textSize="8sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconCrash"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/crash"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:text="Velká nehoda malého auta, které je mimo vozovku někde v poli omotané kolem stromu."
-                    android:textColor="@color/grayText"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iconCrash"
-                    app:layout_constraintTop_toBottomOf="@+id/textCrash" />
-
-            </android.support.constraint.ConstraintLayout>
+	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
+		        android:id="@+id/eventDescription"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:layout_marginTop="16dp"
+		        app:ilt_icoResource="@drawable/icon_detail_crash"
+		        app:ilt_labelText="Událost"
+		        app:ilt_text="Test"/>
 
         </LinearLayout>
 

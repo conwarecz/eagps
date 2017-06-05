@@ -1,7 +1,5 @@
 package net.aineuron.eagps.activity;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.Toast;
@@ -13,8 +11,13 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.offer.Address;
+import net.aineuron.eagps.model.database.offer.ClientCar;
+import net.aineuron.eagps.model.database.offer.DestinationAddress;
 import net.aineuron.eagps.model.database.offer.Offer;
 import net.aineuron.eagps.model.viewmodel.OfferManager;
+import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -46,6 +49,15 @@ public class OfferActivity extends AppCompatActivity {
 	@EventBusGreenRobot
 	EventBus bus;
 
+	@ViewById(R.id.clientCar)
+	IcoLabelTextView clientCar;
+	@ViewById(R.id.clientAddress)
+	IcoLabelTextView clientAddress;
+	@ViewById(R.id.destinationAddress)
+	IcoLabelTextView destinationAddress;
+	@ViewById(R.id.eventDescription)
+	IcoLabelTextView eventDescription;
+
 	private MaterialDialog progressDialog;
 	private Offer offer;
 
@@ -53,6 +65,8 @@ public class OfferActivity extends AppCompatActivity {
 	void afterViews() {
 		getSupportActionBar().hide();
 		offer = offerManager.getOfferById(16385l);
+
+		setUi();
 	}
 
 	@Click(R.id.accept)
@@ -79,24 +93,32 @@ public class OfferActivity extends AppCompatActivity {
 		finishOfferActivity();
 	}
 
-
-	@Click({R.id.showOnMap, R.id.adress})
+	@Click(R.id.showOnMap)
 	void openMap() {
-		double latitude = 49.7751573;
-		double longitude = 18.4377711;
-		String label = "Jan Novák, tel.: 777 888 999";
-		String uriBegin = "geo:" + latitude + "," + longitude;
-		String query = latitude + "," + longitude + "(" + label + ")";
-		String encodedQuery = Uri.encode(query);
-		String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
-		Uri uri = Uri.parse(uriString);
-		Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
-		try {
-			startActivity(intent);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Toast.makeText(this, "Please install Google Maps application", Toast.LENGTH_SHORT).show();
-		}
+		IntentUtils.openRoute(this, offer.getDestinationAddress().getAddress().getLocation(), offer.getClientAddress().getLocation());
+	}
+
+	@Click(R.id.clientAddress)
+	void openMapClient() {
+		IntentUtils.openMapLocation(this, offer.getClientAddress().getLocation(), offer.getClientName());
+	}
+
+	@Click(R.id.destinationAddress)
+	void openMapDestination() {
+		IntentUtils.openMapLocation(this, offer.getDestinationAddress().getAddress().getLocation(), offer.getDestinationAddress().getName());
+	}
+
+	private void setUi() {
+		ClientCar car = offer.getCar();
+		this.clientCar.setText(car.getModel() + ", " + car.getWeight() + " t, " + car.getLicensePlate());
+
+		Address clientAddress = offer.getClientAddress();
+		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
+
+		DestinationAddress destinationAddress = offer.getDestinationAddress();
+		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
+
+		this.eventDescription.setText(offer.getEventDescription());
 	}
 
 	private void showProgress() {
