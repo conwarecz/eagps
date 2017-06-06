@@ -50,7 +50,7 @@ public class AppBarActivity extends MainActivityBase {
 
 		profileName = (TextView) menuProfile.getActionView().findViewById(R.id.telephoneView);
 		stateIcon = (ImageView) menuState.getActionView().findViewById(R.id.stateIcon);
-		licencePlate = (TextView) menuState.getActionView().findViewById(R.id.licenePlate);
+		licencePlate = (TextView) menuState.getActionView().findViewById(R.id.licensePlate);
 
 		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {

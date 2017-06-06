@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import net.aineuron.eagps.R;
 
 import org.androidannotations.annotations.AfterViews;
@@ -18,12 +20,12 @@ import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
 /**
- * Created by Vit Veres on 24-May-17
+ * Created by Vit Veres on 06-Jun-17
  * as a part of Android-EAGPS project.
  */
 
-@EViewGroup(R.layout.widget_label_text)
-public class IcoLabelTextView extends ConstraintLayout {
+@EViewGroup(R.layout.widget_label_text_button)
+public class IcoLabelTextButtonView extends ConstraintLayout {
 
 	@ViewById(R.id.label)
 	TextView labelView;
@@ -34,6 +36,9 @@ public class IcoLabelTextView extends ConstraintLayout {
 	@ViewById(R.id.icon)
 	ImageView iconView;
 
+	@ViewById(R.id.textButton)
+	TextView extendedDescriptionView;
+
 	private String labelText = "";
 	private String text = "";
 
@@ -43,19 +48,19 @@ public class IcoLabelTextView extends ConstraintLayout {
 	private int icoSize = 0;
 	private float labelTextSize = 0;
 	private float textSize = 0;
-
+	private boolean isExtendedDescription;
 	private Drawable iconDrawable = null;
 
-	public IcoLabelTextView(@NonNull Context context) {
+	public IcoLabelTextButtonView(@NonNull Context context) {
 		super(context);
 	}
 
-	public IcoLabelTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
+	public IcoLabelTextButtonView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		parseAttrs(attrs);
 	}
 
-	public IcoLabelTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+	public IcoLabelTextButtonView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		parseAttrs(attrs);
 	}
@@ -63,6 +68,7 @@ public class IcoLabelTextView extends ConstraintLayout {
 	@AfterViews
 	public void afterViews() {
 		refreshUi();
+		setListener();
 	}
 
 	public String getLabelText() {
@@ -134,6 +140,15 @@ public class IcoLabelTextView extends ConstraintLayout {
 		this.textSize = textSize;
 	}
 
+	public boolean isExtendedDescription() {
+		return isExtendedDescription;
+	}
+
+	public void setExtendedDescription(boolean extendedDescription) {
+		isExtendedDescription = extendedDescription;
+		setListener();
+	}
+
 	private void parseAttrs(AttributeSet attrs) {
 		TypedArray a = getContext().getTheme().obtainStyledAttributes(
 				attrs,
@@ -188,7 +203,30 @@ public class IcoLabelTextView extends ConstraintLayout {
 
 		if (textSize > 0) {
 			textView.setTextSize(textSize);
+			extendedDescriptionView.setTextSize(textSize);
 		}
 
+		if (isExtendedDescription) {
+			textView.setVisibility(GONE);
+			extendedDescriptionView.setVisibility(VISIBLE);
+		} else {
+			textView.setVisibility(VISIBLE);
+			extendedDescriptionView.setVisibility(GONE);
+		}
+
+	}
+
+	private void setListener() {
+		if (isExtendedDescription) {
+			this.setOnClickListener(v -> new MaterialDialog
+					.Builder(getContext())
+					.title("Limit detail")
+					.content(text)
+					.positiveText("OK")
+					.show()
+			);
+		} else {
+			this.setOnClickListener(null);
+		}
 	}
 }

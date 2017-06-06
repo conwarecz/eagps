@@ -58,7 +58,7 @@ dependencies {
 	// View
 	implementation 'com.ashokvarma.android:bottom-navigation-bar:1.4.1'
 	implementation 'com.github.jetradarmobile:multibackstack:1.2.0'
-	implementation 'com.afollestad.material-dialogs:core:0.9.4.4'
+	implementation 'com.afollestad.material-dialogs:core:0.9.4.5'
 	implementation 'com.mobsandgeeks:android-saripaar:2.0.3'
 
 	// AA

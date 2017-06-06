@@ -1,10 +1,14 @@
 package net.aineuron.eagps.fragment;
 
-import android.widget.ImageView;
-
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivity_;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.order.Address;
+import net.aineuron.eagps.model.database.order.DestinationAddress;
+import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.viewmodel.OrdersManager;
+import net.aineuron.eagps.view.widget.IcoLabelTextButtonView;
+import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -20,11 +24,44 @@ import org.androidannotations.annotations.ViewById;
 @EFragment(R.layout.fragment_tow)
 public class TowFragment extends BaseFragment {
 
-	@ViewById(R.id.stateIcon)
-	ImageView stateImage;
-
 	@Bean
 	UserManager userManager;
+
+	@Bean
+	OrdersManager ordersManager;
+
+	@ViewById(R.id.claimNumber)
+	IcoLabelTextView claimNumber;
+
+	@ViewById(R.id.clientName)
+	IcoLabelTextView clientName;
+
+	@ViewById(R.id.clientCar)
+	IcoLabelTextView clientCar;
+
+	@ViewById(R.id.limit)
+	IcoLabelTextButtonView limit;
+
+	@ViewById(R.id.telephone)
+	IcoLabelTextView telephone;
+
+	@ViewById(R.id.licensePlate)
+	IcoLabelTextView licensePlate;
+
+	@ViewById(R.id.clientAddress)
+	IcoLabelTextView clientAddress;
+
+	@ViewById(R.id.photosStep)
+	IcoLabelTextView photosStep;
+
+	@ViewById(R.id.destinationAddress)
+	IcoLabelTextView destinationAddress;
+
+	@ViewById(R.id.documentPhotos)
+	IcoLabelTextView documentPhotos;
+
+
+	private Order order;
 
 	public static TowFragment newInstance() {
 		return TowFragment_.builder().build();
@@ -32,11 +69,14 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		setAppbarTitle("Zásah");
+		setAppbarTitle("Na zásahu");
+
+		order = ordersManager.getCurrentOrder();
+
 		setContent();
 	}
 
-	@Click(R.id.stateIcon)
+	@Click(R.id.finishOrder)
 	void finishClicked() {
 		// TODO: Redo correctly
 		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
@@ -44,7 +84,27 @@ public class TowFragment extends BaseFragment {
 		getActivity().finish();
 	}
 
+	@Click(R.id.cancelOrder)
+	void cancelClicked() {
+		// TODO: Redo correctly
+		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+		MainActivity_.intent(this).start();
+		getActivity().finish();
+	}
+
 	private void setContent() {
-		stateImage.setImageResource(R.drawable.busy_order);
+		// TODO Fill the fields
+		Address clientAddress = order.getClientAddress();
+		DestinationAddress destinationAddress = order.getDestinationAddress();
+
+		this.claimNumber.setText(order.getClaimNumber());
+		this.clientName.setText(order.getClientName());
+		this.telephone.setText(order.getClientPhone());
+		this.clientCar.setText(order.getCar().getModel() + ", " + order.getCar().getWeight() + " t");
+		this.licensePlate.setText(order.getCar().getLicensePlate());
+		this.limit.setText(order.getLimitation().getLimit());
+		this.limit.setExtendedDescription(order.getLimitation().isExtendedDescription());
+		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
+		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
 	}
 }
