@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.aineuron.eagps.model.database.offer.Location;
+import net.aineuron.eagps.model.database.order.Location;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,13 @@ public class IntentUtils {
 		String url = builder.build().toString();
 		Log.d("Directions", url);
 		Intent i = new Intent(Intent.ACTION_VIEW);
+
 		i.setData(Uri.parse(url));
-		context.startActivity(i);
+		try {
+			context.startActivity(i);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(context, "Please install Google Maps application", Toast.LENGTH_LONG).show();
+		}
 	}
 }

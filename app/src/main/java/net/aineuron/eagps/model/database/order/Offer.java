@@ -1,4 +1,4 @@
-package net.aineuron.eagps.model.database.offer;
+package net.aineuron.eagps.model.database.order;
 
 import java.util.Date;
 
@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class Offer {
 	private Long id;
-	private Date offerDate;
+	private Date time;
 	private String clientName;
 	private String clientPhone;
 	private ClientCar car;
@@ -82,11 +82,11 @@ public class Offer {
 		this.limitation = limitation;
 	}
 
-	public Date getOfferDate() {
-		return offerDate;
+	public Date getTime() {
+		return time;
 	}
 
-	public void setOfferDate(Date offerDate) {
-		this.offerDate = offerDate;
+	public void setTime(Date time) {
+		this.time = time;
 	}
 }

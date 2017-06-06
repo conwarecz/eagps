@@ -1,10 +1,10 @@
 package net.aineuron.eagps.model.viewmodel;
 
-import net.aineuron.eagps.model.database.offer.Address;
-import net.aineuron.eagps.model.database.offer.ClientCar;
-import net.aineuron.eagps.model.database.offer.DestinationAddress;
-import net.aineuron.eagps.model.database.offer.Location;
-import net.aineuron.eagps.model.database.offer.Offer;
+import net.aineuron.eagps.model.database.order.Address;
+import net.aineuron.eagps.model.database.order.ClientCar;
+import net.aineuron.eagps.model.database.order.DestinationAddress;
+import net.aineuron.eagps.model.database.order.Location;
+import net.aineuron.eagps.model.database.order.Offer;
 
 import org.androidannotations.annotations.EBean;
 
@@ -51,7 +51,7 @@ public class OfferManager {
 		destinationAddressLoc.setAddress(destinationAddress);
 
 		offer.setId(id);
-		offer.setOfferDate(new Date());
+		offer.setTime(new Date());
 		offer.setCar(clientCar);
 		offer.setClientAddress(clientAddress);
 		offer.setDestinationAddress(destinationAddressLoc);

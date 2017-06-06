@@ -1,4 +1,4 @@
-package net.aineuron.eagps.model.database.offer;
+package net.aineuron.eagps.model.database.order;
 
 /**
  * Created by Vit Veres on 05-Jun-17

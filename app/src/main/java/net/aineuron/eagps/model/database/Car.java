@@ -1,5 +1,7 @@
 package net.aineuron.eagps.model.database;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Vit Veres on 26-Apr-17
  * as a part of Android-EAGPS project.
@@ -8,7 +10,9 @@ package net.aineuron.eagps.model.database;
 public class Car {
 
 	private Long id;
+	@SerializedName("Status")
 	private Long statusId;
+	@SerializedName("User")
 	private Long userId;
 	private String licensePlate;
 	private String model;
