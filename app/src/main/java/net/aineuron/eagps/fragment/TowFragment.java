@@ -80,10 +80,8 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.finishOrder)
 	void finishClicked() {
-		// TODO: Redo correctly
-		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-		MainActivity_.intent(this).start();
-		getActivity().finish();
+		MainActivityBase activity = (MainActivityBase) getActivity();
+		activity.showFragment(OrderDetailFragment.newInstance());
 	}
 
 	@Click(R.id.cancelOrder)
@@ -111,8 +109,7 @@ public class TowFragment extends BaseFragment {
 
 	@Click({R.id.photosStep, R.id.documentPhotos})
 	void photosClicked() {
-		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderDetailFragment.newInstance());
+		IntentUtils.openCamera(getContext());
 	}
 
 	private void setContent() {

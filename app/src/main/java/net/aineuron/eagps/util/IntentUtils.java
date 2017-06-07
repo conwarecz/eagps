@@ -3,6 +3,7 @@ package net.aineuron.eagps.util;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -37,6 +38,16 @@ public class IntentUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(context, "Please install a Telephone application", Toast.LENGTH_LONG).show();
+		}
+	}
+
+	public static void openCamera(Context context) {
+		Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+		try {
+			context.startActivity(intent);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(context, "Please install a Camera application", Toast.LENGTH_LONG).show();
 		}
 	}
 
