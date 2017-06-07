@@ -1,6 +1,7 @@
 package net.aineuron.eagps.fragment;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.activity.MainActivity_;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
@@ -104,8 +105,14 @@ public class TowFragment extends BaseFragment {
 	}
 
 	@Click(R.id.destinationAddress)
-	void setDestinationAddressAddressClicked() {
+	void setDestinationAddressClicked() {
 		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
+	}
+
+	@Click({R.id.photosStep, R.id.documentPhotos})
+	void photosClicked() {
+		MainActivityBase activity = (MainActivityBase) getActivity();
+		activity.showFragment(OrderDetailFragment.newInstance());
 	}
 
 	private void setContent() {
