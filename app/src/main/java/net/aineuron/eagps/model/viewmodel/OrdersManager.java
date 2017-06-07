@@ -4,6 +4,7 @@ import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
+import net.aineuron.eagps.model.database.order.Limitation;
 import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
 
@@ -55,13 +56,18 @@ public class OrdersManager {
 		destinationAddressLoc.setName("Best Drive");
 		destinationAddressLoc.setAddress(destinationAddress);
 
+		Limitation limitation = new Limitation();
+		limitation.setLimit("10 599 ,-");
+		limitation.setExtendedDescription(false);
+
 		order.setId(2166l);
 		order.setClaimNumber("T123456.78");
 		order.setTime(new Date());
 		order.setCar(clientCar);
 		order.setClientAddress(clientAddress);
 		order.setDestinationAddress(destinationAddressLoc);
-		order.setClientName("Honza Prasil");
+		order.setLimitation(limitation);
+		order.setClientName("Honza Velky");
 		order.setClientPhone("+420 123 123 456");
 		order.setEventDescription("Odtah z kraje silnice, nefunkcni motor, nic nejede, kola dobre.");
 

@@ -57,7 +57,7 @@
 		        android:layout_marginRight="30dp"
 		        android:layout_marginTop="16dp"
 		        app:ilt_icoResource="@drawable/icon_detail_car"
-		        app:ilt_labelText="Vozidlo"
+		        app:ilt_labelText="Vozidlo, váha"
 		        app:ilt_text="Test"/>
 
 	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
@@ -68,7 +68,7 @@
 		        android:layout_marginRight="30dp"
 		        android:layout_marginTop="16dp"
 		        app:ilt_icoResource="@drawable/icon_detail_map"
-		        app:ilt_labelText="Adresa události"
+		        app:ilt_labelText="Lokace klienta"
 		        app:ilt_text="Test"/>
 
 	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
@@ -79,7 +79,7 @@
 		        android:layout_marginRight="30dp"
 		        android:layout_marginTop="16dp"
 		        app:ilt_icoResource="@drawable/icon_detail_service"
-		        app:ilt_labelText="Lokace servisu"
+		        app:ilt_labelText="Cílové místo"
 		        app:ilt_text="Test"/>
 
 	        <net.aineuron.eagps.view.widget.IcoLabelTextView_
@@ -95,52 +95,75 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/showOnMap"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/topblue_large"
-            android:text="Zobrazit na mapě"
-            android:textAllCaps="false"
-            android:textColor="@color/backgroundWhite"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+	    <android.support.constraint.ConstraintLayout
+		    android:id="@+id/showOnMap"
+		    android:layout_width="0dp"
+		    android:layout_height="50dp"
+		    android:layout_marginEnd="30dp"
+		    android:layout_marginStart="30dp"
+		    android:layout_marginTop="30dp"
+		    android:background="@drawable/topblue_large"
+		    app:layout_constraintEnd_toEndOf="parent"
+		    app:layout_constraintStart_toStartOf="parent"
+		    app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+		    <ImageView
+			    android:layout_width="48dp"
+			    android:layout_height="48dp"
+			    android:padding="8dp"
+			    android:src="@drawable/btn_icon_map"
+			    app:layout_constraintBottom_toBottomOf="parent"
+			    app:layout_constraintLeft_toLeftOf="parent"
+			    app:layout_constraintTop_toTopOf="parent"/>
+
+		    <TextView
+			    android:layout_width="0dp"
+			    android:layout_height="48dp"
+			    android:gravity="center"
+			    android:text="Zobrazit na mapě"
+			    android:textAllCaps="false"
+			    android:textColor="@color/backgroundWhite"
+			    android:textSize="@dimen/text_size_title"
+			    android:textStyle="bold"
+			    app:layout_constraintBottom_toBottomOf="parent"
+			    app:layout_constraintLeft_toLeftOf="parent"
+			    app:layout_constraintRight_toRightOf="parent"
+			    app:layout_constraintTop_toTopOf="parent"/>
+	    </android.support.constraint.ConstraintLayout>
 
         <Button
-            android:id="@+id/accept"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:background="@drawable/bottomleft_green"
-            android:text="Přijmout"
-            android:textAllCaps="false"
-            android:textColor="@color/backgroundWhite"
-            app:layout_constraintEnd_toStartOf="@+id/decline"
-            app:layout_constraintStart_toStartOf="@+id/showOnMap"
-            app:layout_constraintTop_toBottomOf="@+id/showOnMap" />
+	        android:id="@+id/accept"
+	        android:layout_width="0dp"
+	        android:layout_height="50dp"
+	        android:layout_marginLeft="0dp"
+	        android:layout_marginRight="0dp"
+	        android:layout_marginStart="0dp"
+	        android:layout_marginTop="0dp"
+	        android:background="@drawable/bottomleft_green"
+	        android:text="Přijmout"
+	        android:textAllCaps="false"
+	        android:textColor="@color/backgroundWhite"
+	        android:textSize="@dimen/text_size_title"
+	        app:layout_constraintEnd_toStartOf="@+id/decline"
+	        app:layout_constraintStart_toStartOf="@+id/showOnMap"
+	        app:layout_constraintTop_toBottomOf="@+id/showOnMap"/>
 
         <Button
-            android:id="@+id/decline"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:background="@drawable/redrightbottom_small"
-            android:text="Odmítnout"
-            android:textAllCaps="false"
-            android:textColor="@color/backgroundWhite"
-            app:layout_constraintEnd_toEndOf="@+id/showOnMap"
-            app:layout_constraintStart_toEndOf="@+id/accept"
-            app:layout_constraintTop_toBottomOf="@+id/showOnMap" />
+	        android:id="@+id/decline"
+	        android:layout_width="0dp"
+	        android:layout_height="50dp"
+	        android:layout_marginEnd="0dp"
+	        android:layout_marginRight="0dp"
+	        android:layout_marginStart="0dp"
+	        android:layout_marginTop="0dp"
+	        android:background="@drawable/redrightbottom_small"
+	        android:text="Odmítnout"
+	        android:textAllCaps="false"
+	        android:textColor="@color/backgroundWhite"
+	        android:textSize="@dimen/text_size_title"
+	        app:layout_constraintEnd_toEndOf="@+id/showOnMap"
+	        app:layout_constraintStart_toEndOf="@+id/accept"
+	        app:layout_constraintTop_toBottomOf="@+id/showOnMap"/>
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

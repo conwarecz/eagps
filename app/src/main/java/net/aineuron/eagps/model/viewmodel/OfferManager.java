@@ -55,7 +55,7 @@ public class OfferManager {
 		offer.setCar(clientCar);
 		offer.setClientAddress(clientAddress);
 		offer.setDestinationAddress(destinationAddressLoc);
-		offer.setClientName("Honza Prasil");
+		offer.setClientName("Honza Velky");
 		offer.setClientPhone("+420 123 123 456");
 		offer.setEventDescription("Odtah z kraje silnice, nefunkcni motor, nic nejede, kola dobre.");
 

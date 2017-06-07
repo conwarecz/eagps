@@ -29,6 +29,17 @@ public class IntentUtils {
 		}
 	}
 
+	public static void dialPhone(Context context, @NonNull String phoneNumber) {
+		Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+
+		try {
+			context.startActivity(intent);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(context, "Please install a Telephone application", Toast.LENGTH_LONG).show();
+		}
+	}
+
 	public static void openMapLocation(Context context, Location location, String label) {
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();

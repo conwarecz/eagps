@@ -37,9 +37,6 @@ public class OfferActivity extends AppCompatActivity {
 	@ViewById(R.id.decline)
 	Button decline;
 
-	@ViewById(R.id.showOnMap)
-	Button showOnMap;
-
 	@Bean
 	UserManager userManager;
 
@@ -69,6 +66,17 @@ public class OfferActivity extends AppCompatActivity {
 		setUi();
 	}
 
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkStateSelectedEvent(StateSelectedEvent e) {
+		finishOfferActivity();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+		finishOfferActivity();
+	}
+
 	@Click(R.id.accept)
 	void acceptClicked() {
 		showProgress();
@@ -80,17 +88,6 @@ public class OfferActivity extends AppCompatActivity {
 		// State is the same as before
 		MainActivity_.intent(this).start();
 		finish();
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkStateSelectedEvent(StateSelectedEvent e) {
-		finishOfferActivity();
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-		finishOfferActivity();
 	}
 
 	@Click(R.id.showOnMap)
@@ -110,7 +107,7 @@ public class OfferActivity extends AppCompatActivity {
 
 	private void setUi() {
 		ClientCar car = offer.getCar();
-		this.clientCar.setText(car.getModel() + ", " + car.getWeight() + " t, " + car.getLicensePlate());
+		this.clientCar.setText(car.getModel() + ", " + car.getWeight() + " t");
 
 		Address clientAddress = offer.getClientAddress();
 		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());

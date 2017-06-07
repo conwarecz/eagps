@@ -7,6 +7,7 @@ import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.viewmodel.OrdersManager;
+import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextButtonView;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
@@ -90,6 +91,21 @@ public class TowFragment extends BaseFragment {
 		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
 		MainActivity_.intent(this).start();
 		getActivity().finish();
+	}
+
+	@Click(R.id.telephone)
+	void telephoneClicked() {
+		IntentUtils.dialPhone(getContext(), order.getClientPhone());
+	}
+
+	@Click(R.id.clientAddress)
+	void clientAddressClicked() {
+		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
+	}
+
+	@Click(R.id.destinationAddress)
+	void setDestinationAddressAddressClicked() {
+		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
 	}
 
 	private void setContent() {

@@ -146,6 +146,7 @@ public class IcoLabelTextButtonView extends ConstraintLayout {
 
 	public void setExtendedDescription(boolean extendedDescription) {
 		isExtendedDescription = extendedDescription;
+		refreshUi();
 		setListener();
 	}
 

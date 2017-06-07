@@ -24,7 +24,6 @@ import org.androidannotations.annotations.res.ColorRes;
 
 @EActivity
 public class AppBarActivity extends MainActivityBase {
-	public static String STATE = "ready456";
 
 	@ColorRes(R.color.colorPrimary)
 	int primary;
@@ -66,7 +65,6 @@ public class AppBarActivity extends MainActivityBase {
 	@OptionsItem(R.id.actin_offer)
 	void actionOffer() {
 		OfferActivity_.intent(this).start();
-		finish();
 	}
 
 	private void setUpActionBar() {
