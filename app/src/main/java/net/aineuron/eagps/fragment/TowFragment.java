@@ -112,6 +112,12 @@ public class TowFragment extends BaseFragment {
 		IntentUtils.openCamera(getContext());
 	}
 
+	@Click(R.id.orderDetailButton)
+	void orderDetailClicked() {
+		MainActivityBase activity = (MainActivityBase) getActivity();
+		activity.showFragment(OrderDetailFragment.newInstance());
+	}
+
 	private void setContent() {
 		// TODO Fill the fields
 		Address clientAddress = order.getClientAddress();

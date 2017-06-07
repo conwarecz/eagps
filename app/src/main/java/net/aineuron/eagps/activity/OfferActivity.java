@@ -31,7 +31,7 @@ import org.greenrobot.eventbus.ThreadMode;
 @EActivity(R.layout.activity_offer)
 public class OfferActivity extends AppCompatActivity {
 
-	@ViewById(R.id.accept)
+	@ViewById(R.id.back)
 	Button accept;
 
 	@ViewById(R.id.decline)
@@ -77,7 +77,7 @@ public class OfferActivity extends AppCompatActivity {
 		finishOfferActivity();
 	}
 
-	@Click(R.id.accept)
+	@Click(R.id.back)
 	void acceptClicked() {
 		showProgress();
 		userManager.setStateBusyOnOrder();

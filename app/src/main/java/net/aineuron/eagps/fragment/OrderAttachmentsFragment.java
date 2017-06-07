@@ -10,10 +10,10 @@ import org.androidannotations.annotations.EFragment;
  * as a part of Android-EAGPS project.
  */
 
-@EFragment(R.layout.fragnent_order_detail)
+@EFragment(R.layout.fragnent_order_attachments)
 public class OrderAttachmentsFragment extends BaseFragment {
 	public static OrderAttachmentsFragment newInstance() {
-		return OrderDetailFragment_.builder().build();
+		return OrderAttachmentsFragment_.builder().build();
 	}
 
 	@AfterViews

@@ -13,20 +13,20 @@
         android:background="@color/backgroundWhite">
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Nová zakázka"
-            android:textAlignment="center"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+	        android:id="@+id/header"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginEnd="8dp"
+	        android:layout_marginStart="8dp"
+	        android:layout_marginTop="8dp"
+	        android:text="Nová zakázka"
+	        android:textAlignment="center"
+	        android:textColor="@color/colorPrimaryDark"
+	        android:textSize="18sp"
+	        android:textStyle="bold"
+	        app:layout_constraintEnd_toEndOf="parent"
+	        app:layout_constraintStart_toStartOf="parent"
+	        app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
 	        android:id="@+id/imageView2"
@@ -132,7 +132,7 @@
 	    </android.support.constraint.ConstraintLayout>
 
         <Button
-	        android:id="@+id/accept"
+	        android:id="@+id/back"
 	        android:layout_width="0dp"
 	        android:layout_height="50dp"
 	        android:layout_marginLeft="0dp"
@@ -162,7 +162,7 @@
 	        android:textColor="@color/backgroundWhite"
 	        android:textSize="@dimen/text_size_title"
 	        app:layout_constraintEnd_toEndOf="@+id/showOnMap"
-	        app:layout_constraintStart_toEndOf="@+id/accept"
+	        app:layout_constraintStart_toEndOf="@+id/back"
 	        app:layout_constraintTop_toBottomOf="@+id/showOnMap"/>
 
     </android.support.constraint.ConstraintLayout>
