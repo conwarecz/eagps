@@ -11,8 +11,8 @@ import org.androidannotations.annotations.EFragment;
  */
 
 @EFragment(R.layout.fragnent_order_detail)
-public class OrderDetailFragment extends BaseFragment {
-	public static OrderDetailFragment newInstance() {
+public class OrderAttachmentsFragment extends BaseFragment {
+	public static OrderAttachmentsFragment newInstance() {
 		return OrderDetailFragment_.builder().build();
 	}
 

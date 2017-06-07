@@ -81,7 +81,7 @@ public class TowFragment extends BaseFragment {
 	@Click(R.id.finishOrder)
 	void finishClicked() {
 		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderDetailFragment.newInstance());
+		activity.showFragment(OrderAttachmentsFragment.newInstance());
 	}
 
 	@Click(R.id.cancelOrder)
