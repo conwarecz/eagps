@@ -10,12 +10,14 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.model.OfferManager;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Offer;
-import net.aineuron.eagps.model.viewmodel.OfferManager;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
@@ -42,6 +44,9 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Bean
 	OfferManager offerManager;
+
+	@Bean
+	OrdersManager ordersManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -77,9 +82,14 @@ public class OfferActivity extends AppCompatActivity {
 		finishOfferActivity();
 	}
 
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onOfferCanceledEvent(OrderCanceledEvent e) {
+		finishOfferActivity();
+	}
+
 	@Click(R.id.back)
 	void acceptClicked() {
-		showProgress();
+		showProgress("Měním stav", "Prosím čekejte...");
 		userManager.setStateBusyOnOrder();
 	}
 
@@ -91,8 +101,8 @@ public class OfferActivity extends AppCompatActivity {
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
-					MainActivity_.intent(this).start();
-					finish();
+					showProgress("Ruším zakázku", "Prosím čekejte...");
+					ordersManager.cancelOrder(offer.getId());
 					return true;
 				})
 				.positiveText("OK")
@@ -127,18 +137,30 @@ public class OfferActivity extends AppCompatActivity {
 		this.eventDescription.setText(offer.getEventDescription());
 	}
 
-	private void showProgress() {
+	private void finishOfferActivity() {
+		hideProgress();
+		MainActivity_.intent(this).start();
+		finish();
+	}
+
+	private void showProgress(String title, String content) {
 		progressDialog = new MaterialDialog.Builder(this)
-				.title("Měním stav")
-				.content("Prosím čekejte...")
+				.title(title)
+				.content(content)
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
 	}
 
-	private void finishOfferActivity() {
+	protected void hideProgress() {
+		if (progressDialog == null) {
+			return;
+		}
+
+		if (progressDialog.isCancelled()) {
+			return;
+		}
+
 		progressDialog.dismiss();
-		MainActivity_.intent(this).start();
-		finish();
 	}
 }

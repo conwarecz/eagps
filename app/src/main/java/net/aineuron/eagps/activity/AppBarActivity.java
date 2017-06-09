@@ -47,7 +47,7 @@ public class AppBarActivity extends MainActivityBase {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		profileName = (TextView) menuProfile.getActionView().findViewById(R.id.telephoneView);
+		profileName = (TextView) menuProfile.getActionView().findViewById(R.id.nameView);
 		stateIcon = (ImageView) menuState.getActionView().findViewById(R.id.stateIcon);
 		licencePlate = (TextView) menuState.getActionView().findViewById(R.id.licensePlate);
 

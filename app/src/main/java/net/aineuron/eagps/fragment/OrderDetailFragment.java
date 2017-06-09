@@ -3,11 +3,11 @@ package net.aineuron.eagps.fragment;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.viewmodel.OrdersManager;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 

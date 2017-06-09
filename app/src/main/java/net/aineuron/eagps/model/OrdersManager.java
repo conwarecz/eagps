@@ -1,12 +1,17 @@
-package net.aineuron.eagps.model.viewmodel;
+package net.aineuron.eagps.model;
 
+import net.aineuron.eagps.Pref_;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
+import net.aineuron.eagps.model.database.order.Limitation;
 import net.aineuron.eagps.model.database.order.Location;
-import net.aineuron.eagps.model.database.order.Offer;
+import net.aineuron.eagps.model.database.order.Order;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
 
@@ -16,10 +21,16 @@ import java.util.Date;
  */
 
 @EBean(scope = EBean.Scope.Singleton)
-public class OfferManager {
+public class OrdersManager {
 
-	public Offer getOfferById(Long id) {
-		Offer offer = new Offer();
+	@Pref
+	Pref_ pref;
+
+	@Bean
+	ClientProvider clientProvider;
+
+	public Order getCurrentOrder() {
+		Order order = new Order();
 
 		ClientCar clientCar = new ClientCar();
 		clientCar.setLicensePlate("4T8 4598");
@@ -50,15 +61,25 @@ public class OfferManager {
 		destinationAddressLoc.setName("Best Drive");
 		destinationAddressLoc.setAddress(destinationAddress);
 
-		offer.setId(id);
-		offer.setTime(new Date());
-		offer.setCar(clientCar);
-		offer.setClientAddress(clientAddress);
-		offer.setDestinationAddress(destinationAddressLoc);
-		offer.setClientName("Honza Velky");
-		offer.setClientPhone("+420 123 123 456");
-		offer.setEventDescription("Odtah z kraje silnice, nefunkcni motor, nic nejede, kola dobre.");
+		Limitation limitation = new Limitation();
+		limitation.setLimit("10 599 ,-");
+		limitation.setExtendedDescription(false);
 
-		return offer;
+		order.setId(2166l);
+		order.setClaimNumber("T123456.78");
+		order.setTime(new Date());
+		order.setCar(clientCar);
+		order.setClientAddress(clientAddress);
+		order.setDestinationAddress(destinationAddressLoc);
+		order.setLimitation(limitation);
+		order.setClientName("Honza Velky");
+		order.setClientPhone("+420 123 123 456");
+		order.setEventDescription("Odtah z kraje silnice, nefunkcni motor, nic nejede, kola dobre.");
+
+		return order;
+	}
+
+	public void cancelOrder(Long orderId) {
+		clientProvider.getEaClient().cancelOrder(orderId);
 	}
 }

@@ -1,15 +1,12 @@
-package net.aineuron.eagps.model.viewmodel;
+package net.aineuron.eagps.model;
 
-import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
-import net.aineuron.eagps.model.database.order.Limitation;
 import net.aineuron.eagps.model.database.order.Location;
-import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.database.order.Offer;
 
 import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
 
@@ -19,13 +16,10 @@ import java.util.Date;
  */
 
 @EBean(scope = EBean.Scope.Singleton)
-public class OrdersManager {
+public class OfferManager {
 
-	@Pref
-	Pref_ pref;
-
-	public Order getCurrentOrder() {
-		Order order = new Order();
+	public Offer getOfferById(Long id) {
+		Offer offer = new Offer();
 
 		ClientCar clientCar = new ClientCar();
 		clientCar.setLicensePlate("4T8 4598");
@@ -56,21 +50,15 @@ public class OrdersManager {
 		destinationAddressLoc.setName("Best Drive");
 		destinationAddressLoc.setAddress(destinationAddress);
 
-		Limitation limitation = new Limitation();
-		limitation.setLimit("10 599 ,-");
-		limitation.setExtendedDescription(false);
+		offer.setId(id);
+		offer.setTime(new Date());
+		offer.setCar(clientCar);
+		offer.setClientAddress(clientAddress);
+		offer.setDestinationAddress(destinationAddressLoc);
+		offer.setClientName("Honza Velky");
+		offer.setClientPhone("+420 123 123 456");
+		offer.setEventDescription("Odtah z kraje silnice, nefunkcni motor, nic nejede, kola dobre.");
 
-		order.setId(2166l);
-		order.setClaimNumber("T123456.78");
-		order.setTime(new Date());
-		order.setCar(clientCar);
-		order.setClientAddress(clientAddress);
-		order.setDestinationAddress(destinationAddressLoc);
-		order.setLimitation(limitation);
-		order.setClientName("Honza Velky");
-		order.setClientPhone("+420 123 123 456");
-		order.setEventDescription("Odtah z kraje silnice, nefunkcni motor, nic nejede, kola dobre.");
-
-		return order;
+		return offer;
 	}
 }

@@ -1,15 +1,17 @@
 package net.aineuron.eagps.fragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.activity.MainActivity_;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.viewmodel.OrdersManager;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextButtonView;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
@@ -19,6 +21,9 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by Vit Veres on 19-Apr-17
@@ -64,6 +69,8 @@ public class TowFragment extends BaseFragment {
 	@ViewById(R.id.documentPhotos)
 	IcoLabelTextView documentPhotos;
 
+	@EventBusGreenRobot
+	EventBus bus;
 
 	private Order order;
 
@@ -94,9 +101,8 @@ public class TowFragment extends BaseFragment {
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
-					userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-					MainActivity_.intent(getContext()).start();
-					getActivity().finish();
+					showProgress("Ruším zakázku", "Prosím čekejte...");
+					ordersManager.cancelOrder(order.getId());
 					return true;
 				})
 				.positiveText("OK")
@@ -127,6 +133,14 @@ public class TowFragment extends BaseFragment {
 	void orderDetailClicked() {
 		MainActivityBase activity = (MainActivityBase) getActivity();
 		activity.showFragment(OrderDetailFragment.newInstance());
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onOrderCanceledEvent(OrderCanceledEvent e) {
+		hideProgress();
+		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+		MainActivity_.intent(getContext()).start();
+		getActivity().finish();
 	}
 
 	private void setContent() {
