@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            tools:context="net.aineuron.eagps.activity.OfferActivity">
+
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/backgroundWhite">
+
+		<TextView
+			android:id="@+id/header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="8dp"
+			android:layout_marginStart="8dp"
+			android:layout_marginTop="8dp"
+			android:textAlignment="center"
+			android:textColor="@color/colorPrimaryDark"
+			android:textSize="18sp"
+			android:textStyle="bold"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="Header text"/>
+
+		<ImageView
+			android:id="@+id/imageView2"
+			android:layout_width="0dp"
+			android:layout_height="40dp"
+			android:layout_marginEnd="0dp"
+			android:layout_marginStart="0dp"
+			android:layout_marginTop="0dp"
+			android:src="@drawable/top_bar_small_pattern"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<LinearLayout
+			android:id="@+id/linearLayout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/imageView2">
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/client"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_profile_person"
+				app:ilt_labelText="Klient, Telefon"
+				app:ilt_text="Test"/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/clientCar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_detail_car"
+				app:ilt_labelText="Vozidlo, váha"
+				app:ilt_text="Test"/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/clientAddress"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_detail_map"
+				app:ilt_labelText="Lokace klienta"
+				app:ilt_text="Test"/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/destinationAddress"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_detail_service"
+				app:ilt_labelText="Cílové místo"
+				app:ilt_text="Test"/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/eventDescription"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_detail_crash"
+				app:ilt_labelText="Událost"
+				app:ilt_text="Test"/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/limit"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_detail_limit"
+				app:ilt_labelText="Limit"
+				app:ilt_text="Test"/>
+
+		</LinearLayout>
+
+		<Button
+			android:id="@+id/back"
+			android:layout_width="0dp"
+			android:layout_height="50dp"
+			android:layout_marginLeft="30dp"
+			android:layout_marginRight="30dp"
+			android:layout_marginTop="@dimen/padding_elements"
+			android:background="@drawable/btn_large_rounded_blue"
+			android:text="Zpět"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/text_size_title"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/linearLayout"/>
+
+	</android.support.constraint.ConstraintLayout>
+</ScrollView>

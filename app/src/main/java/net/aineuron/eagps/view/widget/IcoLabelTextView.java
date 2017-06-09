@@ -1,13 +1,13 @@
 package net.aineuron.eagps.view.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,7 +23,7 @@ import org.androidannotations.annotations.ViewById;
  */
 
 @EViewGroup(R.layout.widget_label_text)
-public class IcoLabelTextView extends FrameLayout {
+public class IcoLabelTextView extends ConstraintLayout {
 
 	@ViewById(R.id.label)
 	TextView labelView;
@@ -40,6 +40,10 @@ public class IcoLabelTextView extends FrameLayout {
 	private int labelTextColor = 0;
 	private int textColor = 0;
 
+	private int icoSize = 0;
+	private float labelTextSize = 0;
+	private float textSize = 0;
+
 	private Drawable iconDrawable = null;
 
 	public IcoLabelTextView(@NonNull Context context) {
@@ -53,12 +57,6 @@ public class IcoLabelTextView extends FrameLayout {
 
 	public IcoLabelTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		parseAttrs(attrs);
-	}
-
-	@TargetApi(21)
-	public IcoLabelTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-		super(context, attrs, defStyleAttr, defStyleRes);
 		parseAttrs(attrs);
 	}
 
@@ -112,6 +110,30 @@ public class IcoLabelTextView extends FrameLayout {
 		refreshUi();
 	}
 
+	public int getIcoSize() {
+		return icoSize;
+	}
+
+	public void setIcoSize(int icoSize) {
+		this.icoSize = icoSize;
+	}
+
+	public float getLabelTextSize() {
+		return labelTextSize;
+	}
+
+	public void setLabelTextSize(float labelTextSize) {
+		this.labelTextSize = labelTextSize;
+	}
+
+	public float getTextSize() {
+		return textSize;
+	}
+
+	public void setTextSize(float textSize) {
+		this.textSize = textSize;
+	}
+
 	private void parseAttrs(AttributeSet attrs) {
 		TypedArray a = getContext().getTheme().obtainStyledAttributes(
 				attrs,
@@ -124,6 +146,9 @@ public class IcoLabelTextView extends FrameLayout {
 			labelTextColor = a.getColor(R.styleable.IcoLabelTextView_ilt_labelTextColor, getContext().getResources().getColor(R.color.grayText));
 			textColor = a.getColor(R.styleable.IcoLabelTextView_ilt_textColor, getContext().getResources().getColor(R.color.grayText));
 			iconDrawable = a.getDrawable(R.styleable.IcoLabelTextView_ilt_icoResource);
+			icoSize = a.getDimensionPixelSize(R.styleable.IcoLabelTextView_ilt_icoSize, 0);
+			labelTextSize = a.getDimension(R.styleable.IcoLabelTextView_ilt_labelTextSize, 0);
+			textSize = a.getDimension(R.styleable.IcoLabelTextView_ilt_textSize, 0);
 		} finally {
 			a.recycle();
 		}
@@ -132,6 +157,8 @@ public class IcoLabelTextView extends FrameLayout {
 	private void refreshUi() {
 		if (labelText != null) {
 			labelView.setText(labelText);
+		} else {
+			labelView.setVisibility(GONE);
 		}
 
 		if (text != null) {
@@ -146,5 +173,22 @@ public class IcoLabelTextView extends FrameLayout {
 
 		labelView.setTextColor(labelTextColor);
 		textView.setTextColor(textColor);
+
+		// Size
+		if (icoSize > 0) {
+			ViewGroup.LayoutParams layoutParams = iconView.getLayoutParams();
+			layoutParams.height = icoSize;
+			layoutParams.width = icoSize;
+			iconView.requestLayout();
+		}
+
+		if (labelTextSize > 0) {
+			labelView.setTextSize(labelTextSize);
+		}
+
+		if (textSize > 0) {
+			textView.setTextSize(textSize);
+		}
+
 	}
 }

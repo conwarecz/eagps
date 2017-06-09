@@ -1,6 +1,6 @@
 package net.aineuron.eagps;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,7 +19,7 @@ import org.greenrobot.eventbus.ThreadMode;
  */
 
 @EApplication
-public class Appl extends Application {
+public class Appl extends MultiDexApplication {
 	@EventBusGreenRobot
 	EventBus bus;
 

@@ -1,7 +1,5 @@
 package net.aineuron.eagps.activity;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.Toast;
@@ -12,7 +10,16 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.model.OfferManager;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.order.Address;
+import net.aineuron.eagps.model.database.order.ClientCar;
+import net.aineuron.eagps.model.database.order.DestinationAddress;
+import net.aineuron.eagps.model.database.order.Offer;
+import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -26,39 +33,42 @@ import org.greenrobot.eventbus.ThreadMode;
 @EActivity(R.layout.activity_offer)
 public class OfferActivity extends AppCompatActivity {
 
-	@ViewById(R.id.accept)
+	@ViewById(R.id.back)
 	Button accept;
 
 	@ViewById(R.id.decline)
 	Button decline;
 
-	@ViewById(R.id.showOnMap)
-	Button showOnMap;
-
 	@Bean
 	UserManager userManager;
+
+	@Bean
+	OfferManager offerManager;
+
+	@Bean
+	OrdersManager ordersManager;
 
 	@EventBusGreenRobot
 	EventBus bus;
 
+	@ViewById(R.id.clientCar)
+	IcoLabelTextView clientCar;
+	@ViewById(R.id.clientAddress)
+	IcoLabelTextView clientAddress;
+	@ViewById(R.id.destinationAddress)
+	IcoLabelTextView destinationAddress;
+	@ViewById(R.id.eventDescription)
+	IcoLabelTextView eventDescription;
+
 	private MaterialDialog progressDialog;
+	private Offer offer;
 
 	@AfterViews
 	void afterViews() {
 		getSupportActionBar().hide();
-	}
+		offer = offerManager.getOfferById(16385l);
 
-	@Click(R.id.accept)
-	void acceptClicked() {
-		showProgress();
-		userManager.setStateBusyOnOrder();
-	}
-
-	@Click(R.id.decline)
-	void declineClicked() {
-		// State is the same as before
-		MainActivity_.intent(this).start();
-		finish();
+		setUi();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -72,38 +82,85 @@ public class OfferActivity extends AppCompatActivity {
 		finishOfferActivity();
 	}
 
-
-	@Click({R.id.showOnMap, R.id.adress})
-	void openMap() {
-		double latitude = 49.7751573;
-		double longitude = 18.4377711;
-		String label = "Jan Novák, tel.: 777 888 999";
-		String uriBegin = "geo:" + latitude + "," + longitude;
-		String query = latitude + "," + longitude + "(" + label + ")";
-		String encodedQuery = Uri.encode(query);
-		String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
-		Uri uri = Uri.parse(uriString);
-		Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
-		try {
-			startActivity(intent);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Toast.makeText(this, "Please install Google Maps application", Toast.LENGTH_SHORT).show();
-		}
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onOfferCanceledEvent(OrderCanceledEvent e) {
+		finishOfferActivity();
 	}
 
-	private void showProgress() {
+	@Click(R.id.back)
+	void acceptClicked() {
+		showProgress("Měním stav", "Prosím čekejte...");
+		userManager.setStateBusyOnOrder();
+	}
+
+	@Click(R.id.decline)
+	void declineClicked() {
+		// State is the same as before
+		new MaterialDialog.Builder(this)
+				.title("Důvod zrušení")
+				.items(R.array.order_cancel_choices)
+				.itemsIds(R.array.order_cancel_choice_ids)
+				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
+					showProgress("Ruším zakázku", "Prosím čekejte...");
+					ordersManager.cancelOrder(offer.getId());
+					return true;
+				})
+				.positiveText("OK")
+				.show();
+	}
+
+	@Click(R.id.showOnMap)
+	void openMap() {
+		IntentUtils.openRoute(this, offer.getDestinationAddress().getAddress().getLocation(), offer.getClientAddress().getLocation());
+	}
+
+	@Click(R.id.clientAddress)
+	void openMapClient() {
+		IntentUtils.openMapLocation(this, offer.getClientAddress().getLocation(), offer.getClientName());
+	}
+
+	@Click(R.id.destinationAddress)
+	void openMapDestination() {
+		IntentUtils.openMapLocation(this, offer.getDestinationAddress().getAddress().getLocation(), offer.getDestinationAddress().getName());
+	}
+
+	private void setUi() {
+		ClientCar car = offer.getCar();
+		this.clientCar.setText(car.getModel() + ", " + car.getWeight() + " t");
+
+		Address clientAddress = offer.getClientAddress();
+		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
+
+		DestinationAddress destinationAddress = offer.getDestinationAddress();
+		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
+
+		this.eventDescription.setText(offer.getEventDescription());
+	}
+
+	private void finishOfferActivity() {
+		hideProgress();
+		MainActivity_.intent(this).start();
+		finish();
+	}
+
+	private void showProgress(String title, String content) {
 		progressDialog = new MaterialDialog.Builder(this)
-				.title("Měním stav")
-				.content("Prosím čekejte...")
+				.title(title)
+				.content(content)
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
 	}
 
-	private void finishOfferActivity() {
+	protected void hideProgress() {
+		if (progressDialog == null) {
+			return;
+		}
+
+		if (progressDialog.isCancelled()) {
+			return;
+		}
+
 		progressDialog.dismiss();
-		MainActivity_.intent(this).start();
-		finish();
 	}
 }

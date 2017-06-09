@@ -6,5 +6,8 @@
 		<attr name="ilt_text" format="string"/>
 		<attr name="ilt_textColor" format="color"/>
 		<attr name="ilt_icoResource" format="reference"/>
+		<attr name="ilt_icoSize" format="dimension"/>
+		<attr name="ilt_textSize" format="dimension"/>
+		<attr name="ilt_labelTextSize" format="dimension"/>
 	</declare-styleable>
 </resources>

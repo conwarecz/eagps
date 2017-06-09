@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="order_cancel_choices">
+		<item>Zaneprázdněn jinou zakázkou</item>
+		<item>Nedostatečné vybavení pro zásah</item>
+		<item>Technické problémy</item>
+		<item>Nesplnění dojezdové doby</item>
+	</string-array>
+	<integer-array name="order_cancel_choice_ids">
+		<item>0</item>
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+	</integer-array>
+</resources>

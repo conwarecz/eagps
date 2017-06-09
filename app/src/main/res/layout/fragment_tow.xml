@@ -1,12 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_elements_half">
 
-	<ImageView
-		android:id="@+id/stateIcon"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:scaleType="fitCenter"/>
-</LinearLayout>
+	<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+	                                             android:layout_width="match_parent"
+	                                             android:layout_height="wrap_content">
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/claimNumber"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:ilt_labelText="ID Zakázky"
+			app:ilt_labelTextColor="@color/colorPrimary"
+			app:ilt_textColor="@color/colorPrimary"
+			app:layout_constraintEnd_toStartOf="@+id/guideline4"
+			app:layout_constraintStart_toStartOf="parent"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/clientName"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:ilt_labelText="Klient"
+			app:ilt_labelTextColor="@color/colorPrimary"
+			app:ilt_textColor="@color/colorPrimary"
+			app:layout_constraintEnd_toStartOf="@+id/guideline4"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/claimNumber"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/clientCar"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:ilt_labelText="Automobil"
+			app:ilt_labelTextColor="@color/colorPrimary"
+			app:ilt_textColor="@color/colorPrimary"
+			app:layout_constraintEnd_toStartOf="@+id/guideline4"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/clientName"/>
+
+		<android.support.constraint.Guideline
+			android:id="@+id/guideline4"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent="0.5"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextButtonView_
+			android:id="@+id/limit"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="0dp"
+			app:ilt_labelText="Limit"
+			app:ilt_labelTextColor="@color/colorPrimary"
+			app:ilt_textColor="@color/colorPrimary"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="@+id/guideline4"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/telephone"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:ilt_labelText="Kontakt na klienta"
+			app:ilt_labelTextColor="@color/colorPrimary"
+			app:ilt_textColor="@color/colorPrimary"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="@+id/guideline4"
+			app:layout_constraintTop_toBottomOf="@+id/limit"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/licensePlate"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:ilt_labelText="RZ"
+			app:ilt_labelTextColor="@color/colorPrimary"
+			app:ilt_textColor="@color/colorPrimary"
+			app:layout_constraintEnd_toStartOf="@+id/orderDetailButton"
+			app:layout_constraintStart_toStartOf="@+id/guideline4"
+			app:layout_constraintTop_toBottomOf="@+id/telephone"/>
+
+		<Button
+			android:id="@+id/orderDetailButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Detail"
+			android:textAllCaps="false"
+			android:textSize="@dimen/text_size_small"
+			android:theme="@style/PrimaryButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/telephone"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/clientAddress"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/padding_sides"
+			android:layout_marginRight="@dimen/padding_sides"
+			android:layout_marginTop="@dimen/padding_sides"
+			android:background="@drawable/btn_large_rounded_top_blue"
+			android:padding="10dp"
+			app:ilt_icoResource="@drawable/btn_icon_map"
+			app:ilt_icoSize="32dp"
+			app:ilt_textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/clientCar"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/photosStep"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/padding_sides"
+			android:layout_marginRight="@dimen/padding_sides"
+			android:layout_marginTop="2dp"
+			android:background="@color/colorPrimaryDark"
+			android:padding="10dp"
+			app:ilt_icoResource="@drawable/btn_icon_photo"
+			app:ilt_icoSize="32dp"
+			app:ilt_text="Fotodokumentace z místa"
+			app:ilt_textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/clientAddress"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/destinationAddress"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/padding_sides"
+			android:layout_marginRight="@dimen/padding_sides"
+			android:layout_marginTop="2dp"
+			android:background="@color/colorPrimaryDark"
+			android:padding="10dp"
+			app:ilt_icoResource="@drawable/btn_icon_service"
+			app:ilt_icoSize="32dp"
+			app:ilt_textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/photosStep"/>
+
+		<net.aineuron.eagps.view.widget.IcoLabelTextView_
+			android:id="@+id/documentPhotos"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/padding_sides"
+			android:layout_marginRight="@dimen/padding_sides"
+			android:layout_marginTop="2dp"
+			android:background="@color/colorPrimaryDark"
+			android:padding="10dp"
+			app:ilt_icoResource="@drawable/btn_icon_orders"
+			app:ilt_icoSize="32dp"
+			app:ilt_text="Zakázkový list"
+			app:ilt_textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/destinationAddress"/>
+
+		<Button
+			android:id="@+id/finishOrder"
+			android:layout_width="0dp"
+			android:layout_height="50dp"
+			android:layout_marginTop="2dp"
+			android:background="@drawable/bottomleft_green"
+			android:text="Dokončit"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/text_size_title"
+			app:layout_constraintEnd_toStartOf="@+id/guideline4"
+			app:layout_constraintStart_toStartOf="@+id/documentPhotos"
+			app:layout_constraintTop_toBottomOf="@+id/documentPhotos"/>
+
+		<Button
+			android:id="@+id/cancelOrder"
+			android:layout_width="0dp"
+			android:layout_height="50dp"
+			android:layout_marginTop="2dp"
+			android:background="@drawable/btn_half_right_red"
+			android:text="Zrušit"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/text_size_title"
+			app:layout_constraintEnd_toEndOf="@+id/documentPhotos"
+			app:layout_constraintStart_toStartOf="@+id/guideline4"
+			app:layout_constraintTop_toBottomOf="@+id/documentPhotos"/>
+
+	</android.support.constraint.ConstraintLayout>
+</ScrollView>
