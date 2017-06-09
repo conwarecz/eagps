@@ -86,8 +86,17 @@ public class OfferActivity extends AppCompatActivity {
 	@Click(R.id.decline)
 	void declineClicked() {
 		// State is the same as before
-		MainActivity_.intent(this).start();
-		finish();
+		new MaterialDialog.Builder(this)
+				.title("Důvod zrušení")
+				.items(R.array.order_cancel_choices)
+				.itemsIds(R.array.order_cancel_choice_ids)
+				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
+					MainActivity_.intent(this).start();
+					finish();
+					return true;
+				})
+				.positiveText("OK")
+				.show();
 	}
 
 	@Click(R.id.showOnMap)
