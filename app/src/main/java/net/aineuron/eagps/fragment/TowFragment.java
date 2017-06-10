@@ -13,8 +13,8 @@ import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.IntentUtils;
-import net.aineuron.eagps.view.widget.IcoLabelTextButtonView;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
+import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -39,35 +39,20 @@ public class TowFragment extends BaseFragment {
 	@Bean
 	OrdersManager ordersManager;
 
-	@ViewById(R.id.claimNumber)
-	IcoLabelTextView claimNumber;
+	@ViewById(R.id.photosStep)
+	IcoLabelTextView photosStep;
 
-	@ViewById(R.id.clientName)
-	IcoLabelTextView clientName;
-
-	@ViewById(R.id.clientCar)
-	IcoLabelTextView clientCar;
-
-	@ViewById(R.id.limit)
-	IcoLabelTextButtonView limit;
-
-	@ViewById(R.id.telephone)
-	IcoLabelTextView telephone;
-
-	@ViewById(R.id.licensePlate)
-	IcoLabelTextView licensePlate;
+	@ViewById(R.id.documentPhotos)
+	IcoLabelTextView documentPhotos;
 
 	@ViewById(R.id.clientAddress)
 	IcoLabelTextView clientAddress;
 
-	@ViewById(R.id.photosStep)
-	IcoLabelTextView photosStep;
-
 	@ViewById(R.id.destinationAddress)
 	IcoLabelTextView destinationAddress;
 
-	@ViewById(R.id.documentPhotos)
-	IcoLabelTextView documentPhotos;
+	@ViewById(R.id.orderDetailHeader)
+	OrderDetailHeader orderDetailHeader;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -109,30 +94,9 @@ public class TowFragment extends BaseFragment {
 				.show();
 	}
 
-	@Click(R.id.telephone)
-	void telephoneClicked() {
-		IntentUtils.dialPhone(getContext(), order.getClientPhone());
-	}
-
-	@Click(R.id.clientAddress)
-	void clientAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
-	}
-
-	@Click(R.id.destinationAddress)
-	void setDestinationAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
-	}
-
 	@Click({R.id.photosStep, R.id.documentPhotos})
 	void photosClicked() {
 		IntentUtils.openCamera(getContext());
-	}
-
-	@Click(R.id.orderDetailButton)
-	void orderDetailClicked() {
-		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderDetailFragment.newInstance());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -144,17 +108,15 @@ public class TowFragment extends BaseFragment {
 	}
 
 	private void setContent() {
-		// TODO Fill the fields
+		orderDetailHeader.setContent(order, v -> {
+			MainActivityBase activity = (MainActivityBase) getActivity();
+			activity.showFragment(OrderDetailFragment.newInstance());
+		});
+
+
 		Address clientAddress = order.getClientAddress();
 		DestinationAddress destinationAddress = order.getDestinationAddress();
 
-		this.claimNumber.setText(order.getClaimNumber());
-		this.clientName.setText(order.getClientName());
-		this.telephone.setText(order.getClientPhone());
-		this.clientCar.setText(order.getCar().getModel() + ", " + order.getCar().getWeight() + " t");
-		this.licensePlate.setText(order.getCar().getLicensePlate());
-		this.limit.setText(order.getLimitation().getLimit());
-		this.limit.setExtendedDescription(order.getLimitation().isExtendedDescription());
 		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
 		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
 	}
