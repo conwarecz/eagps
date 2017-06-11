@@ -18,6 +18,7 @@ public class OrdersFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
+		setAppbarUpNavigation(false);
 		setAppbarTitle("Zakázky");
 	}
 }

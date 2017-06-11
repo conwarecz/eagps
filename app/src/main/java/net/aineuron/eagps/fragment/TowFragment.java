@@ -65,6 +65,7 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
+		setAppbarUpNavigation(false);
 		setAppbarTitle("Na zásahu");
 
 		order = ordersManager.getCurrentOrder();
@@ -75,7 +76,7 @@ public class TowFragment extends BaseFragment {
 	@Click(R.id.finishOrder)
 	void finishClicked() {
 		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderAttachmentsFragment.newInstance());
+		activity.showFragment(OrderAttachmentsFragment.newInstance(order.getId()));
 	}
 
 	@Click(R.id.cancelOrder)

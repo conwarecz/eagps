@@ -79,6 +79,10 @@ public class OrdersManager {
 		return order;
 	}
 
+	public Order getOrderById(Long orderId) {
+		return getCurrentOrder();
+	}
+
 	public void cancelOrder(Long orderId) {
 		clientProvider.getEaClient().cancelOrder(orderId);
 	}
