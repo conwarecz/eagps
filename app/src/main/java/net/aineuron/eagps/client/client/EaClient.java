@@ -10,6 +10,7 @@ import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 
@@ -52,7 +53,9 @@ public class EaClient {
 							// TODO: Set current state from the selected car
 							userManager.setSelectedCarId(carId);
 							User user = userManager.getUser();
+							Car car = carsManager.getCarById(carId);
 							user.setCarId(carId);
+							user.setCar(car);
 							userManager.setUser(user);
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},

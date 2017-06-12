@@ -37,7 +37,7 @@ public class CarsManager {
 
 	public Car getCarById(Long carId) {
 		for (Car car : cars) {
-			if (car.getId() == carId) {
+			if (car.getId().equals(carId)) {
 				return car;
 			}
 		}
