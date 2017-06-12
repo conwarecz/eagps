@@ -2,6 +2,7 @@ package net.aineuron.eagps.adapter;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.model.viewmodel.PhotoPathsWithReasonViewModel;
@@ -35,7 +36,7 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 
 	private PhotoPathsWithReason photoPathsWithReason;
 
-	public PhotoPathsWithReasonAdapter withStoreId(PhotoPathsWithReason photoPathsWithReason) {
+	public PhotoPathsWithReasonAdapter withPhotoPaths(PhotoPathsWithReason photoPathsWithReason) {
 		this.photoPathsWithReason = photoPathsWithReason;
 		notifyDataChanged();
 		return this;
@@ -68,6 +69,8 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 		PhotoPathsWithReasonViewModel item = items.get(position);
 
 		view.bind(item);
+
+		view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 	}
 
 	private void notifyDataChanged() {
@@ -83,5 +86,7 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 			items.add(new PhotoPathsWithReasonViewModel(TYPE_PHOTO, photoPathsWithReason).withPhotoPath(i, photoPathsWithReason.getPhotoPaths().get(i)));
 			items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_MORE_PHOTOS, photoPathsWithReason));
 		}
+
+		notifyDataSetChanged();
 	}
 }

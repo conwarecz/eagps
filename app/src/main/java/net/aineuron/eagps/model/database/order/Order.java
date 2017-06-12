@@ -18,8 +18,8 @@ public class Order {
 	private DestinationAddress destinationAddress;
 	private String eventDescription;
 	private Limitation limitation;
-	private PhotoPathsWithReason orderDocuments;
-	private PhotoPathsWithReason photos;
+	private PhotoPathsWithReason orderDocuments = new PhotoPathsWithReason();
+	private PhotoPathsWithReason photos = new PhotoPathsWithReason();
 
 	public Long getId() {
 		return id;

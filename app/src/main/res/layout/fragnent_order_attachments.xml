@@ -12,4 +12,53 @@
 		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintTop_toTopOf="parent"/>
 
+	<TextView
+		android:id="@+id/textView2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="@dimen/padding_elements_half"
+		android:layout_marginStart="@dimen/padding_elements_half"
+		android:layout_marginTop="@dimen/padding_elements_half"
+		android:text="Zakázkový list"
+		android:textColor="@color/colorPrimary"
+		android:textSize="16sp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/orderDetailHeader"/>
+
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/orderDocumentsView"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/attachment_photo_doc_height"
+		android:layout_marginEnd="@dimen/padding_elements_half"
+		android:layout_marginStart="@dimen/padding_elements_half"
+		android:layout_marginTop="@dimen/padding_elements_half"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/textView2"/>
+
+	<TextView
+		android:id="@+id/textView3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="@dimen/padding_elements_half"
+		android:layout_marginStart="@dimen/padding_elements_half"
+		android:layout_marginTop="@dimen/padding_elements_half"
+		android:text="Fotografie"
+		android:textColor="@color/colorPrimary"
+		android:textSize="16sp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/orderDocumentsView"/>
+
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/orderPhotosView"
+		android:layout_width="0dp"
+		android:layout_height="80dp"
+		android:layout_marginEnd="@dimen/padding_elements_half"
+		android:layout_marginStart="@dimen/padding_elements_half"
+		android:layout_marginTop="@dimen/padding_elements_half"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/textView3"/>
+
 </android.support.constraint.ConstraintLayout>
