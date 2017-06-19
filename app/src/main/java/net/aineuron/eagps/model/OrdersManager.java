@@ -91,4 +91,8 @@ public class OrdersManager {
 	public void cancelOrder(Long orderId) {
 		clientProvider.getEaClient().cancelOrder(orderId);
 	}
+
+	public void sendOrder(Long orderId) {
+		clientProvider.getEaClient().sendOrder(orderId);
+	}
 }

@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
+import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
@@ -73,6 +74,16 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putInt(STATE_CURRENT_TAB_ID, currentTabId);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+		}
+		return false;
 	}
 
 	@Override

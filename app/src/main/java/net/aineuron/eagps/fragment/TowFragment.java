@@ -100,6 +100,16 @@ public class TowFragment extends BaseFragment {
 		IntentUtils.openCamera(getContext());
 	}
 
+	@Click(R.id.clientAddress)
+	void clientAddressClicked() {
+		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
+	}
+
+	@Click(R.id.destinationAddress)
+	void setDestinationAddressClicked() {
+		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
+	}
+
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();

@@ -25,7 +25,7 @@ public class CarsManager {
 		for (long i = 0; i < 20; i++) {
 			Car car = new Car();
 			car.setId(i);
-			car.setStatusId(0L);
+			car.setStatusId((long) UserManager.STATE_ID_READY);
 			car.setUserId(0L);
 			car.setLicensePlate(String.format("1AB %04d", i));
 			car.setModel("Peugeot Expert");
