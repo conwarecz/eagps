@@ -23,6 +23,8 @@ import java.util.Date;
 @EBean(scope = EBean.Scope.Singleton)
 public class OrdersManager {
 
+	private static Order order;
+
 	@Pref
 	Pref_ pref;
 
@@ -30,7 +32,10 @@ public class OrdersManager {
 	ClientProvider clientProvider;
 
 	public Order getCurrentOrder() {
-		Order order = new Order();
+		if (order != null) {
+			return order;
+		}
+		order = new Order();
 
 		ClientCar clientCar = new ClientCar();
 		clientCar.setLicensePlate("4T8 4598");
