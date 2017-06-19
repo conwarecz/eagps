@@ -52,9 +52,9 @@ public class OrderDetailFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		this.order = ordersManager.getCurrentOrder();
-
+		setAppbarUpNavigation(true);
 		setAppbarTitle("Detail");
+		this.order = ordersManager.getCurrentOrder();
 
 		setUi();
 	}

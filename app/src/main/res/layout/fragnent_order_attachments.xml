@@ -1,7 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-</LinearLayout>
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<net.aineuron.eagps.view.widget.OrderDetailHeader_
+			android:id="@+id/orderDetailHeader"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:id="@+id/textView2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/padding_elements_half"
+			android:layout_marginStart="@dimen/padding_elements_half"
+			android:layout_marginTop="@dimen/padding_elements_half"
+			android:text="Zakázkový list"
+			android:textColor="@color/colorPrimary"
+			android:textSize="16sp"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/orderDetailHeader"/>
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/orderDocumentsView"
+			android:layout_width="0dp"
+			android:layout_height="@dimen/attachment_photo_doc_height"
+			android:layout_marginEnd="@dimen/padding_elements_half"
+			android:layout_marginStart="@dimen/padding_elements_half"
+			android:layout_marginTop="@dimen/padding_elements_half"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textView2"/>
+
+		<TextView
+			android:id="@+id/textView3"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/padding_elements_half"
+			android:layout_marginStart="@dimen/padding_elements_half"
+			android:layout_marginTop="@dimen/padding_elements_half"
+			android:text="Fotografie"
+			android:textColor="@color/colorPrimary"
+			android:textSize="16sp"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/orderDocumentsView"/>
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/orderPhotosView"
+			android:layout_width="0dp"
+			android:layout_height="80dp"
+			android:layout_marginEnd="@dimen/padding_elements_half"
+			android:layout_marginStart="@dimen/padding_elements_half"
+			android:layout_marginTop="@dimen/padding_elements_half"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textView3"/>
+
+		<Button
+			android:id="@+id/closeOrder"
+			android:layout_width="0dp"
+			android:layout_height="50dp"
+			android:layout_marginTop="@dimen/padding_elements_half"
+			android:background="@drawable/btn_half_left_blue"
+			android:text="Zavřít"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/text_size_title"
+			app:layout_constraintEnd_toStartOf="@+id/guideline3"
+			app:layout_constraintStart_toStartOf="@+id/orderPhotosView"
+			app:layout_constraintTop_toBottomOf="@+id/orderPhotosView"/>
+
+		<Button
+			android:id="@+id/sendOrder"
+			android:layout_width="0dp"
+			android:layout_height="50dp"
+			android:layout_marginTop="@dimen/padding_elements_half"
+			android:background="@drawable/btn_half_right_green"
+			android:text="Odeslat"
+			android:textAllCaps="false"
+			android:textColor="@color/backgroundWhite"
+			android:textSize="@dimen/text_size_title"
+			app:layout_constraintEnd_toEndOf="@+id/orderPhotosView"
+			app:layout_constraintStart_toStartOf="@+id/guideline3"
+			app:layout_constraintTop_toBottomOf="@+id/orderPhotosView"/>
+
+		<android.support.constraint.Guideline
+			android:id="@+id/guideline3"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent="0.5"/>
+
+	</android.support.constraint.ConstraintLayout>
+</ScrollView>

@@ -6,10 +6,12 @@ import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 
@@ -52,8 +54,11 @@ public class EaClient {
 							// TODO: Set current state from the selected car
 							userManager.setSelectedCarId(carId);
 							User user = userManager.getUser();
+							Car car = carsManager.getCarById(carId);
 							user.setCarId(carId);
+							user.setCar(car);
 							userManager.setUser(user);
+							userManager.setSelectedStateId(car.getStatusId().intValue());
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},
 						ClientProvider::postNetworkError
@@ -91,6 +96,19 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							EventBus.getDefault().post(new OrderCanceledEvent(orderId));
+						},
+						ClientProvider::postNetworkError
+				);
+	}
+
+	public void sendOrder(Long orderId) {
+		Observable.timer(1, TimeUnit.SECONDS)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> {
+							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+							EventBus.getDefault().post(new OrderSentEvent(orderId));
 						},
 						ClientProvider::postNetworkError
 				);

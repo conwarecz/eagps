@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:layout_width="@dimen/attachment_photo_doc_height"
+                                             android:layout_height="@dimen/attachment_photo_doc_height"
+                                             android:background="@drawable/background_outline_gray">
+
+	<ImageView
+		android:id="@+id/addPhotos"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:scaleType="fitCenter"
+		android:src="@drawable/icon_nophoto"/>
+
+</android.support.constraint.ConstraintLayout>

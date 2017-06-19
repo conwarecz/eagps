@@ -24,6 +24,15 @@ public class BaseFragment extends Fragment {
 		actionBar.setTitle(title);
 	}
 
+	protected void setAppbarUpNavigation(boolean showBackButton) {
+		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+		if (actionBar == null) {
+			return;
+		}
+
+		actionBar.setDisplayHomeAsUpEnabled(showBackButton);
+	}
+
 	protected void showProgress(String title, String content) {
 		progressDialog = new MaterialDialog.Builder(getContext())
 				.title(title)

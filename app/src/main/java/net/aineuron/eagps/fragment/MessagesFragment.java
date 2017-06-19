@@ -19,6 +19,7 @@ public class MessagesFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
+		setAppbarUpNavigation(false);
 		setAppbarTitle("Zprávy");
 	}
 }

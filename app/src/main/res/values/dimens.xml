@@ -2,6 +2,7 @@
 <resources>
 	<dimen name="padding_elements">16dp</dimen>
 	<dimen name="padding_elements_half">8dp</dimen>
+	<dimen name="padding_elements_half_minus">-8dp</dimen>
 	<dimen name="padding_sides">24dp</dimen>
 	<dimen name="big_button_height">56dp</dimen>
 
@@ -9,4 +10,7 @@
 	<dimen name="text_size_title">18sp</dimen>
 	<dimen name="text_size_small">13sp</dimen>
 	<dimen name="text_size_big">24sp</dimen>
+
+
+	<dimen name="attachment_photo_doc_height">80dp</dimen>
 </resources>
