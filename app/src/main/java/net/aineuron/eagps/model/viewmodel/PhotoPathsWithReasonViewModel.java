@@ -12,6 +12,7 @@ public class PhotoPathsWithReasonViewModel {
 	public final int itemType;
 	public int photoIndex = -1;
 	public String photoPath;
+	public int addPhotoTarget = -1;
 
 	public PhotoPathsWithReasonViewModel(int itemType, PhotoPathsWithReason photoPathsWithReason) {
 		this.itemType = itemType;
@@ -22,6 +23,11 @@ public class PhotoPathsWithReasonViewModel {
 		this.photoIndex = index;
 		this.photoPath = photoPath;
 
+		return this;
+	}
+
+	public PhotoPathsWithReasonViewModel withAddPhotoTargetId(int addPhotoTarget) {
+		this.addPhotoTarget = addPhotoTarget;
 		return this;
 	}
 }

@@ -3,13 +3,14 @@ package net.aineuron.eagps.view.photopathswithreason;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.ui.AddPhotoEvent;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Vit Veres on 11-Jun-17
@@ -33,7 +34,6 @@ public class AddMorePhotosView extends BasePhotoPathsWithReasonView {
 
 	@Click(R.id.addMorePhotos)
 	void addMorePhotosClicked() {
-		// TODO:
-		Toast.makeText(getContext(), "Add More photos clicked", Toast.LENGTH_SHORT).show();
+		EventBus.getDefault().post(new AddPhotoEvent(item.addPhotoTarget));
 	}
 }

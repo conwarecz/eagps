@@ -19,24 +19,24 @@ import org.androidannotations.annotations.ViewById;
  */
 
 @EViewGroup(R.layout.item_attachement_photo)
-public class AttachementPhotoView extends BasePhotoPathsWithReasonView {
+public class AttachmentPhotoView extends BasePhotoPathsWithReasonView {
 
 	@ViewById(R.id.photoView)
 	ImageView photoView;
 
-	public AttachementPhotoView(@NonNull Context context) {
+	public AttachmentPhotoView(@NonNull Context context) {
 		super(context);
 	}
 
 	@Override
 	protected void bindView() {
 		String photoPath = item.photoPath;
-		Glide.with(this).load(photoPath).into(photoView);
+		Glide.with(getContext()).load(photoPath).into(photoView);
 	}
 
 	@Click(R.id.photoView)
-	void addMorePhotosClicked() {
+	void photosClicked() {
 		// TODO:
-		Toast.makeText(getContext(), "Add Photo clicked", Toast.LENGTH_SHORT).show();
+		Toast.makeText(getContext(), "Photo clicked", Toast.LENGTH_SHORT).show();
 	}
 }
