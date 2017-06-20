@@ -27,6 +27,7 @@ import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter_;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.ui.AddPhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
+import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
@@ -142,7 +143,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			Log.d("Matisse", "mSelected: " + mSelected);
 
 
-			List<String> paths;
+			List<RealmString> paths;
 			if (requestCode == REQUEST_CODE_CHOOSE_DOCS) {
 				paths = order.getOrderDocuments().getPhotoPaths();
 			} else {
@@ -150,7 +151,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 
 			for (Uri uri : mSelected) {
-				paths.add(BitmapUtil.getRealPathFromUri(getContext(), uri));
+				paths.add(new RealmString(BitmapUtil.getRealPathFromUri(getContext(), uri)));
 			}
 
 			setContent();

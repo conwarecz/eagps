@@ -1,11 +1,13 @@
 package net.aineuron.eagps.model.database.order;
 
+import io.realm.RealmObject;
+
 /**
  * Created by Vit Veres on 31-May-17
  * as a part of Android-EAGPS project.
  */
 
-public class Address {
+public class Address extends RealmObject {
 	private String street;
 	private String city;
 	private String zipCode;

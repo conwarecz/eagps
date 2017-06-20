@@ -13,6 +13,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.SimpleDateFormat;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -23,6 +25,9 @@ import io.realm.RealmConfiguration;
 
 @EApplication
 public class Appl extends MultiDexApplication {
+
+	public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+	public static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm");
 
 	public static RealmConfiguration dbConfig;
 

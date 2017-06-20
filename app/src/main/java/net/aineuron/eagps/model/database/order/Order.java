@@ -2,12 +2,14 @@ package net.aineuron.eagps.model.database.order;
 
 import java.util.Date;
 
+import io.realm.RealmObject;
+
 /**
  * Created by Vit Veres on 06-Jun-17
  * as a part of Android-EAGPS project.
  */
 
-public class Order {
+public class Order extends RealmObject {
 	private Long id;
 	private String claimNumber;
 	private Date time;
@@ -20,6 +22,7 @@ public class Order {
 	private Limitation limitation;
 	private PhotoPathsWithReason orderDocuments = new PhotoPathsWithReason();
 	private PhotoPathsWithReason photos = new PhotoPathsWithReason();
+	private boolean isSent;
 
 	public Long getId() {
 		return id;
@@ -115,5 +118,13 @@ public class Order {
 
 	public void setPhotos(PhotoPathsWithReason photos) {
 		this.photos = photos;
+	}
+
+	public boolean isSent() {
+		return isSent;
+	}
+
+	public void setSent(boolean sent) {
+		isSent = sent;
 	}
 }

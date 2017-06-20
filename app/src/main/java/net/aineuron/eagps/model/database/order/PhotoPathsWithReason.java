@@ -1,16 +1,18 @@
 package net.aineuron.eagps.model.database.order;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.aineuron.eagps.model.database.RealmString;
+
+import io.realm.RealmList;
+import io.realm.RealmObject;
 
 /**
  * Created by Vit Veres on 06-Jun-17
  * as a part of Android-EAGPS project.
  */
 
-public class PhotoPathsWithReason {
+public class PhotoPathsWithReason extends RealmObject {
 	private String reasonForNoPhotos;
-	private List<String> photoPaths = new ArrayList<>();
+	private RealmList<RealmString> photoPaths = new RealmList<>();
 
 	public String getReasonForNoPhotos() {
 		return reasonForNoPhotos;
@@ -20,11 +22,11 @@ public class PhotoPathsWithReason {
 		this.reasonForNoPhotos = reasonForNoPhotos;
 	}
 
-	public List<String> getPhotoPaths() {
+	public RealmList<RealmString> getPhotoPaths() {
 		return photoPaths;
 	}
 
-	public void setPhotoPaths(List<String> photoPaths) {
+	public void setPhotoPaths(RealmList<RealmString> photoPaths) {
 		this.photoPaths = photoPaths;
 	}
 }

@@ -10,10 +10,12 @@ import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.CarsManager;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.RealmHelper;
 
@@ -42,6 +44,8 @@ public class EaClient {
 	CarsManager carsManager;
 	@Bean
 	UserManager userManager;
+	@Bean
+	OrdersManager ordersManager;
 
 	private EaService eaService;
 
@@ -56,7 +60,6 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						aLong -> {
-							// TODO: Set current state from the selected car
 							userManager.setSelectedCarId(carId);
 							User user = userManager.getUser();
 							Car car = carsManager.getCarById(carId);
@@ -114,6 +117,25 @@ public class EaClient {
 						aLong -> {
 							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
 							EventBus.getDefault().post(new OrderSentEvent(orderId));
+						},
+						ClientProvider::postNetworkError
+				);
+	}
+
+	public void updateOrders() {
+		Observable.timer(2, TimeUnit.SECONDS)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> {
+							Realm db = RealmHelper.getDb();
+							Order order = ordersManager.getCurrentOrder();
+							order.setId((long) (Math.random() * 1000));
+							order.setTime(new Date());
+
+							db.executeTransaction(realm -> realm.copyToRealm(order));
+
+							db.close();
 						},
 						ClientProvider::postNetworkError
 				);
