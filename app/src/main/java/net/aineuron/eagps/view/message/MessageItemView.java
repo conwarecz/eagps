@@ -5,11 +5,15 @@ import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import com.tmtron.greenannotations.EventBusGreenRobot;
+
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.ui.MessageClickedEvent;
 import net.aineuron.eagps.model.database.Message;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
 
@@ -33,6 +37,9 @@ public class MessageItemView extends ConstraintLayout {
 	@ViewById(R.id.message)
 	TextView message;
 
+	@EventBusGreenRobot
+	EventBus bus;
+
 	public MessageItemView(Context context) {
 		super(context);
 	}
@@ -45,9 +52,11 @@ public class MessageItemView extends ConstraintLayout {
 		super(context, attrs, defStyleAttr);
 	}
 
-	public void bind(Message message) {
+	public void bind(final Message message) {
 		this.date.setText(dateFormat.format(message.getDate()));
 		this.time.setText(timeFormat.format(message.getDate()));
 		this.message.setText(message.getMessage());
+
+		this.setOnClickListener(v -> bus.post(new MessageClickedEvent(message.getId())));
 	}
 }
