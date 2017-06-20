@@ -13,6 +13,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 /**
  * Created by Vit Veres on 15-May-17
  * as a part of Android-EAGPS project.
@@ -20,12 +23,17 @@ import org.greenrobot.eventbus.ThreadMode;
 
 @EApplication
 public class Appl extends MultiDexApplication {
+
+	public static RealmConfiguration dbConfig;
+
 	@EventBusGreenRobot
 	EventBus bus;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		initRealm();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -38,5 +46,14 @@ public class Appl extends MultiDexApplication {
 		}
 
 		Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+	}
+
+	private void initRealm() {
+		Realm.init(this);
+		dbConfig = new RealmConfiguration.Builder()
+				.schemaVersion(1)
+				.name("db.realm")
+				.deleteRealmIfMigrationNeeded()
+				.build();
 	}
 }

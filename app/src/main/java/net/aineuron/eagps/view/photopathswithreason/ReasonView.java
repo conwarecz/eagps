@@ -27,15 +27,12 @@ public class ReasonView extends BasePhotoPathsWithReasonView {
 
 	@Override
 	protected void bindView() {
-
+		reason.setText(item.photoPathsWithReason.getReasonForNoPhotos());
 	}
 
 	@TextChange(R.id.reason)
 	void onReasonChanged() {
 		String reasonText = reason.getText().toString();
-		if (reasonText == null) {
-			return;
-		}
 
 		item.photoPathsWithReason.setReasonForNoPhotos(reasonText);
 	}
