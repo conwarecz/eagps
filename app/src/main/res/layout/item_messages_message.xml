@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:paddingBottom="@dimen/padding_elements_half"
+       android:paddingTop="@dimen/padding_elements_half"
+       tools:parentTag="android.support.constraint.ConstraintLayout">
+
+	<TextView
+		android:id="@+id/date"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:gravity="center_horizontal"
+		android:textColor="@color/colorPrimary"
+		app:layout_constraintEnd_toStartOf="@+id/guideline5"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="21.3.2017"/>
+
+	<TextView
+		android:id="@+id/time"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="8dp"
+		android:gravity="center_horizontal"
+		android:textColor="@color/colorPrimary"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/date"
+		app:layout_constraintStart_toStartOf="@+id/date"
+		app:layout_constraintTop_toBottomOf="@+id/date"
+		tools:text="12:45"/>
+
+	<TextView
+		android:id="@+id/message"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/padding_elements_half"
+		android:layout_marginRight="@dimen/padding_elements_half"
+		android:ellipsize="end"
+		android:lines="1"
+		android:textColor="@color/colorPrimary"
+		app:layout_constraintBottom_toBottomOf="@+id/time"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@+id/guideline5"
+		app:layout_constraintTop_toTopOf="@+id/date"
+		tools:text="slfd sdf asdf asfd afsd asdf asdf asdf adfs adsf j a;sldf"/>
+
+	<android.support.constraint.Guideline
+		android:id="@+id/guideline5"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		app:layout_constraintGuide_percent="0.35"/>
+</merge>

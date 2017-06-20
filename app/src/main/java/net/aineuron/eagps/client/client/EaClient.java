@@ -12,18 +12,23 @@ import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
+import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.transfer.LoginInfo;
+import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
 import retrofit2.Retrofit;
 
 /**
@@ -109,6 +114,26 @@ public class EaClient {
 						aLong -> {
 							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
 							EventBus.getDefault().post(new OrderSentEvent(orderId));
+						},
+						ClientProvider::postNetworkError
+				);
+	}
+
+	public void updateMessages() {
+		Observable.timer(1, TimeUnit.SECONDS)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> {
+							Realm db = RealmHelper.getDb();
+							Message message = new Message();
+							message.setId((long) (Math.random() * 1000));
+							message.setMessage(UUID.randomUUID().toString());
+							message.setDate(new Date());
+
+							db.executeTransaction(realm -> realm.copyToRealm(message));
+
+							db.close();
 						},
 						ClientProvider::postNetworkError
 				);
