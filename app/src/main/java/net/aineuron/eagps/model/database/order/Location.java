@@ -1,11 +1,13 @@
 package net.aineuron.eagps.model.database.order;
 
+import io.realm.RealmObject;
+
 /**
  * Created by Vit Veres on 05-Jun-17
  * as a part of Android-EAGPS project.
  */
 
-public class Location {
+public class Location extends RealmObject {
 	private double latitude;
 	private double longitude;
 

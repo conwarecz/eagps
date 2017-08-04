@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:background="@color/ready"
+       tools:parentTag="android.support.constraint.ConstraintLayout">
+
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="@dimen/padding_elements"
+		android:paddingTop="@dimen/padding_elements">
+
+		<android.support.constraint.Guideline
+			android:id="@+id/guideline6"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent="0.25"/>
+
+		<android.support.constraint.Guideline
+			android:id="@+id/guideline7"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent="0.45"/>
+
+		<android.support.constraint.Guideline
+			android:id="@+id/guideline8"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent="0.7"/>
+
+		<TextView
+			android:id="@+id/date"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="21.5.2017"
+			android:textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toStartOf="@+id/guideline6"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:id="@+id/orderId"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="9846566"
+			android:textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toStartOf="@+id/guideline7"
+			app:layout_constraintStart_toStartOf="@+id/guideline6"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<TextView
+			android:id="@+id/licensePlate"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="4T5 45654"
+			android:textColor="@color/backgroundWhite"
+			app:layout_constraintEnd_toStartOf="@+id/guideline8"
+			app:layout_constraintStart_toStartOf="@+id/guideline7"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<ImageView
+			android:id="@+id/documentsCheck"
+			android:layout_width="wrap_content"
+			android:layout_height="20dp"
+			android:adjustViewBounds="true"
+			app:layout_constraintEnd_toStartOf="@+id/photosCheck"
+			app:layout_constraintStart_toStartOf="@+id/guideline8"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/icon_check"/>
+
+		<ImageView
+			android:id="@+id/photosCheck"
+			android:layout_width="wrap_content"
+			android:layout_height="20dp"
+			android:adjustViewBounds="true"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/documentsCheck"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/icon_cross"/>
+
+	</android.support.constraint.ConstraintLayout>
+
+</merge>
