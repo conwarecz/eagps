@@ -5,7 +5,6 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
-import net.aineuron.eagps.activity.MainActivity_;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
@@ -114,7 +113,7 @@ public class TowFragment extends BaseFragment {
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
 		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-		MainActivity_.intent(getContext()).start();
+		IntentUtils.openMainActivity(getContext());
 		getActivity().finish();
 	}
 

@@ -21,7 +21,6 @@ import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
-import net.aineuron.eagps.activity.MainActivity_;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter_;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
@@ -30,6 +29,7 @@ import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.BitmapUtil;
+import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
 import org.androidannotations.annotations.AfterViews;
@@ -106,7 +106,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
-		MainActivity_.intent(getContext()).start();
+		IntentUtils.openMainActivity(getContext());
 		getActivity().finish();
 	}
 

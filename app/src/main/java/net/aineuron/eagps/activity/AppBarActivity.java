@@ -47,9 +47,9 @@ public class AppBarActivity extends MainActivityBase {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		profileName = (TextView) menuProfile.getActionView().findViewById(R.id.nameView);
-		stateIcon = (ImageView) menuState.getActionView().findViewById(R.id.stateIcon);
-		licencePlate = (TextView) menuState.getActionView().findViewById(R.id.licensePlate);
+		profileName = menuProfile.getActionView().findViewById(R.id.nameView);
+		stateIcon = menuState.getActionView().findViewById(R.id.stateIcon);
+		licencePlate = menuState.getActionView().findViewById(R.id.licensePlate);
 
 		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {
@@ -74,30 +74,31 @@ public class AppBarActivity extends MainActivityBase {
 			return;
 		}
 
-		switch (userManager.getSelectedStateId()) {
-			case UserManager.STATE_ID_READY:
-				setActionBarColor(actionBar, ready);
-				stateIcon.setImageResource(R.drawable.icon_ready);
-				break;
-			case UserManager.STATE_ID_BUSY:
-				setActionBarColor(actionBar, busy);
-				stateIcon.setImageResource(R.drawable.icon_busy);
-				break;
-			case UserManager.STATE_ID_UNAVAILABLE:
-				setActionBarColor(actionBar, unavailable);
-				stateIcon.setImageResource(R.drawable.icon_unavailable);
-				break;
-			case UserManager.STATE_ID_NO_CAR:
-				menuState.setVisible(false);
-				setActionBarColor(actionBar, primary);
-				break;
-			case UserManager.STATE_ID_BUSY_ORDER:
-				setActionBarColor(actionBar, busy);
-				stateIcon.setImageResource(R.drawable.icon_busy);
-				break;
-			default:
-				setActionBarColor(actionBar, primary);
-				break;
+		Long i = userManager.getSelectedStateId();
+		if (i == null) {
+			setActionBarColor(actionBar, primary);
+		} else if (i.equals(UserManager.STATE_ID_READY)) {
+			setActionBarColor(actionBar, ready);
+			stateIcon.setImageResource(R.drawable.icon_ready);
+
+		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
+			setActionBarColor(actionBar, busy);
+			stateIcon.setImageResource(R.drawable.icon_busy);
+
+		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
+			setActionBarColor(actionBar, unavailable);
+			stateIcon.setImageResource(R.drawable.icon_unavailable);
+
+		} else if (i.equals(UserManager.STATE_ID_NO_CAR)) {
+			menuState.setVisible(false);
+			setActionBarColor(actionBar, primary);
+
+		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
+			setActionBarColor(actionBar, busy);
+			stateIcon.setImageResource(R.drawable.icon_busy);
+
+		} else {
+			setActionBarColor(actionBar, primary);
 		}
 
 		User user = userManager.getUser();

@@ -51,22 +51,23 @@ public class StateFragment extends BaseFragment {
 	}
 
 	private void setContent() {
-		switch (userManager.getSelectedStateId()) {
-			case UserManager.STATE_ID_READY:
-				setReadyContent();
-				break;
-			case UserManager.STATE_ID_BUSY:
-				setBusyContent();
-				break;
-			case UserManager.STATE_ID_UNAVAILABLE:
-				setUnavailableContent();
-				break;
-			case UserManager.STATE_ID_NO_CAR:
-				setNoCarContent();
-				break;
-			default:
-				setErrorState();
-				break;
+		Long i = userManager.getSelectedStateId();
+		if (i == null) {
+			setErrorState();
+		} else if (i.equals(UserManager.STATE_ID_READY)) {
+			setReadyContent();
+
+		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
+			setBusyContent();
+
+		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
+			setUnavailableContent();
+
+		} else if (i.equals(UserManager.STATE_ID_NO_CAR)) {
+			setNoCarContent();
+
+		} else {
+			setErrorState();
 		}
 	}
 
@@ -83,7 +84,7 @@ public class StateFragment extends BaseFragment {
 
 	private void setUnavailableContent() {
 		stateText.setText("Nedostupný");
-		stateSubtext.setText("Při statusu nedostupný nejste v systémech EA viditelní (např. vozidlo v service, atd.)");
+		stateSubtext.setText("Při statusu nedostupný nejste v systémech EA viditelní (např. vozidlo v servise, atd.)");
 		stateIcon.setImageResource(R.drawable.icon_big_unavailable);
 	}
 

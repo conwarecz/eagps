@@ -139,7 +139,7 @@ public class OfferActivity extends AppCompatActivity {
 
 	private void finishOfferActivity() {
 		hideProgress();
-		MainActivity_.intent(this).start();
+		IntentUtils.openMainActivity(this);
 		finish();
 	}
 

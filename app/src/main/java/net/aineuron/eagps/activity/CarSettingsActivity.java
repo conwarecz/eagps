@@ -17,6 +17,7 @@ import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
 import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -78,7 +79,12 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@Click(R.id.skipLayout)
 	public void onSkip() {
 		userManager.setStateNoCar();
-		finishSettings();
+		progressDialog = new MaterialDialog.Builder(this)
+				.title("Měním nastavení")
+				.content("Prosím čekejte...")
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -106,7 +112,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
 	private void finishSettings() {
-		MainActivity_.intent(this).start();
+		IntentUtils.openMainActivity(this);
 		finish();
 	}
 }

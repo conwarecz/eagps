@@ -81,7 +81,7 @@
 			android:layout_width="0dp"
 			android:layout_height="48dp"
 			android:gravity="center"
-			android:text="Přeskočit"
+			android:text="Přihlášení bez vozidla"
 			android:textAllCaps="false"
 			android:textColor="@color/backgroundWhite"
 			android:textSize="@dimen/text_size_title"

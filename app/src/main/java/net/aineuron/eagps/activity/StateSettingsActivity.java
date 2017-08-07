@@ -10,6 +10,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -81,7 +82,7 @@ public class StateSettingsActivity extends AppCompatActivity {
 	}
 
 	private void finishSettings() {
-		MainActivity_.intent(this).start();
+		IntentUtils.openMainActivity(this);
 		finish();
 	}
 }
