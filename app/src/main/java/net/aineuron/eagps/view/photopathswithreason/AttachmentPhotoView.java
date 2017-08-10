@@ -3,15 +3,18 @@ package net.aineuron.eagps.view.photopathswithreason;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.ImageView;
-import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Vit Veres on 11-Jun-17
@@ -24,6 +27,9 @@ public class AttachmentPhotoView extends BasePhotoPathsWithReasonView {
 	@ViewById(R.id.photoView)
 	ImageView photoView;
 
+	@EventBusGreenRobot
+	EventBus bus;
+
 	public AttachmentPhotoView(@NonNull Context context) {
 		super(context);
 	}
@@ -34,9 +40,14 @@ public class AttachmentPhotoView extends BasePhotoPathsWithReasonView {
 		Glide.with(getContext()).load(photoPath).into(photoView);
 	}
 
-	@Click(R.id.photoView)
+	@Click(R.id.removePhoto)
 	void photosClicked() {
-		// TODO:
-		Toast.makeText(getContext(), "Photo clicked", Toast.LENGTH_SHORT).show();
+		new MaterialDialog.Builder(getContext())
+				.title("Smazat")
+				.content("Opravdu chcete smazat fotku nebo dokument?")
+				.positiveText("Ano")
+				.negativeText("Zrušit")
+				.onPositive((dialog, which) -> bus.post(new RemovePhotoEvent(item.photoPathsWithReason, item.photoPath)))
+				.show();
 	}
 }

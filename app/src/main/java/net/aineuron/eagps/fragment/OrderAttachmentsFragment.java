@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
@@ -25,9 +26,11 @@ import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter_;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.ui.AddPhotoEvent;
+import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
@@ -42,6 +45,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Iterator;
 import java.util.List;
 
 import permissions.dispatcher.NeedsPermission;
@@ -99,6 +103,25 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Click(R.id.sendOrder)
 	public void sendOrder() {
+		boolean isValid = true;
+
+		if (order.getOrderDocuments().getPhotoPaths().size() == 0 && order.getOrderDocuments().getReasonForNoPhotos().isEmpty()) {
+			isValid = false;
+		}
+
+		if (order.getPhotos().getPhotoPaths().size() == 0 && order.getPhotos().getReasonForNoPhotos().isEmpty()) {
+			isValid = false;
+		}
+
+		if (!isValid) {
+			new MaterialDialog.Builder(getContext())
+					.title("Chyba")
+					.content("Zakázku nelze odeslat, neboť nemáte přiřazeny fotografie, zakázkový list nebo není vyplněn důvod, proč tyto dokumenty nemůžete dodat.")
+					.positiveText("Rozumím")
+					.show();
+			return;
+		}
+
 		showProgress("Odesílám zásah", "Prosím čekejte...");
 		ordersManager.sendOrder(order.getId());
 	}
@@ -107,7 +130,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
 		IntentUtils.openMainActivity(getContext());
-		getActivity().finish();
+		getActivity().onBackPressed();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -116,6 +139,21 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			OrderAttachmentsFragmentPermissionsDispatcher.showGalleryPickerForDocsWithCheck(this);
 		} else {
 			OrderAttachmentsFragmentPermissionsDispatcher.showGalleryPickerForPhotosWithCheck(this);
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onRemovePhotoClicked(RemovePhotoEvent e) {
+		PhotoPathsWithReason photoPathsWithReason = e.photoPathsWithReason;
+		String photoPath = e.photoPath;
+
+		for (Iterator<RealmString> iterator = photoPathsWithReason.getPhotoPaths().iterator(); iterator.hasNext(); ) {
+			RealmString pp = iterator.next();
+			if (pp.getValue().equalsIgnoreCase(photoPath)) {
+				iterator.remove();
+				setContent();
+				return;
+			}
 		}
 	}
 

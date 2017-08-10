@@ -17,7 +17,15 @@ public abstract class BasePhotoPathsWithReasonView extends BaseItemView<PhotoPat
 	public static final int TYPE_REASON = 2;
 	public static final int TYPE_PHOTO = 3;
 
+	protected int targetId;
+
 	public BasePhotoPathsWithReasonView(@NonNull Context context) {
 		super(context);
+	}
+
+	public void bind(PhotoPathsWithReasonViewModel item, int targetId) {
+		this.item = item;
+		this.targetId = targetId;
+		bindView();
 	}
 }

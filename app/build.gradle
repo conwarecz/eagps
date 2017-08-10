@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-	compile fileTree(dir: 'libs', include: ['*.jar'])
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
 	androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
 		exclude group: 'com.android.support', module: 'support-annotations'
 	})
@@ -54,18 +54,18 @@ dependencies {
 
 	// Architecture
 	implementation 'org.greenrobot:eventbus:3.0.0'
-	implementation "io.reactivex.rxjava2:rxjava:2.1.0"
+	implementation "io.reactivex.rxjava2:rxjava:2.1.2"
 	implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
 	// View
-	implementation 'com.ashokvarma.android:bottom-navigation-bar:1.4.1'
-	implementation 'com.github.jetradarmobile:multibackstack:1.2.0'
+	implementation 'com.ashokvarma.android:bottom-navigation-bar:2.0.2'
+	implementation 'com.github.jetradarmobile:multibackstack:1.2.1'
 	implementation 'com.afollestad.material-dialogs:core:0.9.4.5'
 	implementation 'com.mobsandgeeks:android-saripaar:2.0.3'
 
 	implementation 'com.zhihu.android:matisse:0.4.3'
 
-	implementation 'io.realm:android-adapters:2.0.0'
+	implementation 'io.realm:android-adapters:2.1.0'
 
 	// Permissions
 	implementation('com.github.hotchemi:permissionsdispatcher:2.4.0') {

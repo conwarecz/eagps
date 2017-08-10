@@ -1,5 +1,7 @@
 package net.aineuron.eagps.fragment;
 
+import android.widget.Toast;
+
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
@@ -89,6 +91,11 @@ public class TowFragment extends BaseFragment {
 					showProgress("Ruším zakázku", "Prosím čekejte...");
 					ordersManager.cancelOrder(order.getId());
 					return true;
+				})
+				.onPositive((dialog, which) -> {
+					if (dialog.getSelectedIndex() < 0) {
+						Toast.makeText(getContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
+					}
 				})
 				.positiveText("OK")
 				.show();
