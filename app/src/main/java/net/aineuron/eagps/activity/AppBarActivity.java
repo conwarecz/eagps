@@ -67,13 +67,21 @@ public class AppBarActivity extends MainActivityBase {
 
 		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {
+			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
+				return;
+			}
 			CarSettingsActivity_.intent(this).resetCar(true).start();
-			finish();
 		});
 
 		setUpActionBar();
 
 		return true;
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		setUpActionBar();
 	}
 
 	@OptionsItem(R.id.actin_offer)

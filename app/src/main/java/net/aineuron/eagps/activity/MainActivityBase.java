@@ -1,5 +1,6 @@
 package net.aineuron.eagps.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -69,6 +70,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
 		currentTabId = savedInstanceState.getInt(STATE_CURRENT_TAB_ID);
 		bottomNavigation.selectTab(currentTabId, false);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		//initBottomNavigation();
+		//bottomNavigation.selectTab(MAIN_TAB_ID, false);
+		//showFragment(rootTabFragment(MAIN_TAB_ID));
 	}
 
 	@Override

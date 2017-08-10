@@ -21,7 +21,7 @@ import java.util.List;
 
 public class IntentUtils {
 	public static void openMainActivity(Context context) {
-		MainActivity_.intent(context).flags(Intent.FLAG_ACTIVITY_SINGLE_TOP).start();
+		MainActivity_.intent(context).start();
 	}
 
 	public static void openUrl(Context context, String url) {
