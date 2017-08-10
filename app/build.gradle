@@ -8,8 +8,8 @@ android {
 		applicationId "net.aineuron.eagps"
 		minSdkVersion 16
 		targetSdkVersion 26
-		versionCode 4
-		versionName "0.1.0"
+		versionCode 7
+		versionName "0.1.2"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {
@@ -28,6 +28,19 @@ android {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
+	}
+	packagingOptions {
+		exclude 'META-INF/LICENSE.txt'
+		exclude 'META-INF/DEPENDENCIES'
+		exclude 'META-INF/LICENSE'
+		exclude 'META-INF/MANIFEST.MF'
+		exclude 'META-INF/DEPENDENCIES.txt'
+		exclude 'META-INF/NOTICE.txt'
+		exclude 'META-INF/NOTICE'
+		exclude 'META-INF/LGPL2.1'
+	}
+	lintOptions {
+		checkReleaseBuilds false
 	}
 }
 
