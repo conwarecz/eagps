@@ -75,9 +75,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		//initBottomNavigation();
-		//bottomNavigation.selectTab(MAIN_TAB_ID, false);
-		//showFragment(rootTabFragment(MAIN_TAB_ID));
+		showFragment(rootTabFragment(MAIN_TAB_ID), false);
 	}
 
 	@Override

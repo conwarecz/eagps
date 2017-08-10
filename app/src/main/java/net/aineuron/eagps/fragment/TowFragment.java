@@ -121,7 +121,6 @@ public class TowFragment extends BaseFragment {
 		hideProgress();
 		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
 		IntentUtils.openMainActivity(getContext());
-		getActivity().finish();
 	}
 
 	private void setContent() {
@@ -129,7 +128,6 @@ public class TowFragment extends BaseFragment {
 			MainActivityBase activity = (MainActivityBase) getActivity();
 			activity.showFragment(OrderDetailFragment.newInstance());
 		});
-
 
 		Address clientAddress = order.getClientAddress();
 		DestinationAddress destinationAddress = order.getDestinationAddress();

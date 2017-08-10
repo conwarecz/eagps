@@ -47,7 +47,6 @@ public class StateFragment extends BaseFragment {
 	@Click(R.id.changeButton)
 	void stateImageClicked() {
 		StateSettingsActivity_.intent(getContext()).start();
-		getActivity().finish();
 	}
 
 	private void setContent() {

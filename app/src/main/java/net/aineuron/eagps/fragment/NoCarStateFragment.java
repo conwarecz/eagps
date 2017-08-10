@@ -51,7 +51,6 @@ public class NoCarStateFragment extends BaseFragment {
 	@Click(R.id.changeButton)
 	void stateImageClicked() {
 		CarSettingsActivity_.intent(getContext()).resetCar(true).start();
-		getActivity().finish();
 	}
 
 	private void setContent() {
