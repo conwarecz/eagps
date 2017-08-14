@@ -7,9 +7,11 @@ import net.aineuron.eagps.model.database.order.Order;
 import java.util.List;
 
 import io.reactivex.Maybe;
+import io.realm.RealmList;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -28,9 +30,9 @@ public interface EaService {
 	Maybe<List<Message>> getMessages(@Query("skip") int skip, @Query("take") int take);
 
 	@PUT("messages/{messageId}/read")
-	Maybe<Void> setRead(long messageId, @Body boolean isRead);
+	Maybe<Void> setRead(@Path("messageId") long messageId, @Body Boolean isRead);
 
 	// Orders
 	@GET("orders")
-	Maybe<Order> getOrders(@Query("skip") int skip, @Query("take") int take);
+	Maybe<RealmList<Order>> getOrders(@Query("skip") int skip, @Query("take") int take);
 }

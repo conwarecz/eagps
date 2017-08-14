@@ -2,6 +2,7 @@ package net.aineuron.eagps.client;
 
 import android.content.Context;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -53,7 +54,10 @@ public class ClientProvider {
 	public void rebuildRetrofit() {
 		String token = pref.token().get();
 
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:sss").create();
+		Gson gson = new GsonBuilder()
+				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
+				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+				.create();
 
 		Retrofit.Builder builder = new Retrofit.Builder()
 				.baseUrl(END_POINT)

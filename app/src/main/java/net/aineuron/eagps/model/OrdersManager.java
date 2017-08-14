@@ -42,7 +42,7 @@ public class OrdersManager {
 
 		order.setClientCarModel("Toyota Corolla");
 		order.setClientCarWeight("1200 kg");
-		order.setClientLicencePlate("4T8 4598");
+		order.setClientCarLicencePlate("4T8 4598");
 
 		Location clientLocation = new Location();
 		clientLocation.setLatitude(49.787973d);

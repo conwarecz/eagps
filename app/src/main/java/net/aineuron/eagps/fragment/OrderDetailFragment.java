@@ -90,7 +90,7 @@ public class OrderDetailFragment extends BaseFragment {
 
 		this.client.setText(order.getClientFirstName() + " " + order.getClientLastName() + ", " + order.getClientPhone());
 
-		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientLicencePlate());
+		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
 
 		Address clientAddress = order.getClientAddress();
 		this.clientAddress.setText(formatClientAddress(clientAddress));

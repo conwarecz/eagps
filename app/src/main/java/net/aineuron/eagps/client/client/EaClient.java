@@ -1,5 +1,7 @@
 package net.aineuron.eagps.client.client;
 
+import android.util.Log;
+
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.service.EaService;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
@@ -13,9 +15,7 @@ import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
-import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
-import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.RealmHelper;
 
@@ -23,8 +23,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Date;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -123,42 +121,45 @@ public class EaClient {
 	}
 
 	public void updateOrders() {
-		Observable.timer(2, TimeUnit.SECONDS)
+		eaService.getOrders(0, 100)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(
-						aLong -> {
+				.subscribe(orders -> {
 							Realm db = RealmHelper.getDb();
-							Order order = ordersManager.getCurrentOrder();
-							order.setId((long) (Math.random() * 1000));
-							order.setTimeCreated(new Date());
 
-							db.executeTransaction(realm -> realm.copyToRealm(order));
+							db.executeTransaction(realm -> {
+								realm.copyToRealmOrUpdate(orders);
+							});
 
 							db.close();
 						},
-						ClientProvider::postNetworkError
-				);
+						ClientProvider::postNetworkError);
+	}
+
+	public void setMessageRead(Long messageId, boolean isRead) {
+		if (messageId == null) {
+			return;
+		}
+
+		eaService.setRead(messageId, isRead)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(aVoid -> Log.d("MessageSetRead", "Message Set Read success"),
+						ClientProvider::postNetworkError);
 	}
 
 	public void updateMessages() {
-		Observable.timer(1, TimeUnit.SECONDS)
+		eaService.getMessages(0, 100)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(
-						aLong -> {
+				.subscribe(messages -> {
 							Realm db = RealmHelper.getDb();
-							Message message = new Message();
-							message.setId((long) (Math.random() * 1000));
-							message.setMessage(UUID.randomUUID().toString());
-							message.setTime(new Date());
 
-							db.executeTransaction(realm -> realm.copyToRealm(message));
+							db.executeTransaction(realm -> realm.copyToRealmOrUpdate(messages));
 
 							db.close();
 						},
-						ClientProvider::postNetworkError
-				);
+						ClientProvider::postNetworkError);
 	}
 
 	public void login(LoginInfo info) {

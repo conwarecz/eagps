@@ -8,6 +8,7 @@ import java.util.Date;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Vit Veres on 06-Jun-17
@@ -15,6 +16,7 @@ import io.realm.RealmObject;
  */
 
 public class Order extends RealmObject {
+	@PrimaryKey
 	private Long id;
 	private String claimSaxCode;
 	private Date timeCreated;
@@ -25,7 +27,7 @@ public class Order extends RealmObject {
 	private String clientPhone;
 	private String clientCarModel;
 	private String clientCarWeight;
-	private String clientLicencePlate;
+	private String clientCarLicencePlate;
 	@SerializedName("location")
 	private Address clientAddress;
 	private RealmList<RealmString> eventDescription;
@@ -37,6 +39,9 @@ public class Order extends RealmObject {
 	private int destinationType;
 	@SerializedName("destination")
 	private DestinationAddress destinationAddress;
+
+	private boolean orderSheetProvided;
+	private boolean photosProvided;
 
 	private boolean isSent;
 
@@ -120,12 +125,12 @@ public class Order extends RealmObject {
 		this.clientCarWeight = clientCarWeight;
 	}
 
-	public String getClientLicencePlate() {
-		return clientLicencePlate;
+	public String getClientCarLicencePlate() {
+		return clientCarLicencePlate;
 	}
 
-	public void setClientLicencePlate(String clientLicencePlate) {
-		this.clientLicencePlate = clientLicencePlate;
+	public void setClientCarLicencePlate(String clientCarLicencePlate) {
+		this.clientCarLicencePlate = clientCarLicencePlate;
 	}
 
 	public Address getClientAddress() {
@@ -190,6 +195,22 @@ public class Order extends RealmObject {
 
 	public void setDestinationAddress(DestinationAddress destinationAddress) {
 		this.destinationAddress = destinationAddress;
+	}
+
+	public boolean isOrderSheetProvided() {
+		return orderSheetProvided;
+	}
+
+	public void setOrderSheetProvided(boolean orderSheetProvided) {
+		this.orderSheetProvided = orderSheetProvided;
+	}
+
+	public boolean isPhotosProvided() {
+		return photosProvided;
+	}
+
+	public void setPhotosProvided(boolean photosProvided) {
+		this.photosProvided = photosProvided;
 	}
 
 	public boolean isSent() {

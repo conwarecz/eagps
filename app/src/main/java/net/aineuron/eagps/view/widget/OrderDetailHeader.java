@@ -91,7 +91,7 @@ public class OrderDetailHeader extends ConstraintLayout {
 		this.clientName.setText(order.getClientFirstName() + order.getClientLastName());
 		this.telephone.setText(order.getClientPhone());
 		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight());
-		this.licensePlate.setText(order.getClientLicencePlate());
+		this.licensePlate.setText(order.getClientCarLicencePlate());
 		this.limit.setText(order.getLimitation().getLimit());
 		this.limit.setExtendedDescription(order.getLimitation().isExtendedDescription());
 	}

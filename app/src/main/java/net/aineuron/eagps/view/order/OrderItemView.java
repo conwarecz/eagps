@@ -60,7 +60,7 @@ public class OrderItemView extends ConstraintLayout {
 
 		date.setText(Appl.dateFormat.format(order.getTimeCreated()));
 		orderId.setText(order.getClaimSaxCode());
-		licensePlate.setText(order.getClientLicencePlate());
+		licensePlate.setText(order.getClientCarLicencePlate());
 
 		if (isPathEmpty(order.getOrderDocuments())) {
 			documentsCheck.setImageResource(R.drawable.icon_check);
