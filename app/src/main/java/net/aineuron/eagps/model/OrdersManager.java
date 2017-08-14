@@ -43,12 +43,12 @@ public class OrdersManager {
 		clientCar.setWeight(1.2);
 
 		Location clientLocation = new Location();
-		clientLocation.setLatitude(49.788892d);
-		clientLocation.setLongitude(18.2440393d);
+		clientLocation.setLatitude(49.787973d);
+		clientLocation.setLongitude(18.2285458d);
 
 		Address clientAddress = new Address();
 		clientAddress.setCity("Ostrava");
-		clientAddress.setStreet("Plzenska 78");
+		clientAddress.setStreet("Kosmonautů 2218/13");
 		clientAddress.setZipCode("70030");
 		clientAddress.setLocation(clientLocation);
 

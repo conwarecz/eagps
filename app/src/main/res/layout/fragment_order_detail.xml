@@ -101,7 +101,7 @@
 				android:layout_marginLeft="30dp"
 				android:layout_marginRight="30dp"
 				android:layout_marginTop="16dp"
-				app:ilt_icoResource="@drawable/icon_detail_crash"
+				app:ilt_icoResource="@drawable/icon_detail_event"
 				app:ilt_labelText="Událost"
 				app:ilt_text="Test"/>
 
@@ -112,27 +112,10 @@
 				android:layout_marginLeft="30dp"
 				android:layout_marginRight="30dp"
 				android:layout_marginTop="16dp"
-				app:ilt_icoResource="@drawable/icon_detail_limit"
+				app:ilt_icoResource="@drawable/icon_limit"
 				app:ilt_labelText="Limit"
 				app:ilt_text="Test"/>
 
 		</LinearLayout>
-
-		<Button
-			android:id="@+id/back"
-			android:layout_width="0dp"
-			android:layout_height="50dp"
-			android:layout_marginLeft="30dp"
-			android:layout_marginRight="30dp"
-			android:layout_marginTop="@dimen/padding_elements"
-			android:background="@drawable/btn_large_rounded_blue"
-			android:text="Zpět"
-			android:textAllCaps="false"
-			android:textColor="@color/backgroundWhite"
-			android:textSize="@dimen/text_size_title"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/linearLayout"/>
-
 	</android.support.constraint.ConstraintLayout>
 </ScrollView>

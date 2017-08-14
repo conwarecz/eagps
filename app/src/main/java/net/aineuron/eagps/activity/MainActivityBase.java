@@ -1,5 +1,6 @@
 package net.aineuron.eagps.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +17,7 @@ import com.jetradar.multibackstack.BackStackActivity;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.fragment.MessagesFragment;
+import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.TowFragment;
@@ -68,6 +70,12 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
 		currentTabId = savedInstanceState.getInt(STATE_CURRENT_TAB_ID);
 		bottomNavigation.selectTab(currentTabId, false);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		showFragment(rootTabFragment(MAIN_TAB_ID), false);
 	}
 
 	@Override
@@ -187,8 +195,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private Fragment rootTabFragment(int tabId) {
 		switch (tabId) {
 			case 0:
-				if (userManager.getSelectedStateId() == UserManager.STATE_ID_BUSY_ORDER) {
+				if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
 					return TowFragment.newInstance();
+				} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+					return NoCarStateFragment.newInstance();
 				} else {
 					return StateFragment.newInstance();
 				}

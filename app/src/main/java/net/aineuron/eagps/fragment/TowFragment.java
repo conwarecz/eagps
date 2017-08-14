@@ -1,11 +1,12 @@
 package net.aineuron.eagps.fragment;
 
+import android.widget.Toast;
+
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
-import net.aineuron.eagps.activity.MainActivity_;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
@@ -91,6 +92,11 @@ public class TowFragment extends BaseFragment {
 					ordersManager.cancelOrder(order.getId());
 					return true;
 				})
+				.onPositive((dialog, which) -> {
+					if (dialog.getSelectedIndex() < 0) {
+						Toast.makeText(getContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
+					}
+				})
 				.positiveText("OK")
 				.show();
 	}
@@ -114,8 +120,7 @@ public class TowFragment extends BaseFragment {
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
 		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-		MainActivity_.intent(getContext()).start();
-		getActivity().finish();
+		IntentUtils.openMainActivity(getContext());
 	}
 
 	private void setContent() {
@@ -123,7 +128,6 @@ public class TowFragment extends BaseFragment {
 			MainActivityBase activity = (MainActivityBase) getActivity();
 			activity.showFragment(OrderDetailFragment.newInstance());
 		});
-
 
 		Address clientAddress = order.getClientAddress();
 		DestinationAddress destinationAddress = order.getDestinationAddress();

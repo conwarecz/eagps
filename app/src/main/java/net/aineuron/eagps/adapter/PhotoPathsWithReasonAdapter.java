@@ -78,7 +78,7 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 		BasePhotoPathsWithReasonView view = holder.getView();
 		PhotoPathsWithReasonViewModel item = items.get(position);
 
-		view.bind(item);
+		view.bind(item, addPhotoTarget);
 
 		view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 	}

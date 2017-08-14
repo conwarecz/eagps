@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.aineuron.eagps.activity.MainActivity_;
 import net.aineuron.eagps.model.database.order.Location;
 
 import java.util.ArrayList;
@@ -19,6 +20,10 @@ import java.util.List;
  */
 
 public class IntentUtils {
+	public static void openMainActivity(Context context) {
+		MainActivity_.intent(context).start();
+	}
+
 	public static void openUrl(Context context, String url) {
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		try {

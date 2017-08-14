@@ -26,16 +26,16 @@ public class UserManager {
 	public static final int WORKER_ID = 1;
 	public static final int DISPATCHER_ID = 2;
 
-	public static final int STATE_ID_READY = 1;
-	public static final int STATE_ID_BUSY = 2;
-	public static final int STATE_ID_UNAVAILABLE = 3;
-	public static final int STATE_ID_BUSY_ORDER = 80;
-	public static final int STATE_ID_NO_CAR = 90;
+	public static final Long STATE_ID_READY = 1L;
+	public static final Long STATE_ID_BUSY = 2L;
+	public static final Long STATE_ID_UNAVAILABLE = 3L;
+	public static final Long STATE_ID_BUSY_ORDER = 80L;
+	public static final Long STATE_ID_NO_CAR = 90L;
 	@Pref
 	Pref_ pref;
 	@Bean
 	ClientProvider clientProvider;
-	private Map<Integer, String> states = new HashMap<Integer, String>() {
+	private Map<Long, String> states = new HashMap<Long, String>() {
 		{
 			put(STATE_ID_READY, "Ready");
 			put(STATE_ID_BUSY, "Busy");
@@ -69,15 +69,25 @@ public class UserManager {
 		pref.edit().userObjectSerialized().put(userObjectSerialized).apply();
 	}
 
-	public long getSelectedCarId() {
-		return pref.selectedCar().get();
+	public Long getSelectedCarId() {
+
+		Long value = pref.selectedCar().get();
+		if (value == -1) {
+			return null;
+		}
+		return value;
 	}
 
-	public void setSelectedCarId(long selectedCarId) {
-		pref.edit().selectedCar().put(selectedCarId).apply();
+	public void setSelectedCarId(Long selectedCarId) {
+		long value = -1;
+		if (selectedCarId != null) {
+			value = selectedCarId;
+		}
+
+		pref.edit().selectedCar().put(value).apply();
 	}
 
-	public void selectCar(long selectedCarId) {
+	public void selectCar(Long selectedCarId) {
 		clientProvider.getEaClient().selectCar(selectedCarId);
 	}
 
@@ -98,18 +108,27 @@ public class UserManager {
 	}
 
 	public void setStateNoCar() {
+		selectCar(null);
 		selectState(STATE_ID_NO_CAR);
 	}
 
-	public int getSelectedStateId() {
-		return pref.selectedState().get();
+	public Long getSelectedStateId() {
+		Long value = pref.selectedState().get();
+		if (value == null) {
+			return STATE_ID_NO_CAR;
+		}
+		return value;
 	}
 
-	public void setSelectedStateId(int stateId) {
-		pref.edit().selectedState().put(stateId).apply();
+	public void setSelectedStateId(Long stateId) {
+		int value = STATE_ID_NO_CAR.intValue();
+		if (stateId != null) {
+			value = stateId.intValue();
+		}
+		pref.edit().selectedState().put(value).apply();
 	}
 
-	private void selectState(int stateId) {
+	private void selectState(Long stateId) {
 		clientProvider.getEaClient().setState(stateId);
 	}
 

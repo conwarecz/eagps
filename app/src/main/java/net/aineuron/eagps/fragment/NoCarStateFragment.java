@@ -1,10 +1,11 @@
 package net.aineuron.eagps.fragment;
 
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
-import net.aineuron.eagps.activity.StateSettingsActivity_;
+import net.aineuron.eagps.activity.CarSettingsActivity_;
 import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
@@ -19,7 +20,7 @@ import org.androidannotations.annotations.ViewById;
  */
 
 @EFragment(R.layout.fragment_state)
-public class StateFragment extends BaseFragment {
+public class NoCarStateFragment extends BaseFragment {
 
 	@ViewById(R.id.stateIcon)
 	ImageView stateIcon;
@@ -30,11 +31,14 @@ public class StateFragment extends BaseFragment {
 	@ViewById(R.id.stateSubtext)
 	TextView stateSubtext;
 
+	@ViewById(R.id.changeButton)
+	Button changeButton;
+
 	@Bean
 	UserManager userManager;
 
-	public static StateFragment newInstance() {
-		return StateFragment_.builder().build();
+	public static NoCarStateFragment newInstance() {
+		return NoCarStateFragment_.builder().build();
 	}
 
 	@AfterViews
@@ -46,45 +50,20 @@ public class StateFragment extends BaseFragment {
 
 	@Click(R.id.changeButton)
 	void stateImageClicked() {
-		StateSettingsActivity_.intent(getContext()).start();
+		CarSettingsActivity_.intent(getContext()).resetCar(true).start();
 	}
 
 	private void setContent() {
+		changeButton.setText("Změnit vozidlo");
 		Long i = userManager.getSelectedStateId();
 		if (i == null) {
 			setErrorState();
-		} else if (i.equals(UserManager.STATE_ID_READY)) {
-			setReadyContent();
-
-		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
-			setBusyContent();
-
-		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
-			setUnavailableContent();
-
 		} else if (i.equals(UserManager.STATE_ID_NO_CAR)) {
 			setNoCarContent();
 
 		} else {
 			setErrorState();
 		}
-	}
-
-	private void setReadyContent() {
-		stateText.setText("Čekání na přidělení zakázky");
-		stateIcon.setImageResource(R.drawable.icon_big_waiting);
-	}
-
-	private void setBusyContent() {
-		stateText.setText("Zaneprázdněn");
-		stateSubtext.setText("Nejste připraven na zakázku a nemůžete být poptáni pro zásahy EA");
-		stateIcon.setImageResource(R.drawable.icon_big_busy);
-	}
-
-	private void setUnavailableContent() {
-		stateText.setText("Nedostupný");
-		stateSubtext.setText("Při statusu nedostupný nejste v systémech EA viditelní (např. vozidlo v servise, atd.)");
-		stateIcon.setImageResource(R.drawable.icon_big_unavailable);
 	}
 
 	private void setNoCarContent() {

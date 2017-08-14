@@ -65,12 +65,12 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 
 	public void notifyDataChanged() {
 		items = new ArrayList<>();
-		long selectedCarId = userManager.getSelectedCarId();
+		Long selectedCarId = userManager.getSelectedCarId();
 
 		for (Car car : cars) {
 			WorkerSelectCarViewModel carViewModel = new WorkerSelectCarViewModel();
 			carViewModel.withCar(car);
-			if (selectedCarId == car.getId()) {
+			if (selectedCarId != null && selectedCarId.equals(car.getId())) {
 				carViewModel.isSelected(true);
 			}
 			items.add(carViewModel);

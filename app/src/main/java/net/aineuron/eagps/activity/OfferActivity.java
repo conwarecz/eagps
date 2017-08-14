@@ -101,6 +101,10 @@ public class OfferActivity extends AppCompatActivity {
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
+					if (which < 0) {
+						Toast.makeText(this, "Vyberte důvod", Toast.LENGTH_SHORT).show();
+						return false;
+					}
 					showProgress("Ruším zakázku", "Prosím čekejte...");
 					ordersManager.cancelOrder(offer.getId());
 					return true;
@@ -139,7 +143,7 @@ public class OfferActivity extends AppCompatActivity {
 
 	private void finishOfferActivity() {
 		hideProgress();
-		MainActivity_.intent(this).start();
+		IntentUtils.openMainActivity(this);
 		finish();
 	}
 

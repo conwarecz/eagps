@@ -28,7 +28,7 @@
 		app:layout_constraintGuide_percent="0.6"/>
 
 	<Button
-		android:id="@+id/changeState"
+		android:id="@+id/changeButton"
 		android:layout_width="0dp"
 		android:layout_height="@dimen/big_button_height"
 		android:layout_marginLeft="@dimen/padding_sides"
@@ -49,9 +49,9 @@
 		android:layout_marginBottom="@dimen/padding_elements"
 		android:gravity="center"
 		android:textColor="@color/grayTextLight"
-		app:layout_constraintBottom_toTopOf="@+id/changeState"
-		app:layout_constraintEnd_toEndOf="@+id/changeState"
-		app:layout_constraintStart_toStartOf="@+id/changeState"
+		app:layout_constraintBottom_toTopOf="@+id/changeButton"
+		app:layout_constraintEnd_toEndOf="@+id/changeButton"
+		app:layout_constraintStart_toStartOf="@+id/changeButton"
 		tools:text="TextView"/>
 
 	<TextView
@@ -63,10 +63,10 @@
 		android:textSize="@dimen/text_size_title"
 		android:textStyle="bold"
 		app:layout_constraintBottom_toTopOf="@+id/stateSubtext"
-		app:layout_constraintEnd_toEndOf="@+id/changeState"
+		app:layout_constraintEnd_toEndOf="@+id/changeButton"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
-		app:layout_constraintStart_toStartOf="@+id/changeState"
+		app:layout_constraintStart_toStartOf="@+id/changeButton"
 		tools:text="Stav"/>
 
 	<ImageView

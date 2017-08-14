@@ -3,8 +3,10 @@ package net.aineuron.eagps.view.photopathswithreason;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.fragment.OrderAttachmentsFragment;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.TextChange;
@@ -21,12 +23,19 @@ public class ReasonView extends BasePhotoPathsWithReasonView {
 	@ViewById(R.id.reason)
 	EditText reason;
 
+	@ViewById(R.id.title)
+	TextView title;
+
 	public ReasonView(@NonNull Context context) {
 		super(context);
 	}
 
 	@Override
 	protected void bindView() {
+		if (targetId == OrderAttachmentsFragment.REQUEST_CODE_CHOOSE_DOCS) {
+			title.setText("Důvod nepořízení zakázkového listu");
+			reason.setHint("Nahrát zakázkový list");
+		}
 		reason.setText(item.photoPathsWithReason.getReasonForNoPhotos());
 	}
 

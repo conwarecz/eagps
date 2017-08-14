@@ -54,7 +54,7 @@ public class EaClient {
 		return this;
 	}
 
-	public void selectCar(long carId) {
+	public void selectCar(Long carId) {
 		Observable.timer(1, TimeUnit.SECONDS)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -66,7 +66,7 @@ public class EaClient {
 							user.setCarId(carId);
 							user.setCar(car);
 							userManager.setUser(user);
-							userManager.setSelectedStateId(car.getStatusId().intValue());
+							userManager.setSelectedStateId(car == null ? null : car.getStatusId());
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},
 						ClientProvider::postNetworkError
@@ -84,7 +84,7 @@ public class EaClient {
 				);
 	}
 
-	public void setState(int stateId) {
+	public void setState(Long stateId) {
 		Observable.timer(1, TimeUnit.SECONDS)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -168,7 +168,7 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							// TODO: DO a call "WhoAmI" to get user info
-							User user = new User(0, "Jan Novak", "Pracovník", UserManager.WORKER_ID, "+420 123 654 798");
+							User user = new User(0, "Jan Novak", "Řidič", UserManager.WORKER_ID, "+420 123 654 798");
 							user.setToken("sdfsdfasdfasdf");
 							userManager.setUser(user);
 							EventBus.getDefault().post(new UserLoggedInEvent());
@@ -184,7 +184,7 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							userManager.setUser(null);
-							userManager.setSelectedCarId(-1);
+							userManager.setSelectedCarId(-1l);
 							EventBus.getDefault().post(new UserLoggedOutEvent());
 						},
 						ClientProvider::postNetworkError
