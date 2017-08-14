@@ -9,9 +9,9 @@ import android.widget.Toast;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.order.Address;
-import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
@@ -86,12 +86,11 @@ public class OrderDetailFragment extends BaseFragment {
 
 	private void setUi() {
 
-		this.header.setText("Detail objednávky " + order.getClaimNumber());
+		this.header.setText("Detail objednávky " + order.getClaimSaxCode());
 
-		this.client.setText(order.getClientName() + ", " + order.getClientPhone());
+		this.client.setText(order.getClientFirstName() + " " + order.getClientLastName() + ", " + order.getClientPhone());
 
-		ClientCar car = order.getCar();
-		this.clientCar.setText(car.getModel() + ", " + car.getWeight() + " t, " + car.getLicensePlate());
+		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientLicencePlate());
 
 		Address clientAddress = order.getClientAddress();
 		this.clientAddress.setText(formatClientAddress(clientAddress));
@@ -99,19 +98,19 @@ public class OrderDetailFragment extends BaseFragment {
 		DestinationAddress destinationAddress = order.getDestinationAddress();
 		this.destinationAddress.setText(formatDestinationAddress(destinationAddress));
 
-		this.eventDescription.setText(order.getEventDescription());
+		this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
 
 		this.limit.setText(order.getLimitation().getLimit());
 	}
 
 	@NonNull
 	private String formatDestinationAddress(DestinationAddress destinationAddress) {
-		return destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode();
+		return destinationAddress.getName() + ", " + destinationAddress.getAddress().getAddress().getStreet() + ", " + destinationAddress.getAddress().getAddress().getCity() + ", " + destinationAddress.getAddress().getAddress().getZipCode();
 	}
 
 	@NonNull
 	private String formatClientAddress(Address clientAddress) {
-		return clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode();
+		return clientAddress.getAddress().getStreet() + ", " + clientAddress.getAddress().getCity() + ", " + clientAddress.getAddress().getZipCode();
 	}
 
 	private void copyToClipboard(String text) {

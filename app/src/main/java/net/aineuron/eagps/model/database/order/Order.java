@@ -1,7 +1,12 @@
 package net.aineuron.eagps.model.database.order;
 
+import com.google.gson.annotations.SerializedName;
+
+import net.aineuron.eagps.model.database.RealmString;
+
 import java.util.Date;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 
 /**
@@ -11,17 +16,28 @@ import io.realm.RealmObject;
 
 public class Order extends RealmObject {
 	private Long id;
-	private String claimNumber;
-	private Date time;
-	private String clientName;
+	private String claimSaxCode;
+	private Date timeCreated;
+	private int serviceType;
+	private int status;
+	private String clientFirstName;
+	private String clientLastName;
 	private String clientPhone;
-	private ClientCar car;
+	private String clientCarModel;
+	private String clientCarWeight;
+	private String clientLicencePlate;
+	@SerializedName("location")
 	private Address clientAddress;
-	private DestinationAddress destinationAddress;
-	private String eventDescription;
+	private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
 	private PhotoPathsWithReason orderDocuments = new PhotoPathsWithReason();
 	private PhotoPathsWithReason photos = new PhotoPathsWithReason();
+
+	private String workshopName;
+	private int destinationType;
+	@SerializedName("destination")
+	private DestinationAddress destinationAddress;
+
 	private boolean isSent;
 
 	public Long getId() {
@@ -32,28 +48,52 @@ public class Order extends RealmObject {
 		this.id = id;
 	}
 
-	public String getClaimNumber() {
-		return claimNumber;
+	public String getClaimSaxCode() {
+		return claimSaxCode;
 	}
 
-	public void setClaimNumber(String claimNumber) {
-		this.claimNumber = claimNumber;
+	public void setClaimSaxCode(String claimSaxCode) {
+		this.claimSaxCode = claimSaxCode;
 	}
 
-	public Date getTime() {
-		return time;
+	public Date getTimeCreated() {
+		return timeCreated;
 	}
 
-	public void setTime(Date time) {
-		this.time = time;
+	public void setTimeCreated(Date timeCreated) {
+		this.timeCreated = timeCreated;
 	}
 
-	public String getClientName() {
-		return clientName;
+	public int getServiceType() {
+		return serviceType;
 	}
 
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
+	public void setServiceType(int serviceType) {
+		this.serviceType = serviceType;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public String getClientFirstName() {
+		return clientFirstName;
+	}
+
+	public void setClientFirstName(String clientFirstName) {
+		this.clientFirstName = clientFirstName;
+	}
+
+	public String getClientLastName() {
+		return clientLastName;
+	}
+
+	public void setClientLastName(String clientLastName) {
+		this.clientLastName = clientLastName;
 	}
 
 	public String getClientPhone() {
@@ -64,12 +104,28 @@ public class Order extends RealmObject {
 		this.clientPhone = clientPhone;
 	}
 
-	public ClientCar getCar() {
-		return car;
+	public String getClientCarModel() {
+		return clientCarModel;
 	}
 
-	public void setCar(ClientCar car) {
-		this.car = car;
+	public void setClientCarModel(String clientCarModel) {
+		this.clientCarModel = clientCarModel;
+	}
+
+	public String getClientCarWeight() {
+		return clientCarWeight;
+	}
+
+	public void setClientCarWeight(String clientCarWeight) {
+		this.clientCarWeight = clientCarWeight;
+	}
+
+	public String getClientLicencePlate() {
+		return clientLicencePlate;
+	}
+
+	public void setClientLicencePlate(String clientLicencePlate) {
+		this.clientLicencePlate = clientLicencePlate;
 	}
 
 	public Address getClientAddress() {
@@ -80,19 +136,11 @@ public class Order extends RealmObject {
 		this.clientAddress = clientAddress;
 	}
 
-	public DestinationAddress getDestinationAddress() {
-		return destinationAddress;
-	}
-
-	public void setDestinationAddress(DestinationAddress destinationAddress) {
-		this.destinationAddress = destinationAddress;
-	}
-
-	public String getEventDescription() {
+	public RealmList<RealmString> getEventDescription() {
 		return eventDescription;
 	}
 
-	public void setEventDescription(String eventDescription) {
+	public void setEventDescription(RealmList<RealmString> eventDescription) {
 		this.eventDescription = eventDescription;
 	}
 
@@ -118,6 +166,30 @@ public class Order extends RealmObject {
 
 	public void setPhotos(PhotoPathsWithReason photos) {
 		this.photos = photos;
+	}
+
+	public String getWorkshopName() {
+		return workshopName;
+	}
+
+	public void setWorkshopName(String workshopName) {
+		this.workshopName = workshopName;
+	}
+
+	public int getDestinationType() {
+		return destinationType;
+	}
+
+	public void setDestinationType(int destinationType) {
+		this.destinationType = destinationType;
+	}
+
+	public DestinationAddress getDestinationAddress() {
+		return destinationAddress;
+	}
+
+	public void setDestinationAddress(DestinationAddress destinationAddress) {
+		this.destinationAddress = destinationAddress;
 	}
 
 	public boolean isSent() {

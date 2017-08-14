@@ -67,7 +67,7 @@ public class OrderDetailHeader extends ConstraintLayout {
 
 	@Click(R.id.clientAddress)
 	void clientAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
+		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientFirstName() + " " + order.getClientLastName());
 	}
 
 	@Click(R.id.destinationAddress)
@@ -87,11 +87,11 @@ public class OrderDetailHeader extends ConstraintLayout {
 			return;
 		}
 
-		this.claimNumber.setText(order.getClaimNumber());
-		this.clientName.setText(order.getClientName());
+		this.claimNumber.setText(order.getClaimSaxCode());
+		this.clientName.setText(order.getClientFirstName() + order.getClientLastName());
 		this.telephone.setText(order.getClientPhone());
-		this.clientCar.setText(order.getCar().getModel() + ", " + order.getCar().getWeight() + " t");
-		this.licensePlate.setText(order.getCar().getLicensePlate());
+		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight());
+		this.licensePlate.setText(order.getClientLicencePlate());
 		this.limit.setText(order.getLimitation().getLimit());
 		this.limit.setExtendedDescription(order.getLimitation().isExtendedDescription());
 	}

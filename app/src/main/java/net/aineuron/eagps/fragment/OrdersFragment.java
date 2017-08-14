@@ -50,7 +50,7 @@ public class OrdersFragment extends BaseFragment {
 
 
 		db = RealmHelper.getDb();
-		ordersRealmQuery = db.where(Order.class).findAllSorted("time", Sort.DESCENDING);
+		ordersRealmQuery = db.where(Order.class).findAllSorted("timeCreated", Sort.DESCENDING);
 
 		adapter = new OrdersAdapter(ordersRealmQuery);
 

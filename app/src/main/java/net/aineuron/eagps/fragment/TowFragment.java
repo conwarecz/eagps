@@ -108,7 +108,7 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.clientAddress)
 	void clientAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
+		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientFirstName() + " " + order.getClientLastName());
 	}
 
 	@Click(R.id.destinationAddress)
@@ -132,7 +132,7 @@ public class TowFragment extends BaseFragment {
 		Address clientAddress = order.getClientAddress();
 		DestinationAddress destinationAddress = order.getDestinationAddress();
 
-		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
-		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
+		this.clientAddress.setText(clientAddress.getAddress().getStreet() + ", " + clientAddress.getAddress().getCity() + ", " + clientAddress.getAddress().getZipCode());
+		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getAddress().getStreet() + ", " + destinationAddress.getAddress().getAddress().getCity() + ", " + destinationAddress.getAddress().getAddress().getZipCode());
 	}
 }

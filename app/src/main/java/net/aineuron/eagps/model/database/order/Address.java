@@ -8,33 +8,15 @@ import io.realm.RealmObject;
  */
 
 public class Address extends RealmObject {
-	private String street;
-	private String city;
-	private String zipCode;
+	private AddressDetail address;
 	private Location location;
 
-	public String getStreet() {
-		return street;
+	public AddressDetail getAddress() {
+		return address;
 	}
 
-	public void setStreet(String street) {
-		this.street = street;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getZipCode() {
-		return zipCode;
-	}
-
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
+	public void setAddress(AddressDetail address) {
+		this.address = address;
 	}
 
 	public Location getLocation() {

@@ -131,7 +131,7 @@ public class EaClient {
 							Realm db = RealmHelper.getDb();
 							Order order = ordersManager.getCurrentOrder();
 							order.setId((long) (Math.random() * 1000));
-							order.setTime(new Date());
+							order.setTimeCreated(new Date());
 
 							db.executeTransaction(realm -> realm.copyToRealm(order));
 
@@ -151,7 +151,7 @@ public class EaClient {
 							Message message = new Message();
 							message.setId((long) (Math.random() * 1000));
 							message.setMessage(UUID.randomUUID().toString());
-							message.setDate(new Date());
+							message.setTime(new Date());
 
 							db.executeTransaction(realm -> realm.copyToRealm(message));
 

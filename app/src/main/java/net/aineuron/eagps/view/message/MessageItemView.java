@@ -49,8 +49,8 @@ public class MessageItemView extends ConstraintLayout {
 	}
 
 	public void bind(final Message message) {
-		this.date.setText(Appl.dateFormat.format(message.getDate()));
-		this.time.setText(Appl.timeFormat.format(message.getDate()));
+		this.date.setText(Appl.dateFormat.format(message.getTime()));
+		this.time.setText(Appl.timeFormat.format(message.getTime()));
 		this.message.setText(message.getMessage());
 
 		this.setOnClickListener(v -> bus.post(new MessageClickedEvent(message.getId())));

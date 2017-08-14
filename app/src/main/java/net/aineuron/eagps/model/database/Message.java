@@ -11,8 +11,9 @@ import io.realm.RealmObject;
 
 public class Message extends RealmObject {
 	private Long id;
-	private Date date;
+	private Date time;
 	private String message;
+	private boolean read;
 
 	public Long getId() {
 		return id;
@@ -22,12 +23,12 @@ public class Message extends RealmObject {
 		this.id = id;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 	public String getMessage() {
@@ -36,5 +37,13 @@ public class Message extends RealmObject {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public boolean isRead() {
+		return read;
+	}
+
+	public void setRead(boolean read) {
+		this.read = read;
 	}
 }

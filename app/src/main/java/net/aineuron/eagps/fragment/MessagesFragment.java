@@ -59,7 +59,7 @@ public class MessagesFragment extends BaseFragment {
 		setAppbarTitle("Zprávy");
 
 		db = RealmHelper.getDb();
-		messageRealmQuery = db.where(Message.class).findAllSorted("date", Sort.DESCENDING);
+		messageRealmQuery = db.where(Message.class).findAllSorted("time", Sort.DESCENDING);
 
 		adapter = new MessagesAdapter(messageRealmQuery);
 
