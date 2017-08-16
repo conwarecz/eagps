@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import io.reactivex.functions.Function;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -40,7 +40,7 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
 		return new RxCallAdapterWrapper<>(retrofit, mOriginalCallAdapterFactory.get(returnType, annotations, retrofit));
 	}
 
-	private static class RxCallAdapterWrapper<R> implements CallAdapter<R, Single<R>> {
+	private static class RxCallAdapterWrapper<R> implements CallAdapter<R, Maybe<R>> {
 		private final Retrofit mRetrofit;
 		private final CallAdapter<R, ?> mWrappedCallAdapter;
 
@@ -56,11 +56,11 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Single<R> adapt(final Call<R> call) {
-			return ((Single) mWrappedCallAdapter.adapt(call)).onErrorResumeNext(new Function<Throwable, Single<Object>>() {
+		public Maybe<R> adapt(final Call<R> call) {
+			return ((Maybe) mWrappedCallAdapter.adapt(call)).onErrorResumeNext(new Function<Throwable, Maybe<R>>() {
 				@Override
-				public Single<Object> apply(final Throwable throwable) {
-					return Single.error(asRetrofitException(throwable));
+				public Maybe<R> apply(final Throwable throwable) {
+					return Maybe.error(asRetrofitException(throwable));
 				}
 			});
 		}
