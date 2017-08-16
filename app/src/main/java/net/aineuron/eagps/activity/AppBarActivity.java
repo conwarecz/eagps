@@ -150,7 +150,7 @@ public class AppBarActivity extends MainActivityBase {
 		profileName.setText(user.getName());
 
 		if (user.getCar() != null) {
-			String licensePlate = user.getCar().getLicensePlate();
+			String licensePlate = user.getCar().getLicencePlate();
 			licencePlate.setText(licensePlate);
 		}
 	}

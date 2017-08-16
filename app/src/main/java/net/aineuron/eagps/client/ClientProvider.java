@@ -6,10 +6,13 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import net.aineuron.eagps.BuildConfig;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.client.EaClient;
 import net.aineuron.eagps.client.client.EaClient_;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
+import net.aineuron.eagps.model.transfer.KnownError;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -19,8 +22,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -39,9 +42,14 @@ public class ClientProvider {
 
 	private Retrofit retrofit;
 	private EaClient eaClient;
+	private Gson gson;
 
 	public static void postNetworkError(Throwable errorThrowable) {
 		EventBus.getDefault().post(new ApiErrorEvent(errorThrowable));
+	}
+
+	public static void postKnownError(KnownError error) {
+		EventBus.getDefault().post(new KnownErrorEvent(error));
 	}
 
 	@AfterInject
@@ -54,7 +62,8 @@ public class ClientProvider {
 	public void rebuildRetrofit() {
 		String token = pref.token().get();
 
-		Gson gson = new GsonBuilder()
+
+		gson = new GsonBuilder()
 				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
 				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 				.create();
@@ -62,20 +71,27 @@ public class ClientProvider {
 		Retrofit.Builder builder = new Retrofit.Builder()
 				.baseUrl(END_POINT)
 				.addConverterFactory(GsonConverterFactory.create(gson))
-				.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
+				.addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create());
+
+		OkHttpClient.Builder clientBuilder = new OkHttpClient().newBuilder();
+
+		if (BuildConfig.DEBUG) {
+			HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+			interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+			clientBuilder.addInterceptor(interceptor);
+		}
 
 		// Set token when empty
 		if (!token.isEmpty()) {
-			OkHttpClient.Builder clientBuilder = new OkHttpClient().newBuilder();
 			clientBuilder.addInterceptor(chain -> {
 				Request.Builder requestBuilder = chain.request().newBuilder();
 				requestBuilder.addHeader("Authorization", "Bearer " + token);
 				return chain.proceed(requestBuilder.build());
 			});
-			OkHttpClient client = clientBuilder.build();
-			builder.client(client);
 		}
 
+		OkHttpClient client = clientBuilder.build();
+		builder.client(client);
 		retrofit = builder.build();
 
 		initClients();
@@ -88,5 +104,4 @@ public class ClientProvider {
 	public EaClient getEaClient() {
 		return eaClient;
 	}
-
 }

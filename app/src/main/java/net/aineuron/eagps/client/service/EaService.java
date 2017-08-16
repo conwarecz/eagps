@@ -7,6 +7,7 @@ import net.aineuron.eagps.model.database.order.Order;
 import java.util.List;
 
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.realm.RealmList;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -21,9 +22,11 @@ import retrofit2.http.Query;
 public interface EaService {
 
 	// User
-	@GET("users/1/cars/available")
-	Maybe<List<Car>> getCars();
+	@GET("users/{userId}/cars/available")
+	Single<List<Car>> getCars(@Path("userId") Long userId);
 
+	@PUT("users/{userId}/entity/{entityId}")
+	Single<Car> setCarToUser(@Path("userId") Long userId, @Path("entityId") long entityId);
 
 	// Messages
 	@GET("messages")

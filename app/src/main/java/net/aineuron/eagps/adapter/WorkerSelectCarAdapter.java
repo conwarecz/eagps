@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.viewmodel.WorkerSelectCarViewModel;
@@ -31,18 +30,19 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 	Context context;
 
 	@Bean
-	CarsManager carsManager;
-
-	@Bean
 	UserManager userManager;
 
 	private List<Car> cars = new ArrayList<>();
 
+	public void setCars(List<Car> cars) {
+		this.cars = cars;
+		notifyDataChanged();
+	}
+
 	@Override
 	public void onAttachedToRecyclerView(RecyclerView recyclerView) {
 		super.onAttachedToRecyclerView(recyclerView);
-		initCars();
-		notifyDataChanged();
+		//notifyDataChanged();
 	}
 
 	@Override
@@ -77,10 +77,6 @@ public class WorkerSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelect
 		}
 
 		notifyDataSetChanged();
-	}
-
-	private void initCars() {
-		cars = carsManager.getAvailableCars();
 	}
 
 	public interface OnItemChange {

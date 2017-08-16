@@ -14,7 +14,7 @@ public class Car {
 	private Long statusId;
 	@SerializedName("User")
 	private Long userId;
-	private String licensePlate;
+	private String licencePlate;
 	private String model;
 
 	public Long getId() {
@@ -41,12 +41,12 @@ public class Car {
 		this.userId = userId;
 	}
 
-	public String getLicensePlate() {
-		return licensePlate;
+	public String getLicencePlate() {
+		return licencePlate;
 	}
 
-	public void setLicensePlate(String licensePlate) {
-		this.licensePlate = licensePlate;
+	public void setLicencePlate(String licencePlate) {
+		this.licencePlate = licencePlate;
 	}
 
 	public String getModel() {

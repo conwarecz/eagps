@@ -3,6 +3,7 @@ package net.aineuron.eagps.client.client;
 import android.util.Log;
 
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.client.RetrofitException;
 import net.aineuron.eagps.client.service.EaService;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
@@ -11,11 +12,10 @@ import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
-import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
-import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.RealmHelper;
 
@@ -39,11 +39,11 @@ import retrofit2.Retrofit;
 public class EaClient {
 
 	@Bean
-	CarsManager carsManager;
-	@Bean
 	UserManager userManager;
 	@Bean
 	OrdersManager ordersManager;
+	@Bean
+	ClientProvider clientProvider;
 
 	private EaService eaService;
 
@@ -53,31 +53,46 @@ public class EaClient {
 	}
 
 	public void selectCar(Long carId) {
-		Observable.timer(1, TimeUnit.SECONDS)
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.setCarToUser(user.getUserId(), carId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
+						car -> {
 							userManager.setSelectedCarId(carId);
-							User user = userManager.getUser();
-							Car car = carsManager.getCarById(carId);
+
 							user.setCarId(carId);
 							user.setCar(car);
 							userManager.setUser(user);
 							userManager.setSelectedStateId(car == null ? null : car.getStatusId());
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},
-						ClientProvider::postNetworkError
+						errorThrowable -> {
+							RetrofitException error = (RetrofitException) errorThrowable;
+
+							if (error.getKind() == RetrofitException.Kind.HTTP) {
+								KnownError knownError = error.getErrorBodyAs(KnownError.class);
+								ClientProvider.postKnownError(knownError);
+							} else {
+								ClientProvider.postNetworkError(errorThrowable);
+							}
+						}
 				);
 	}
 
 	public void getCars() {
 		eaService
-				.getCars()
-				.subscribeOn(Schedulers.io())
+				.getCars(1L)
+				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						categories -> EventBus.getDefault().post(new CarsDownloadedEvent()),
+						cars -> {
+							EventBus.getDefault().post(new CarsDownloadedEvent(cars));
+						},
 						ClientProvider::postNetworkError
 				);
 	}
@@ -169,7 +184,7 @@ public class EaClient {
 				.subscribe(
 						aLong -> {
 							// TODO: DO a call "WhoAmI" to get user info
-							User user = new User(0, "Jan Novak", "Řidič", UserManager.WORKER_ID, "+420 123 654 798");
+							User user = new User(1, "Jan Novak", "Řidič", UserManager.WORKER_ID, "+420 123 654 798");
 							user.setToken("sdfsdfasdfasdf");
 							userManager.setUser(user);
 							EventBus.getDefault().post(new UserLoggedInEvent());
