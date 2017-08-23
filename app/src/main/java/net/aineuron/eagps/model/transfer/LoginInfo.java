@@ -14,8 +14,8 @@ public class LoginInfo {
 		username = "";
 	}
 
-	public LoginInfo(String password, String username) {
-		this.password = password;
+    public LoginInfo(String username, String password) {
+        this.password = password;
 		this.username = username;
 	}
 

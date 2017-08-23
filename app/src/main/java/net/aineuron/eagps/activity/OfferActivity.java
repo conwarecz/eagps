@@ -106,7 +106,7 @@ public class OfferActivity extends AppCompatActivity {
 						return false;
 					}
 					showProgress("Ruším zakázku", "Prosím čekejte...");
-					ordersManager.cancelOrder(offer.getId());
+					ordersManager.cancelOrder(offer.getId(), Long.valueOf(which));
 					return true;
 				})
 				.positiveText("OK")

@@ -89,7 +89,7 @@ public class TowFragment extends BaseFragment {
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
 					showProgress("Ruším zakázku", "Prosím čekejte...");
-					ordersManager.cancelOrder(order.getId());
+					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
 					return true;
 				})
 				.onPositive((dialog, which) -> {

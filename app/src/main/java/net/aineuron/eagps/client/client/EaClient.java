@@ -23,13 +23,16 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import retrofit2.Retrofit;
+
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
 /**
  * Created by Vit Veres on 31.3.2016
@@ -68,7 +71,39 @@ public class EaClient {
 							user.setCarId(carId);
 							user.setCar(car);
 							userManager.setUser(user);
-							userManager.setSelectedStateId(car == null ? null : car.getStatusId());
+							userManager.setSelectedStateId(car == null ? STATE_ID_NO_CAR : STATE_ID_READY);
+							EventBus.getDefault().post(new CarSelectedEvent());
+						},
+						errorThrowable -> {
+							RetrofitException error = (RetrofitException) errorThrowable;
+
+							if (error.getKind() == RetrofitException.Kind.HTTP) {
+								KnownError knownError = error.getErrorBodyAs(KnownError.class);
+								ClientProvider.postKnownError(knownError);
+							} else {
+								ClientProvider.postNetworkError(errorThrowable);
+							}
+						}
+				);
+	}
+
+	public void releaseCar() {
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.releaseCarFromUser(user.getUserId(), user.getCarId())
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						car -> {
+							userManager.setSelectedCarId(null);
+
+							user.setCarId(null);
+							user.setCar(null);
+							userManager.setUser(user);
+							userManager.setSelectedStateId(null);
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},
 						errorThrowable -> {
@@ -85,8 +120,12 @@ public class EaClient {
 	}
 
 	public void getCars() {
-		eaService
-				.getCars(1L)
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.getCars(user.getUserId())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -98,7 +137,21 @@ public class EaClient {
 	}
 
 	public void setState(Long stateId) {
-		Observable.timer(1, TimeUnit.SECONDS)
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		// API resolves only 3 states, but app needs another 2 for internal states
+		Long serverState = stateId;
+
+		if (stateId == STATE_ID_BUSY_ORDER) {
+			serverState = STATE_ID_BUSY;
+		} else if (stateId == STATE_ID_NO_CAR) {
+			serverState = STATE_ID_UNAVAILABLE;
+		}
+
+		eaService.setStatus(user.getUserId(), serverState)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -110,20 +163,29 @@ public class EaClient {
 				);
 	}
 
-	public void cancelOrder(Long orderId) {
-		Observable.timer(1, TimeUnit.SECONDS)
+	public void cancelOrder(Long orderId, Long reason) {
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.cancelOrder(orderId, reason)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
-							EventBus.getDefault().post(new OrderCanceledEvent(orderId));
-						},
+						aLong ->
+								EventBus.getDefault().post(new OrderCanceledEvent(orderId)),
 						ClientProvider::postNetworkError
 				);
 	}
 
 	public void sendOrder(Long orderId) {
-		Observable.timer(1, TimeUnit.SECONDS)
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.sendOrder(orderId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -139,7 +201,8 @@ public class EaClient {
 		eaService.getOrders(0, 100)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(orders -> {
+				.subscribe(
+						orders -> {
 							Realm db = RealmHelper.getDb();
 
 							db.executeTransaction(realm -> {
@@ -167,7 +230,8 @@ public class EaClient {
 		eaService.getMessages(0, 100)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(messages -> {
+				.subscribe(
+						messages -> {
 							Realm db = RealmHelper.getDb();
 
 							db.executeTransaction(realm -> realm.copyToRealmOrUpdate(messages));
@@ -178,23 +242,27 @@ public class EaClient {
 	}
 
 	public void login(LoginInfo info) {
-		Observable.timer(1, TimeUnit.SECONDS)
+		if (info == null) {
+			return;
+		}
+
+		eaService.login(info)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
-							// TODO: DO a call "WhoAmI" to get user info
-							User user = new User(1, "Jan Novak", "Řidič", UserManager.WORKER_ID, "+420 123 654 798");
-							user.setToken("sdfsdfasdfasdf");
+						user -> {
 							userManager.setUser(user);
 							EventBus.getDefault().post(new UserLoggedInEvent());
-						},
-						ClientProvider::postNetworkError
-				);
+						}, ClientProvider::postNetworkError);
 	}
 
 	public void logout() {
-		Observable.timer(1, TimeUnit.SECONDS)
+		User loggedUser = userManager.getUser();
+		if (loggedUser == null) {
+			return;
+		}
+
+		eaService.logout(loggedUser.getUserId())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(

@@ -70,7 +70,6 @@ public class UserManager {
 	}
 
 	public Long getSelectedCarId() {
-
 		Long value = pref.selectedCar().get();
 		if (value == -1) {
 			return null;
@@ -108,8 +107,12 @@ public class UserManager {
 	}
 
 	public void setStateNoCar() {
-		selectCar(null);
+		releaseCar();
 		selectState(STATE_ID_NO_CAR);
+	}
+
+	public void releaseCar() {
+		clientProvider.getEaClient().releaseCar();
 	}
 
 	public Long getSelectedStateId() {

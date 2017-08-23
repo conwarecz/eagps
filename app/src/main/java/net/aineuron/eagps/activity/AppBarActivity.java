@@ -122,6 +122,7 @@ public class AppBarActivity extends MainActivityBase {
 		Long i = userManager.getSelectedStateId();
 		if (i == null) {
 			setActionBarColor(actionBar, primary);
+
 		} else if (i.equals(UserManager.STATE_ID_READY)) {
 			setActionBarColor(actionBar, ready);
 			stateIcon.setImageResource(R.drawable.icon_ready);
