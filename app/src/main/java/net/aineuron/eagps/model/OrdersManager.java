@@ -9,6 +9,7 @@ import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Limitation;
 import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -16,6 +17,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 
 /**
@@ -83,9 +85,9 @@ public class OrdersManager {
 		order.setClaimSaxCode("T123456.78");
 		order.setTimeCreated(new Date());
 		order.setClientAddress(clientAddress);
-		order.setDestinationAddress(destinationAddressLoc);
-		order.setLimitation(limitation);
-		order.setClientFirstName("Honza");
+        order.setDestinationAddress(destinationAddress);
+        order.setLimitation(limitation);
+        order.setClientFirstName("Honza");
 		order.setClientLastName("Velký");
 		order.setClientPhone("+420 123 123 456");
 		order.setEventDescription(new RealmList<RealmString>(new RealmString("Odtah z kraje silnice"), new RealmString("nefunkcni motor"), new RealmString("nic nejede"), new RealmString("kola dobre")));
@@ -94,8 +96,10 @@ public class OrdersManager {
 	}
 
 	public Order getOrderById(Long orderId) {
-		return getCurrentOrder();
-	}
+        Realm db = RealmHelper.getDb();
+        Order order = db.where(Order.class).equalTo("id", orderId).findFirst();
+        return order;
+    }
 
 	public void cancelOrder(Long orderId, Long reason) {
 		clientProvider.getEaClient().cancelOrder(orderId, reason);

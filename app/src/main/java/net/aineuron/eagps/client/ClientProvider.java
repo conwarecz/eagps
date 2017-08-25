@@ -5,13 +5,16 @@ import android.content.Context;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import net.aineuron.eagps.BuildConfig;
 import net.aineuron.eagps.Pref_;
+import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
 import net.aineuron.eagps.client.client.EaClient;
 import net.aineuron.eagps.client.client.EaClient_;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
+import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.transfer.KnownError;
 
 import org.androidannotations.annotations.AfterInject;
@@ -20,6 +23,7 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
+import io.realm.RealmList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -66,6 +70,9 @@ public class ClientProvider {
 		gson = new GsonBuilder()
 				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
 				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+						}.getType(),
+						RealmStringListTypeAdapter.INSTANCE)
 				.create();
 
 		Retrofit.Builder builder = new Retrofit.Builder()

@@ -91,20 +91,20 @@ public class CarSettingsActivity extends AppCompatActivity {
 		userManager.setStateNoCar();
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Měním nastavení")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Vybírám auto")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
 		userManager.selectCar(e.selectedCarId);
 	}
 

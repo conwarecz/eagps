@@ -55,6 +55,9 @@ public interface EaService {
 	@GET("orders")
 	Maybe<RealmList<Order>> getOrders(@Query("skip") int skip, @Query("take") int take);
 
+    @GET("orders/{orderId}")
+    Maybe<Order> getOrderDetail(@Path("orderId") Long orderId);
+
     @POST("orders/{orderId}/cancel")
     Maybe<Response<Void>> cancelOrder(@Path("orderId") Long orderId, @Body long reason);
 

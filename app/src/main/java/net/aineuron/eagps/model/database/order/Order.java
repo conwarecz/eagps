@@ -16,6 +16,12 @@ import io.realm.annotations.PrimaryKey;
  */
 
 public class Order extends RealmObject {
+    public static final int ORDER_STATE_CREATED = 1;
+    public static final int ORDER_STATE_ASSIGNED = 2;
+    public static final int ORDER_STATE_FINISHED = 3;
+    public static final int ORDER_STATE_SENT = 4;
+    public static final int ORDER_STATE_CANCELLED = 5;
+
 	@PrimaryKey
 	private Long id;
 	private String claimSaxCode;
@@ -28,17 +34,17 @@ public class Order extends RealmObject {
 	private String clientCarModel;
 	private String clientCarWeight;
 	private String clientCarLicencePlate;
-	@SerializedName("location")
-	private Address clientAddress;
-	private RealmList<RealmString> eventDescription;
+    @SerializedName("Location")
+    private Address clientAddress;
+    private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
 	private PhotoPathsWithReason orderDocuments = new PhotoPathsWithReason();
 	private PhotoPathsWithReason photos = new PhotoPathsWithReason();
 
 	private String workshopName;
 	private int destinationType;
-	@SerializedName("destination")
-	private DestinationAddress destinationAddress;
+    @SerializedName("Destination")
+    private Address destinationAddress;
 
 	private boolean orderSheetProvided;
 	private boolean photosProvided;
@@ -189,13 +195,13 @@ public class Order extends RealmObject {
 		this.destinationType = destinationType;
 	}
 
-	public DestinationAddress getDestinationAddress() {
-		return destinationAddress;
-	}
+    public Address getDestinationAddress() {
+        return destinationAddress;
+    }
 
-	public void setDestinationAddress(DestinationAddress destinationAddress) {
-		this.destinationAddress = destinationAddress;
-	}
+    public void setDestinationAddress(Address destinationAddress) {
+        this.destinationAddress = destinationAddress;
+    }
 
 	public boolean isOrderSheetProvided() {
 		return orderSheetProvided;

@@ -90,10 +90,10 @@ public class ProfileActivity extends AppBarActivity {
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Přihlašuji stav")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
 	}
 
 	private void dismissDialog() {

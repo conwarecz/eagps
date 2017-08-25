@@ -107,7 +107,9 @@ public class UserManager {
 	}
 
 	public void setStateNoCar() {
-		releaseCar();
+		if (!getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+			releaseCar();
+		}
 		selectState(STATE_ID_NO_CAR);
 	}
 

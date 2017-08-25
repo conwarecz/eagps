@@ -24,6 +24,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter_;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.ui.AddPhotoEvent;
 import net.aineuron.eagps.event.ui.RemovePhotoEvent;
@@ -33,6 +34,7 @@ import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
 import org.androidannotations.annotations.AfterViews;
@@ -48,6 +50,10 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.Iterator;
 import java.util.List;
 
+import io.realm.ObjectChangeSet;
+import io.realm.Realm;
+import io.realm.RealmModel;
+import io.realm.RealmObjectChangeListener;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
@@ -80,7 +86,12 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Bean
 	OrdersManager ordersManager;
 
+	@Bean
+	ClientProvider clientProvider;
+
 	private Order order;
+	private Realm db;
+	private RealmObjectChangeListener objectListener;
 
 	public static OrderAttachmentsFragment newInstance(Long orderId) {
 		return OrderAttachmentsFragment_.builder().orderId(orderId).build();
@@ -91,9 +102,14 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		setAppbarUpNavigation(true);
 		setAppbarTitle("Přílohy");
 
-		order = ordersManager.getOrderById(orderId);
-
-		setContent();
+		if (orderId == null) {
+			order = ordersManager.getCurrentOrder();
+			setContent();
+		} else {
+			setOrderListener();
+			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			clientProvider.getEaClient().getOrderDetail(orderId);
+		}
 	}
 
 	@Click(R.id.closeOrder)
@@ -122,7 +138,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			return;
 		}
 
-		showProgress("Odesílám zásah", "Prosím čekejte...");
+		showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
 		ordersManager.sendOrder(order.getId());
 	}
 
@@ -199,7 +215,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {
 			MainActivityBase activity = (MainActivityBase) getActivity();
-			activity.showFragment(OrderDetailFragment.newInstance());
+			activity.showFragment(OrderDetailFragment.newInstance(null));
 		});
 
 		PhotoPathsWithReasonAdapter documents = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getOrderDocuments()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS).finish();
@@ -230,5 +246,21 @@ public class OrderAttachmentsFragment extends BaseFragment {
 				.restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT)
 				.thumbnailScale(0.85f)
 				.imageEngine(new GlideEngine());
+	}
+
+	private void setOrderListener() {
+		order = ordersManager.getOrderById(orderId);
+		objectListener = new RealmObjectChangeListener() {
+			@Override
+			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
+				db = RealmHelper.getDb();
+				order = ordersManager.getOrderById(orderId);
+				if (orderDetailHeader != null) {
+					setContent();
+					hideProgress();
+				}
+			}
+		};
+		order.addChangeListener(objectListener);
 	}
 }

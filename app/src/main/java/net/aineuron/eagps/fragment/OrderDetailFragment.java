@@ -7,21 +7,29 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.order.Address;
-import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.LongClick;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
+
+import io.reactivex.annotations.Nullable;
+import io.realm.ObjectChangeSet;
+import io.realm.Realm;
+import io.realm.RealmModel;
+import io.realm.RealmObjectChangeListener;
 
 /**
  * Created by Vit Veres on 07-Jun-17
@@ -50,20 +58,36 @@ public class OrderDetailFragment extends BaseFragment {
 	@ViewById(R.id.header)
 	TextView header;
 
+	@Nullable
+	@FragmentArg
+	Long orderId;
+
 	@Bean
 	OrdersManager ordersManager;
 
-	private Order order;
+	@Bean
+	ClientProvider clientProvider;
 
-	public static OrderDetailFragment newInstance() {
-		return OrderDetailFragment_.builder().build();
+	private Order order;
+	private Realm db;
+	private RealmObjectChangeListener objectListener;
+
+	public static OrderDetailFragment newInstance(Long orderId) {
+		return OrderDetailFragment_.builder().orderId(orderId).build();
 	}
 
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(true);
 		setAppbarTitle("Detail");
-		this.order = ordersManager.getCurrentOrder();
+
+		if (orderId == null) {
+			this.order = ordersManager.getCurrentOrder();
+		} else {
+			setOrderListener();
+			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			clientProvider.getEaClient().getOrderDetail(orderId);
+		}
 
 		setUi();
 	}
@@ -93,24 +117,77 @@ public class OrderDetailFragment extends BaseFragment {
 		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
 
 		Address clientAddress = order.getClientAddress();
-		this.clientAddress.setText(formatClientAddress(clientAddress));
+		if (clientAddress != null) {
+			this.clientAddress.setText(formatClientAddress(clientAddress));
+		}
 
-		DestinationAddress destinationAddress = order.getDestinationAddress();
-		this.destinationAddress.setText(formatDestinationAddress(destinationAddress));
+		Address destinationAddress = order.getDestinationAddress();
+		if (destinationAddress != null) {
+			this.destinationAddress.setText(formatDestinationAddress(destinationAddress, order.getWorkshopName()));
+		}
 
-		this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		if (order.getEventDescription() != null) {
+			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		}
 
-		this.limit.setText(order.getLimitation().getLimit());
+		if (order.getLimitation() != null && order.getLimitation().getLimit() != null) {
+			this.limit.setText(order.getLimitation().getLimit());
+		}
 	}
 
+	// Building up addresses from what we have
 	@NonNull
-	private String formatDestinationAddress(DestinationAddress destinationAddress) {
-		return destinationAddress.getName() + ", " + destinationAddress.getAddress().getAddress().getStreet() + ", " + destinationAddress.getAddress().getAddress().getCity() + ", " + destinationAddress.getAddress().getAddress().getZipCode();
+	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
+		String addressResult = "";
+		if (order.getDestinationAddress() != null) {
+			if (order.getWorkshopName() != null) {
+				addressResult += order.getWorkshopName();
+			}
+			if (destinationAddress.getAddress().getStreet() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getStreet();
+			}
+			if (destinationAddress.getAddress().getCity() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getCity();
+			}
+			if (destinationAddress.getAddress().getZipCode() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getZipCode();
+			}
+			this.destinationAddress.setText(addressResult);
+		}
+		return addressResult;
 	}
 
 	@NonNull
 	private String formatClientAddress(Address clientAddress) {
-		return clientAddress.getAddress().getStreet() + ", " + clientAddress.getAddress().getCity() + ", " + clientAddress.getAddress().getZipCode();
+		String addressResult = "";
+		if (order.getClientAddress() != null) {
+			if (clientAddress.getAddress().getStreet() != null) {
+				addressResult += clientAddress.getAddress().getStreet();
+			}
+			if (clientAddress.getAddress().getCity() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += clientAddress.getAddress().getCity();
+			}
+			if (clientAddress.getAddress().getZipCode() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += clientAddress.getAddress().getZipCode();
+			}
+			this.clientAddress.setText(addressResult);
+		}
+		return addressResult;
 	}
 
 	private void copyToClipboard(String text) {
@@ -119,4 +196,19 @@ public class OrderDetailFragment extends BaseFragment {
 		Toast.makeText(getContext(), "Kopírováno: " + text, Toast.LENGTH_SHORT).show();
 	}
 
+	private void setOrderListener() {
+		order = ordersManager.getOrderById(orderId);
+		objectListener = new RealmObjectChangeListener() {
+			@Override
+			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
+				db = RealmHelper.getDb();
+				order = ordersManager.getOrderById(orderId);
+				if (header != null) {
+					setUi();
+					hideProgress();
+				}
+			}
+		};
+		order.addChangeListener(objectListener);
+	}
 }

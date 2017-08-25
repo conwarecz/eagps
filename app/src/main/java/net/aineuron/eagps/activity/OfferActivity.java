@@ -89,9 +89,9 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Click(R.id.back)
 	void acceptClicked() {
-		showProgress("Měním stav", "Prosím čekejte...");
-		userManager.setStateBusyOnOrder();
-	}
+        showProgress("Měním stav", getString(R.string.dialog_wait_content));
+        userManager.setStateBusyOnOrder();
+    }
 
 	@Click(R.id.decline)
 	void declineClicked() {
@@ -105,10 +105,10 @@ public class OfferActivity extends AppCompatActivity {
 						Toast.makeText(this, "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
-					showProgress("Ruším zakázku", "Prosím čekejte...");
-					ordersManager.cancelOrder(offer.getId(), Long.valueOf(which));
-					return true;
-				})
+                    showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
+                    ordersManager.cancelOrder(offer.getId(), Long.valueOf(which));
+                    return true;
+                })
 				.positiveText("OK")
 				.show();
 	}

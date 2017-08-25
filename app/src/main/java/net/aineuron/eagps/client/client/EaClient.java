@@ -89,7 +89,7 @@ public class EaClient {
 
 	public void releaseCar() {
 		User user = userManager.getUser();
-		if (user == null) {
+		if (user == null || user.getUserId() == null || user.getCarId() == null) {
 			return;
 		}
 
@@ -158,6 +158,45 @@ public class EaClient {
 						aLong -> {
 							userManager.setSelectedStateId(stateId);
 							EventBus.getDefault().post(new StateSelectedEvent());
+							if (stateId.equals(STATE_ID_NO_CAR)) {
+								EventBus.getDefault().post(new CarSelectedEvent());
+							}
+						},
+						ClientProvider::postNetworkError
+				);
+	}
+
+	// Orders
+	public void updateOrders() {
+		eaService.getOrders(0, 100)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						orders -> {
+							Realm db = RealmHelper.getDb();
+
+							db.executeTransaction(realm -> {
+								realm.copyToRealmOrUpdate(orders);
+							});
+
+							db.close();
+						},
+						ClientProvider::postNetworkError);
+	}
+
+	public void getOrderDetail(Long orderId) {
+		eaService.getOrderDetail(orderId)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						order -> {
+							Realm db = RealmHelper.getDb();
+
+							db.executeTransaction(realm ->
+									realm.copyToRealmOrUpdate(order)
+							);
+
+							db.close();
 						},
 						ClientProvider::postNetworkError
 				);
@@ -195,23 +234,6 @@ public class EaClient {
 						},
 						ClientProvider::postNetworkError
 				);
-	}
-
-	public void updateOrders() {
-		eaService.getOrders(0, 100)
-				.subscribeOn(Schedulers.computation())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(
-						orders -> {
-							Realm db = RealmHelper.getDb();
-
-							db.executeTransaction(realm -> {
-								realm.copyToRealmOrUpdate(orders);
-							});
-
-							db.close();
-						},
-						ClientProvider::postNetworkError);
 	}
 
 	public void setMessageRead(Long messageId, boolean isRead) {

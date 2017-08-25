@@ -72,7 +72,7 @@ public class OrderDetailHeader extends ConstraintLayout {
 
 	@Click(R.id.destinationAddress)
 	void setDestinationAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
+		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getLocation(), order.getWorkshopName());
 	}
 
 	@Click(R.id.orderDetailButton)

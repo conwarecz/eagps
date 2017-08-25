@@ -196,7 +196,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		switch (tabId) {
 			case 0:
 				if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
-					return TowFragment.newInstance();
+					return TowFragment.newInstance(null);
 				} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
 					return NoCarStateFragment.newInstance();
 				} else {

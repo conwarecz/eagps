@@ -3,9 +3,14 @@ package net.aineuron.eagps.adapter;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import net.aineuron.eagps.activity.MainActivityBase;
+import net.aineuron.eagps.fragment.OrderAttachmentsFragment;
+import net.aineuron.eagps.fragment.OrderDetailFragment;
+import net.aineuron.eagps.fragment.TowFragment;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.view.ItemViewWrapper;
 import net.aineuron.eagps.view.order.OrderItemView;
@@ -13,6 +18,9 @@ import net.aineuron.eagps.view.order.OrderItemView_;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
+
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
 
 /**
  * Created by Vit Veres on 20-Jun-17
@@ -22,9 +30,14 @@ import io.realm.RealmRecyclerViewAdapter;
 public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapper<OrderItemView>> {
 
 	private static int width = 0;
+	private MainActivityBase mMainActivityBase;
 
 	public OrdersAdapter(@Nullable OrderedRealmCollection<Order> data) {
 		super(data, true);
+	}
+
+	public void setMainActivityBase(MainActivityBase mainActivityBase) {
+		mMainActivityBase = mainActivityBase;
 	}
 
 	@Override
@@ -37,6 +50,25 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 	public void onBindViewHolder(ItemViewWrapper<OrderItemView> holder, int position) {
 		final Order obj = getItem(position);
 		holder.getView().bind(obj);
+
+		holder.getView().setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (obj != null) {
+					switch (obj.getStatus()) {
+						case ORDER_STATE_ASSIGNED:
+							mMainActivityBase.showFragment(TowFragment.newInstance(obj.getId()));
+							break;
+						case ORDER_STATE_FINISHED:
+							mMainActivityBase.showFragment(OrderAttachmentsFragment.newInstance(obj.getId()));
+							break;
+						default:
+							mMainActivityBase.showFragment(OrderDetailFragment.newInstance(obj.getId()));
+							break;
+					}
+				}
+			}
+		});
 
 		if (width <= 0) {
 			WindowManager windowManager = (WindowManager) holder.getView().getContext().getSystemService(Context.WINDOW_SERVICE);
