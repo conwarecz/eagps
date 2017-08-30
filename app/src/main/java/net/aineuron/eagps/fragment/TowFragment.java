@@ -106,7 +106,6 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.cancelOrder)
 	void cancelClicked() {
-		// TODO: Redo correctly with api call
 		new MaterialDialog.Builder(getContext())
 				.title("Důvod zrušení")
 				.items(R.array.order_cancel_choices)

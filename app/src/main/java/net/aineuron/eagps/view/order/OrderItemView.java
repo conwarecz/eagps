@@ -66,17 +66,17 @@ public class OrderItemView extends ConstraintLayout {
 		orderId.setText(order.getClaimSaxCode());
 		licensePlate.setText(order.getClientCarLicencePlate());
 
-		if (isPathEmpty(order.getOrderDocuments())) {
-			documentsCheck.setImageResource(R.drawable.icon_check);
-		} else {
-			documentsCheck.setImageResource(R.drawable.icon_cross);
-		}
+        if (isPathEmpty(order.getOrderDocuments())) {
+            documentsCheck.setImageResource(R.drawable.icon_cross);
+        } else {
+            documentsCheck.setImageResource(R.drawable.icon_check);
+        }
 
 		if (isPathEmpty(order.getPhotos())) {
-			photosCheck.setImageResource(R.drawable.icon_check);
-		} else {
-			photosCheck.setImageResource(R.drawable.icon_cross);
-		}
+            documentsCheck.setImageResource(R.drawable.icon_cross);
+        } else {
+            documentsCheck.setImageResource(R.drawable.icon_check);
+        }
 	}
 
 	private boolean isPathEmpty(PhotoPathsWithReason paths) {

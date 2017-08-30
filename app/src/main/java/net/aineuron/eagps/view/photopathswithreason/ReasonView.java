@@ -7,10 +7,13 @@ import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.fragment.OrderAttachmentsFragment;
+import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
+
+import io.realm.Realm;
 
 /**
  * Created by Vit Veres on 11-Jun-17
@@ -43,6 +46,7 @@ public class ReasonView extends BasePhotoPathsWithReasonView {
 	void onReasonChanged() {
 		String reasonText = reason.getText().toString();
 
-		item.photoPathsWithReason.setReasonForNoPhotos(reasonText);
-	}
+        Realm db = RealmHelper.getDb();
+        db.executeTransaction(realm -> item.photoPathsWithReason.setReasonForNoPhotos(reasonText));
+    }
 }

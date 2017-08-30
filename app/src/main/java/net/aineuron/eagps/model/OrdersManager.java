@@ -81,7 +81,7 @@ public class OrdersManager {
 		limitation.setLimit("10 599 ,-");
 		limitation.setExtendedDescription(false);
 
-		order.setId(2166L);
+		order.setId(2L);
 		order.setClaimSaxCode("T123456.78");
 		order.setTimeCreated(new Date());
 		order.setClientAddress(clientAddress);

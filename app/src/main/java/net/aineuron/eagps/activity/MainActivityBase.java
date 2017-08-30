@@ -75,7 +75,12 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+		for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
+			getSupportFragmentManager().popBackStack();
+		}
 		showFragment(rootTabFragment(MAIN_TAB_ID), false);
+		currentTabId = MAIN_TAB_ID;
+		bottomNavigation.selectTab(currentTabId, false);
 	}
 
 	@Override
@@ -173,8 +178,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		}
 		resetBackStackToRoot(currentTabId);
 		Fragment rootFragment = popFragmentFromBackStack(currentTabId);
-		assert rootFragment != null;
-		backTo(currentTabId, rootFragment);
+//		assert rootFragment != null;
+		if (rootFragment != null) {
+			backTo(currentTabId, rootFragment);
+		}
 	}
 
 	private boolean isRootTabFragment(@NonNull Fragment fragment, int tabId) {

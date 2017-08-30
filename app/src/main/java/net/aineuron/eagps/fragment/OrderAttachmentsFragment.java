@@ -145,6 +145,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
+//		MainActivityBase activityBase = (MainActivityBase) getActivity();
+//		activityBase.showFragment(new StateFragment(), false);
 		IntentUtils.openMainActivity(getContext());
 		getActivity().onBackPressed();
 	}
@@ -205,7 +207,10 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 
 			for (Uri uri : mSelected) {
-				paths.add(new RealmString(BitmapUtil.getRealPathFromUri(getContext(), uri)));
+				if (db == null) {
+					Realm db = RealmHelper.getDb();
+				}
+				db.executeTransaction(realm -> paths.add(new RealmString(BitmapUtil.getRealPathFromUri(getContext(), uri))));
 			}
 
 			setContent();
@@ -250,17 +255,19 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	private void setOrderListener() {
 		order = ordersManager.getOrderById(orderId);
-		objectListener = new RealmObjectChangeListener() {
-			@Override
-			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
-				db = RealmHelper.getDb();
-				order = ordersManager.getOrderById(orderId);
-				if (orderDetailHeader != null) {
-					setContent();
-					hideProgress();
+		if (order != null) {
+			objectListener = new RealmObjectChangeListener() {
+				@Override
+				public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
+					db = RealmHelper.getDb();
+					order = ordersManager.getOrderById(orderId);
+					if (orderDetailHeader != null) {
+						setContent();
+						hideProgress();
+					}
 				}
-			}
-		};
-		order.addChangeListener(objectListener);
+			};
+			order.addChangeListener(objectListener);
+		}
 	}
 }
