@@ -90,7 +90,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	public void onSkip() {
 		userManager.setStateNoCar();
 		progressDialog = new MaterialDialog.Builder(this)
-				.title("Měním nastavení")
+                .title(R.string.dialog_changing_settings)
                 .content(getString(R.string.dialog_wait_content))
                 .cancelable(false)
                 .progress(true, 0)
@@ -115,18 +115,18 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
-		carAdapter.notifyDataChanged();
-		progressDialog.dismiss();
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarsDownloaded(CarsDownloadedEvent e) {
 		carsRefresh.setRefreshing(false);
 		this.cars = e.cars;
 		carAdapter.setCars(e.cars);
 	}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
+        carAdapter.notifyDataChanged();
+        progressDialog.dismiss();
+        Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {

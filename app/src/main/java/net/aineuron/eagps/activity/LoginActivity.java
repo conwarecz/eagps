@@ -29,6 +29,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
+
 @EActivity(R.layout.activity_login)
 public class LoginActivity extends AppCompatActivity implements Validator.ValidationListener {
 
@@ -105,13 +107,17 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoginFailed(ApiErrorEvent e) {
 		dismissDialog();
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-	}
+        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_SHORT).show();
+    }
 
 	private void finishLogin() {
-		CarSettingsActivity_.intent(this).start();
-		finish();
-	}
+        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+            CarSettingsActivity_.intent(this).start();
+        } else {
+            IntentUtils.openMainActivity(this);
+        }
+        finish();
+    }
 
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)

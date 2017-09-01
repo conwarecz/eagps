@@ -6,9 +6,11 @@ package net.aineuron.eagps.event.ui;
  */
 
 public class WorkerCarSelectedEvent {
-	public final long selectedCarId;
+    public final Long selectedCarId;
+    public final boolean isSelected;
 
-	public WorkerCarSelectedEvent(long selectedCarId) {
-		this.selectedCarId = selectedCarId;
-	}
+    public WorkerCarSelectedEvent(long selectedCarId, boolean isSelected) {
+        this.selectedCarId = selectedCarId;
+        this.isSelected = isSelected;
+    }
 }

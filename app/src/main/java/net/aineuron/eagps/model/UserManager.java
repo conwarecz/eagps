@@ -134,8 +134,8 @@ public class UserManager {
 	}
 
 	private void selectState(Long stateId) {
-		clientProvider.getEaClient().setState(stateId);
-	}
+        clientProvider.getEaClient().setUserState(stateId);
+    }
 
 
 	public void login(LoginInfo info) {

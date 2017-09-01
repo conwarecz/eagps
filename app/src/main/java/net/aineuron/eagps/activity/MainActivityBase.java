@@ -16,6 +16,7 @@ import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.jetradar.multibackstack.BackStackActivity;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
@@ -27,6 +28,8 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity
 public class MainActivityBase extends BackStackActivity implements BottomNavigationBar.OnTabSelectedListener {
@@ -154,14 +157,21 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setActiveColor(R.color.colorPrimary)
 				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
-
-		bottomNavigation
-				.addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
-				.addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
-				.addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
-				.setFirstSelectedPosition(0)
-				.initialise();
-	}
+        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+            bottomNavigation
+                    .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
+                    .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
+                    .addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
+                    .setFirstSelectedPosition(0)
+                    .initialise();
+        } else {
+            bottomNavigation
+                    .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
+                    .addItem(new BottomNavigationItem(R.drawable.icon_detail_car, "Správa vozidel"))
+                    .setFirstSelectedPosition(0)
+                    .initialise();
+        }
+    }
 
 	private void backTo(int tabId, @NonNull Fragment fragment) {
 		if (tabId != currentTabId) {
@@ -200,21 +210,32 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@NonNull
 	private Fragment rootTabFragment(int tabId) {
-		switch (tabId) {
-			case 0:
-				if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
-					return TowFragment.newInstance(null);
-				} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
-					return NoCarStateFragment.newInstance();
-				} else {
-					return StateFragment.newInstance();
-				}
-			case 1:
-				return OrdersFragment.newInstance();
-			case 2:
-				return MessagesFragment.newInstance();
-			default:
-				return StateFragment.newInstance();
-		}
-	}
+        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+            switch (tabId) {
+                case 0:
+                    if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
+                        return TowFragment.newInstance(null);
+                    } else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+                        return NoCarStateFragment.newInstance();
+                    } else {
+                        return StateFragment.newInstance();
+                    }
+                case 1:
+                    return OrdersFragment.newInstance();
+                case 2:
+                    return MessagesFragment.newInstance();
+                default:
+                    return StateFragment.newInstance();
+            }
+        } else {
+            switch (tabId) {
+                case 0:
+                    return OrdersFragment.newInstance();
+                case 1:
+                    return DispatcherSelectCarFragment.newInstance();
+                default:
+                    return OrdersFragment.newInstance();
+            }
+        }
+    }
 }

@@ -12,6 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,6 +26,8 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
+
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 
 /**
  * Created by Vit Veres on 30-May-17
@@ -146,6 +149,15 @@ public class AppBarActivity extends MainActivityBase {
 		} else {
 			setActionBarColor(actionBar, primary);
 		}
+
+        if (userManager.getUser().getRoleId() == null || userManager.getUser().getRoleId() == DISPATCHER_ID) {
+            stateIcon.setVisibility(View.GONE);
+            licencePlate.setVisibility(View.GONE);
+            setActionBarColor(actionBar, primary);
+        } else {
+            stateIcon.setVisibility(View.VISIBLE);
+            licencePlate.setVisibility(View.VISIBLE);
+        }
 
 		User user = userManager.getUser();
 		profileName.setText(user.getName());

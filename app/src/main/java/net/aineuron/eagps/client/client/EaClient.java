@@ -6,6 +6,7 @@ import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.RetrofitException;
 import net.aineuron.eagps.client.service.EaService;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
+import net.aineuron.eagps.event.network.car.CarStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
@@ -15,6 +16,7 @@ import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.RealmHelper;
@@ -26,6 +28,8 @@ import org.greenrobot.eventbus.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Retrofit;
 
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
@@ -136,7 +140,7 @@ public class EaClient {
 				);
 	}
 
-	public void setState(Long stateId) {
+	public void setUserState(Long stateId) {
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -162,6 +166,19 @@ public class EaClient {
 								EventBus.getDefault().post(new CarSelectedEvent());
 							}
 						},
+						ClientProvider::postNetworkError
+				);
+	}
+
+	public void setCarState(Long stateId, Long carId) {
+
+		eaService.setStatus(carId, stateId)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong ->
+								EventBus.getDefault().post(new CarStatusChangedEvent(carId))
+						,
 						ClientProvider::postNetworkError
 				);
 	}
@@ -294,6 +311,32 @@ public class EaClient {
 							EventBus.getDefault().post(new UserLoggedOutEvent());
 						},
 						ClientProvider::postNetworkError
+				);
+	}
+
+	// Pictures
+	public void uploadPhoto(Photo photo, Long orderId) {
+		RequestBody image = RequestBody.create(MediaType.parse("image/*"), photo.getFileBytes());
+
+
+		eaService.uploadPhoto(orderId, photo)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> {
+
+						}
+				);
+	}
+
+	public void uploadSheet(Photo photo, Long orderId) {
+		eaService.uploadSheet(orderId, photo)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> {
+
+						}
 				);
 	}
 }
