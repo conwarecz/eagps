@@ -11,8 +11,11 @@ import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
+import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
+import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
+import net.aineuron.eagps.event.network.user.UserTokenSet;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
@@ -28,8 +31,6 @@ import org.greenrobot.eventbus.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import retrofit2.Retrofit;
 
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
@@ -165,6 +166,25 @@ public class EaClient {
 							if (stateId.equals(STATE_ID_NO_CAR)) {
 								EventBus.getDefault().post(new CarSelectedEvent());
 							}
+						},
+						ClientProvider::postNetworkError
+				);
+	}
+
+	public void setUserToken(String token) {
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.setToken(user.getUserId(), token)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						aLong -> {
+							Log.d("API Token", "Token put to user: " + token);
+							user.setToken(token);
+							EventBus.getDefault().post(new UserTokenSet());
 						},
 						ClientProvider::postNetworkError
 				);
@@ -316,16 +336,13 @@ public class EaClient {
 
 	// Pictures
 	public void uploadPhoto(Photo photo, Long orderId) {
-		RequestBody image = RequestBody.create(MediaType.parse("image/*"), photo.getFileBytes());
-
-
 		eaService.uploadPhoto(orderId, photo)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
-
-						}
+						aLong ->
+								EventBus.getDefault().post(new PhotoUploadedEvent())
+						, ClientProvider::postNetworkError
 				);
 	}
 
@@ -334,9 +351,9 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
-
-						}
+						aLong ->
+								EventBus.getDefault().post(new SheetUploadedEvent())
+						, ClientProvider::postNetworkError
 				);
 	}
 }

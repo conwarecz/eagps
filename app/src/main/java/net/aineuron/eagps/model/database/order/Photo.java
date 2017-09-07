@@ -5,17 +5,9 @@ package net.aineuron.eagps.model.database.order;
  */
 
 public class Photo {
-    private String fileBytes;
+    private byte[] fileBytes;
     private String extension;
     private String fileName;
-
-    public String getFileBytes() {
-        return fileBytes;
-    }
-
-    public void setFileBytes(String fileBytes) {
-        this.fileBytes = fileBytes;
-    }
 
     public String getExtension() {
         return extension;
@@ -31,5 +23,13 @@ public class Photo {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public byte[] getFileBytes() {
+        return fileBytes;
+    }
+
+    public void setFileBytes(byte[] fileBytes) {
+        this.fileBytes = fileBytes;
     }
 }

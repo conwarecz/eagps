@@ -39,7 +39,9 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_BUSY;
 import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_READY;
+import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_UNAVAILABLE;
 
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 31.08.2017.
@@ -85,13 +87,13 @@ public class DispatcherSelectCarFragment extends BaseFragment {
 
     @Click(R.id.carsBusy)
     void busyClicked() {
-        carsNewState = CAR_STATE_READY;
+        carsNewState = CAR_STATE_BUSY;
         setCarsState();
     }
 
     @Click(R.id.carsUnavailable)
     void unavailableClicked() {
-        carsNewState = CAR_STATE_READY;
+        carsNewState = CAR_STATE_UNAVAILABLE;
         setCarsState();
     }
 

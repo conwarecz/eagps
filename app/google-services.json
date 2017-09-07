@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "3039231587",
+    "firebase_url": "https://eatest-77ca8.firebaseio.com",
+    "project_id": "eatest-77ca8",
+    "storage_bucket": "eatest-77ca8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3039231587:android:6a07098658554311",
+        "android_client_info": {
+          "package_name": "net.aineuron.eagps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3039231587-qd2lk1it2bu8dh084b61rtc8g92o7da9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZaWbgd-SqIy6ZZpuKjSB8ACXASw7LOuY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

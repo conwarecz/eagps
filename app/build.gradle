@@ -8,8 +8,8 @@ android {
 		applicationId "net.aineuron.eagps"
 		minSdkVersion 16
 		targetSdkVersion 26
-		versionCode 10
-		versionName "0.1.5"
+		versionCode 11
+		versionName "0.1.6"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {
@@ -97,4 +97,8 @@ dependencies {
 	implementation 'com.tmtron:green-annotations-api:1.0.1'
 	// Permission dispatcher annotation
 	annotationProcessor 'com.github.AleksanderMielczarek:AndroidAnnotationsPermissionsDispatcherPlugin:0.1.0'
+
+	//Notifications
+	implementation 'com.google.firebase:firebase-messaging:11.2.0'
 }
+apply plugin: 'com.google.gms.google-services'

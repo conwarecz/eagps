@@ -6,6 +6,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
@@ -14,6 +15,7 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
+import net.aineuron.eagps.event.network.user.UserTokenSet;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.IntentUtils;
@@ -57,7 +59,7 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 		if (userManager.getUser() != null) {
 			// User logged in
-			finishLogin();
+			setUserToken();
 		}
 
 		validator = new Validator(this);
@@ -100,8 +102,7 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoggedInEvent(UserLoggedInEvent e) {
-		dismissDialog();
-		finishLogin();
+		setUserToken();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -110,14 +111,27 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
         Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_SHORT).show();
     }
 
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onTokenSet(UserTokenSet e) {
+		finishLogin();
+	}
+
+	private void setUserToken() {
+		String token = FirebaseInstanceId.getInstance().getToken();
+		if (token != null) {
+			userManager.setToken(token);
+		}
+	}
+
 	private void finishLogin() {
         if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
             CarSettingsActivity_.intent(this).start();
         } else {
             IntentUtils.openMainActivity(this);
         }
-        finish();
-    }
+		dismissDialog();
+		finish();
+	}
 
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)

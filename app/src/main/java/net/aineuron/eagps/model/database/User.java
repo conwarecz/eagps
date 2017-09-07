@@ -11,7 +11,7 @@ public class User {
 	private Long userId;
 	private String name;
 	private String roleName;
-    @SerializedName("role")
+    @SerializedName("Role")
     private Integer roleId;
 	private String phone;
 	private String token;

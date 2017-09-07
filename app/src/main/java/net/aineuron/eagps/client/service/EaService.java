@@ -36,14 +36,14 @@ public interface EaService {
 	@GET("users/{userId}/cars/available")
 	Maybe<List<Car>> getCars(@Path("userId") Long userId);
 
-    @PUT("entities/{entityId}/status")
-    Maybe<Response<Void>> setStatus(@Path("entityId") long entityId, @Body Long status);
-
 	@PUT("users/{userId}/entity/{entityId}")
 	Maybe<Car> setCarToUser(@Path("userId") Long userId, @Path("entityId") long entityId);
 
     @DELETE("users/{userId}/car/{entityId}")
     Maybe<Response<Void>> releaseCarFromUser(@Path("userId") Long userId, @Path("entityId") long entityId);
+
+    @PUT("users/{userId}/token")
+    Maybe<Response<Void>> setToken(@Path("userId") Long userId, @Body String token);
 
 	// Messages
 	@GET("messages")
@@ -74,4 +74,8 @@ public interface EaService {
 
     @POST("orders/{orderId}/ordersheets")
     Maybe<Response<Void>> uploadSheet(@Path("orderId") Long orderId, @Body Photo photo);
+
+    // Cars
+    @PUT("entities/{entityId}/status")
+    Maybe<Response<Void>> setStatus(@Path("entityId") long entityId, @Body Long status);
 }

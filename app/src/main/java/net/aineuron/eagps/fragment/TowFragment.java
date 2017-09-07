@@ -124,6 +124,12 @@ public class TowFragment extends BaseFragment {
 				.show();
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		hideProgress();
+	}
+
 	@Click({R.id.photosStep, R.id.documentPhotos})
 	void photosClicked() {
 		IntentUtils.openCamera(getContext());

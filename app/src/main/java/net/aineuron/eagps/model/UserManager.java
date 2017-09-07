@@ -23,8 +23,8 @@ import java.util.Map;
 @EBean(scope = EBean.Scope.Singleton)
 public class UserManager {
 
-	public static final int WORKER_ID = 1;
-	public static final int DISPATCHER_ID = 2;
+	public static final int WORKER_ID = 2;
+	public static final int DISPATCHER_ID = 1;
 
 	public static final Long STATE_ID_READY = 1L;
 	public static final Long STATE_ID_BUSY = 2L;
@@ -137,6 +137,9 @@ public class UserManager {
         clientProvider.getEaClient().setUserState(stateId);
     }
 
+	public void setToken(String token) {
+		clientProvider.getEaClient().setUserToken(token);
+	}
 
 	public void login(LoginInfo info) {
 		clientProvider.getEaClient().login(info);

@@ -12,6 +12,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
@@ -25,12 +26,17 @@ import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter;
 import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter_;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
+import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
+import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.ui.AddPhotoEvent;
 import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.IntentUtils;
@@ -47,6 +53,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,6 +63,8 @@ import io.realm.RealmModel;
 import io.realm.RealmObjectChangeListener;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
+
+import static net.aineuron.eagps.util.FileUtils.fileToByteArray2;
 
 /**
  * Created by Vit Veres on 07-Jun-17
@@ -92,6 +101,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private Order order;
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
+	private int uploadedPhotos = 0;
+	private int uploadedSheets = 0;
 
 	public static OrderAttachmentsFragment newInstance(Long orderId) {
 		return OrderAttachmentsFragment_.builder().orderId(orderId).build();
@@ -139,7 +150,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 
 		showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
-		ordersManager.sendOrder(order.getId());
+		if (order.getPhotos().getPhotoPaths().size() > 0) {
+			uploadPhotos();
+		} else if (order.getOrderDocuments().getPhotoPaths().size() > 0) {
+			uploadSheets();
+		} else {
+			uploadFinishedSendOrder();
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -173,6 +190,40 @@ public class OrderAttachmentsFragment extends BaseFragment {
 				return;
 			}
 		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onPhotoUploadedEvent(PhotoUploadedEvent e) {
+		uploadedPhotos++;
+		if (uploadedPhotos < order.getPhotos().getPhotoPaths().size()) {
+			uploadPhotos();
+		} else if (uploadedSheets < order.getOrderDocuments().getPhotoPaths().size()) {
+			uploadSheets();
+		} else {
+			uploadFinishedSendOrder();
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onSheetUploadedEvent(SheetUploadedEvent e) {
+		uploadedSheets++;
+		if (uploadedSheets < order.getOrderDocuments().getPhotoPaths().size()) {
+			uploadSheets();
+		} else {
+			uploadFinishedSendOrder();
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
+		hideProgress();
+		Toast.makeText(getContext(), e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onCarSelectError(KnownErrorEvent e) {
+		hideProgress();
+		Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -269,5 +320,39 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			};
 			order.addChangeListener(objectListener);
 		}
+	}
+
+	private void uploadPhotos() {
+		String path = order.getPhotos().getPhotoPaths().get(uploadedPhotos).getValue();
+		File file = new File(path);
+		Photo photo = new Photo();
+		try {
+			photo.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
+			photo.setFileName(file.getName());
+			photo.setFileBytes(fileToByteArray2(file));
+			clientProvider.getEaClient().uploadPhoto(photo, order.getId());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("Photo file", "Couldn't create byte stream from file");
+		}
+	}
+
+	private void uploadSheets() {
+		String path = order.getOrderDocuments().getPhotoPaths().get(uploadedSheets).getValue();
+		File file = new File(path);
+		Photo photo = new Photo();
+		try {
+			photo.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
+			photo.setFileName(file.getName());
+			photo.setFileBytes(fileToByteArray2(file));
+			clientProvider.getEaClient().uploadSheet(photo, order.getId());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("Photo file", "Couldn't create byte stream from file");
+		}
+	}
+
+	private void uploadFinishedSendOrder() {
+		ordersManager.sendOrder(order.getId());
 	}
 }
