@@ -65,6 +65,7 @@ public class UserManager {
 		String userObjectSerialized = "";
 		if (user != null) {
 			userObjectSerialized = gson.toJson(user);
+			pref.token().put(user.getToken());
 		}
 		pref.edit().userObjectSerialized().put(userObjectSerialized).apply();
 	}
@@ -137,8 +138,8 @@ public class UserManager {
         clientProvider.getEaClient().setUserState(stateId);
     }
 
-	public void setToken(String token) {
-		clientProvider.getEaClient().setUserToken(token);
+	public void setFirebaseToken(String token) {
+		clientProvider.getEaClient().setUserFirebaseToken(token);
 	}
 
 	public void login(LoginInfo info) {

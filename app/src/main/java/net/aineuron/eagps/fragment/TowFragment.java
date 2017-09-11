@@ -11,6 +11,7 @@ import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
@@ -100,8 +101,7 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.finishOrder)
 	void finishClicked() {
-		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderAttachmentsFragment.newInstance(order.getId()));
+		clientProvider.getEaClient().finalizeOrder(order.getId());
 	}
 
 	@Click(R.id.cancelOrder)
@@ -158,6 +158,12 @@ public class TowFragment extends BaseFragment {
 		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail" + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		hideProgress();
 		getActivity().onBackPressed();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void orderFinalized(OrderFinalizedEvent e) {
+		MainActivityBase activity = (MainActivityBase) getActivity();
+		activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
 	}
 
 	private void setContent() {

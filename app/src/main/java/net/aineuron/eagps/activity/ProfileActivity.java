@@ -12,6 +12,8 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
@@ -22,6 +24,11 @@ import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
 
 @EActivity(R.layout.activity_profile)
 @OptionsMenu(R.menu.main_menu)
@@ -66,9 +73,13 @@ public class ProfileActivity extends AppBarActivity {
 
 	@Click(R.id.logoutButton)
 	public void logoutClicked() {
-		showProgress();
-		userManager.logout();
-	}
+        if (!haveActiveOrder()) {
+            showProgress();
+            userManager.logout();
+        } else {
+            Toast.makeText(getApplicationContext(), "Nyní nelze odhlásit, máte aktivní zakázku!", Toast.LENGTH_LONG).show();
+        }
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoggedInEvent(UserLoggedOutEvent e) {
@@ -106,4 +117,14 @@ public class ProfileActivity extends AppBarActivity {
 		}
 		progressDialog.dismiss();
 	}
+
+    private boolean haveActiveOrder() {
+        boolean activeOrder = false;
+        Realm db = RealmHelper.getDb();
+        RealmResults<Order> activeOrders = db.where(Order.class).equalTo("status", ORDER_STATE_ASSIGNED).findAll();
+        if (activeOrders.size() > 0) {
+            activeOrder = true;
+        }
+        return activeOrder;
+    }
 }

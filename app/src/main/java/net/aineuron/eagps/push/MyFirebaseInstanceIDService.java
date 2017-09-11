@@ -5,10 +5,13 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
+import org.androidannotations.annotations.EBean;
+
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 05.09.2017.
  */
 
+@EBean
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     private static final String TAG = "FirebaseIDService";
 
@@ -30,6 +33,5 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
      */
     private void sendRegistrationToServer(String token) {
         // Add custom implementation, as needed.
-
     }
 }

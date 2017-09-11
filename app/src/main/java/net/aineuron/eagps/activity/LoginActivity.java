@@ -59,7 +59,8 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 		if (userManager.getUser() != null) {
 			// User logged in
-			setUserToken();
+			showProgress();
+			setFirebaseToken();
 		}
 
 		validator = new Validator(this);
@@ -102,7 +103,7 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoggedInEvent(UserLoggedInEvent e) {
-		setUserToken();
+		setFirebaseToken();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -116,10 +117,10 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		finishLogin();
 	}
 
-	private void setUserToken() {
+	private void setFirebaseToken() {
 		String token = FirebaseInstanceId.getInstance().getToken();
 		if (token != null) {
-			userManager.setToken(token);
+			userManager.setFirebaseToken(token);
 		}
 	}
 

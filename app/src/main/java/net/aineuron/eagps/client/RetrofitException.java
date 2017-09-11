@@ -28,7 +28,11 @@ public class RetrofitException extends RuntimeException {
 
 	public static RetrofitException httpError(String url, Response response, Retrofit retrofit) {
 		String message = response.code() + " " + response.message();
-		return new RetrofitException(message, url, response, Kind.HTTP, null, retrofit);
+		if (response.code() == 401) {
+			return new RetrofitException(message, url, response, Kind.UNAUTHORISED, null, retrofit);
+		} else {
+			return new RetrofitException(message, url, response, Kind.HTTP, null, retrofit);
+		}
 	}
 
 	public static RetrofitException networkError(IOException exception) {
@@ -97,6 +101,10 @@ public class RetrofitException extends RuntimeException {
 		 * An internal error occurred while attempting to execute a request. It is best practice to
 		 * re-throw this exception so your application crashes.
 		 */
-		UNEXPECTED
+		UNEXPECTED,
+		/**
+		 * A 401 HTTP status code - unauthorised access
+		 */
+		UNAUTHORISED
 	}
 }

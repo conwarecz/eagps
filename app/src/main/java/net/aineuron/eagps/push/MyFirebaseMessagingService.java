@@ -22,8 +22,12 @@ import net.aineuron.eagps.activity.OfferActivity_;
  */
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+    public static final int TENDER_NEW = 0;
+    public static final int TENDER_REFRESH = 1;
+    public static final int TENDER_ACCEPTED = 2;
+    public static final int TENDER_OLD = 3;
+    public static final int TENDER_CANCELED = 4;
     private static final String TAG = "FCM Service";
-
     private int currentNotificationID = 0;
 
     @Override

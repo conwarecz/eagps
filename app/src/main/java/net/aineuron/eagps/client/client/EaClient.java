@@ -2,6 +2,7 @@ package net.aineuron.eagps.client.client;
 
 import android.util.Log;
 
+import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.RetrofitException;
 import net.aineuron.eagps.client.service.EaService;
@@ -10,6 +11,7 @@ import net.aineuron.eagps.event.network.car.CarStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
 import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
@@ -26,11 +28,15 @@ import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
+
+import java.io.IOException;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
@@ -52,6 +58,8 @@ public class EaClient {
 	OrdersManager ordersManager;
 	@Bean
 	ClientProvider clientProvider;
+	@Pref
+	Pref_ pref;
 
 	private EaService eaService;
 
@@ -79,16 +87,7 @@ public class EaClient {
 							userManager.setSelectedStateId(car == null ? STATE_ID_NO_CAR : STATE_ID_READY);
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},
-						errorThrowable -> {
-							RetrofitException error = (RetrofitException) errorThrowable;
-
-							if (error.getKind() == RetrofitException.Kind.HTTP) {
-								KnownError knownError = error.getErrorBodyAs(KnownError.class);
-								ClientProvider.postKnownError(knownError);
-							} else {
-								ClientProvider.postNetworkError(errorThrowable);
-							}
-						}
+						this::sendError
 				);
 	}
 
@@ -111,16 +110,7 @@ public class EaClient {
 							userManager.setSelectedStateId(null);
 							EventBus.getDefault().post(new CarSelectedEvent());
 						},
-						errorThrowable -> {
-							RetrofitException error = (RetrofitException) errorThrowable;
-
-							if (error.getKind() == RetrofitException.Kind.HTTP) {
-								KnownError knownError = error.getErrorBodyAs(KnownError.class);
-								ClientProvider.postKnownError(knownError);
-							} else {
-								ClientProvider.postNetworkError(errorThrowable);
-							}
-						}
+						this::sendError
 				);
 	}
 
@@ -137,7 +127,7 @@ public class EaClient {
 						cars -> {
 							EventBus.getDefault().post(new CarsDownloadedEvent(cars));
 						},
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
@@ -160,18 +150,18 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
+						voidResponse -> {
 							userManager.setSelectedStateId(stateId);
 							EventBus.getDefault().post(new StateSelectedEvent());
 							if (stateId.equals(STATE_ID_NO_CAR)) {
 								EventBus.getDefault().post(new CarSelectedEvent());
 							}
 						},
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
-	public void setUserToken(String token) {
+	public void setUserFirebaseToken(String token) {
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -181,12 +171,12 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
+						voidResponse -> {
 							Log.d("API Token", "Token put to user: " + token);
-							user.setToken(token);
+							clientProvider.rebuildRetrofit();
 							EventBus.getDefault().post(new UserTokenSet());
 						},
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
@@ -196,10 +186,10 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong ->
+						voidResponse ->
 								EventBus.getDefault().post(new CarStatusChangedEvent(carId))
 						,
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
@@ -218,7 +208,8 @@ public class EaClient {
 
 							db.close();
 						},
-						ClientProvider::postNetworkError);
+						this::sendError
+				);
 	}
 
 	public void getOrderDetail(Long orderId) {
@@ -235,7 +226,7 @@ public class EaClient {
 
 							db.close();
 						},
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
@@ -249,9 +240,27 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong ->
+						voidResponse ->
 								EventBus.getDefault().post(new OrderCanceledEvent(orderId)),
-						ClientProvider::postNetworkError
+						this::sendError
+				);
+	}
+
+	public void finalizeOrder(Long orderId) {
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+
+		eaService.finalizeOrder(orderId)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						voidResponse -> {
+							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+							EventBus.getDefault().post(new OrderFinalizedEvent(orderId));
+						},
+						this::sendError
 				);
 	}
 
@@ -265,11 +274,15 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
-							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-							EventBus.getDefault().post(new OrderSentEvent(orderId));
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+								EventBus.getDefault().post(new OrderSentEvent(orderId));
+							} else {
+								sendKnownError(voidResponse);
+							}
 						},
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
@@ -282,7 +295,8 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(aVoid -> Log.d("MessageSetRead", "Message Set Read success"),
-						ClientProvider::postNetworkError);
+						this::sendError
+				);
 	}
 
 	public void updateMessages() {
@@ -297,7 +311,8 @@ public class EaClient {
 
 							db.close();
 						},
-						ClientProvider::postNetworkError);
+						this::sendError
+				);
 	}
 
 	public void login(LoginInfo info) {
@@ -312,7 +327,9 @@ public class EaClient {
 						user -> {
 							userManager.setUser(user);
 							EventBus.getDefault().post(new UserLoggedInEvent());
-						}, ClientProvider::postNetworkError);
+						},
+						this::sendError
+				);
 	}
 
 	public void logout() {
@@ -325,12 +342,12 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong -> {
+						voidResponse -> {
 							userManager.setUser(null);
 							userManager.setSelectedCarId(-1l);
 							EventBus.getDefault().post(new UserLoggedOutEvent());
 						},
-						ClientProvider::postNetworkError
+						this::sendError
 				);
 	}
 
@@ -340,9 +357,10 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong ->
+						voidResponse ->
 								EventBus.getDefault().post(new PhotoUploadedEvent())
-						, ClientProvider::postNetworkError
+						,
+						this::sendError
 				);
 	}
 
@@ -351,9 +369,43 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						aLong ->
+						voidResponse ->
 								EventBus.getDefault().post(new SheetUploadedEvent())
-						, ClientProvider::postNetworkError
+						,
+						this::sendError
 				);
+	}
+
+	private void sendError(Throwable errorThrowable) {
+		try {
+			RetrofitException error = (RetrofitException) errorThrowable;
+
+			if (error.getKind() == RetrofitException.Kind.HTTP) {
+				KnownError knownError = error.getErrorBodyAs(KnownError.class);
+				ClientProvider.postKnownError(knownError);
+			} else if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
+				clientProvider.postUnauthorisedError();
+			} else {
+				ClientProvider.postNetworkError(errorThrowable);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			ClientProvider.postNetworkError(errorThrowable);
+		}
+	}
+
+	private void sendKnownError(Response<Void> voidResponse) {
+		if (voidResponse.code() == 401) {
+			clientProvider.postUnauthorisedError();
+			return;
+		}
+		try {
+			KnownError knownError = new KnownError();
+			knownError.setCode(voidResponse.code());
+			knownError.setMessage(voidResponse.errorBody().string());
+			ClientProvider.postKnownError(knownError);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
