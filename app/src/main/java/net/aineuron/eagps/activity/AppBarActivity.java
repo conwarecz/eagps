@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
@@ -70,7 +71,8 @@ public class AppBarActivity extends MainActivityBase {
 
 		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {
-			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
+			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER) || userManager.haveActiveOrder()) {
+				Toast.makeText(this, "Při aktivní zakázce nelze měnit vůz!", Toast.LENGTH_LONG).show();
 				return;
 			}
 			CarSettingsActivity_.intent(this).resetCar(true).start();
@@ -121,6 +123,8 @@ public class AppBarActivity extends MainActivityBase {
 		if (actionBar == null) {
 			return;
 		}
+
+		menuState.setVisible(true);
 
 		Long i = userManager.getSelectedStateId();
 		if (i == null) {

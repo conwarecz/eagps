@@ -125,8 +125,9 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	}
 
 	private void finishLogin() {
-        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
-            CarSettingsActivity_.intent(this).start();
+		userManager.haveActiveOrder();
+		if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+			CarSettingsActivity_.intent(this).start();
         } else {
             IntentUtils.openMainActivity(this);
         }

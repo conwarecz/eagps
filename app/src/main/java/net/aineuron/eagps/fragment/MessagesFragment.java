@@ -2,6 +2,7 @@ package net.aineuron.eagps.fragment;
 
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,8 +14,11 @@ import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.MessagesAdapter;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.ui.MessageClickedEvent;
+import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.database.Message;
+import net.aineuron.eagps.model.transfer.Paging;
 import net.aineuron.eagps.util.RealmHelper;
+import net.aineuron.eagps.view.EndlessRecyclerViewScrollListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -39,6 +43,9 @@ public class MessagesFragment extends BaseFragment {
 	@ViewById(R.id.messages)
 	RecyclerView messagesView;
 
+	@ViewById(R.id.messagesSwipe)
+	SwipeRefreshLayout swipeRefreshLayout;
+
 	@Bean
 	ClientProvider clientProvider;
 
@@ -48,6 +55,7 @@ public class MessagesFragment extends BaseFragment {
 	private Realm db;
 	private RealmResults<Message> messageRealmQuery;
 	private MessagesAdapter adapter;
+	private Paging paging;
 
 	public static MessagesFragment newInstance() {
 		return MessagesFragment_.builder().build();
@@ -57,6 +65,16 @@ public class MessagesFragment extends BaseFragment {
 	void afterViews() {
 		setAppbarUpNavigation(false);
 		setAppbarTitle("Zprávy");
+
+		paging = new Paging();
+
+		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				paging = new Paging();
+				clientProvider.getEaClient().updateMessages(paging);
+			}
+		});
 
 		db = RealmHelper.getDb();
 		messageRealmQuery = db.where(Message.class).findAllSorted("time", Sort.DESCENDING);
@@ -73,7 +91,17 @@ public class MessagesFragment extends BaseFragment {
 
 		messagesView.setAdapter(adapter);
 
-		clientProvider.getEaClient().updateMessages();
+		messagesView.addOnScrollListener(new EndlessRecyclerViewScrollListener(manager) {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				paging.nextPage();
+				swipeRefreshLayout.setRefreshing(true);
+				clientProvider.getEaClient().updateMessages(paging);
+			}
+		});
+
+		swipeRefreshLayout.setRefreshing(true);
+		clientProvider.getEaClient().updateMessages(paging);
 	}
 
 	@Override
@@ -90,5 +118,10 @@ public class MessagesFragment extends BaseFragment {
 	public void onMessageClickedEvent(MessageClickedEvent e) {
 		MainActivityBase activity = (MainActivityBase) getActivity();
 		activity.showFragment(MessageDetailFragment.newInstance(e.messageId));
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onStopRefreshing(StopRefreshingEvent e) {
+		swipeRefreshLayout.setRefreshing(false);
 	}
 }

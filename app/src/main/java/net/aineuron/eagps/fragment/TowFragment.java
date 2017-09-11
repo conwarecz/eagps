@@ -1,6 +1,7 @@
 package net.aineuron.eagps.fragment;
 
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -86,17 +87,19 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
+		showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+
 		setAppbarUpNavigation(false);
 		setAppbarTitle("Na zásahu");
 
 		if (orderId == null) {
-			order = ordersManager.getCurrentOrder();
-			setContent();
-		} else {
-			setOrderListener();
-			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
-			clientProvider.getEaClient().getOrderDetail(orderId);
+			order = ordersManager.getFirstActiveOrder();
+			orderId = order.getId();
 		}
+
+		setOrderListener();
+
+		clientProvider.getEaClient().getOrderDetail(orderId);
 	}
 
 	@Click(R.id.finishOrder)
@@ -155,7 +158,7 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void apiFailedEvent(ApiErrorEvent e) {
 		e.throwable.printStackTrace();
-		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail" + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail: " + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		hideProgress();
 		getActivity().onBackPressed();
 	}
@@ -173,7 +176,12 @@ public class TowFragment extends BaseFragment {
 		});
 
 		this.clientAddress.setText(formatClientAddress(order.getClientAddress()));
-		this.destinationAddress.setText(formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));
+		if (order.getWorkshopName() != null && order.getDestinationAddress() != null) {
+			this.destinationAddress.setVisibility(View.VISIBLE);
+			this.destinationAddress.setText(formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));
+		} else {
+			this.destinationAddress.setVisibility(View.GONE);
+		}
 	}
 
 	private void setOrderListener() {

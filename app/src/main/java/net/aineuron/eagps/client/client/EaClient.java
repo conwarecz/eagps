@@ -18,12 +18,14 @@ import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.event.network.user.UserTokenSet;
+import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
+import net.aineuron.eagps.model.transfer.Paging;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
@@ -194,8 +196,8 @@ public class EaClient {
 	}
 
 	// Orders
-	public void updateOrders() {
-		eaService.getOrders(0, 100)
+	public void updateOrders(Paging paging) {
+		eaService.getOrders(paging.getSkip(), paging.getTake())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -207,6 +209,7 @@ public class EaClient {
 							});
 
 							db.close();
+							EventBus.getDefault().post(new StopRefreshingEvent());
 						},
 						this::sendError
 				);
@@ -299,8 +302,8 @@ public class EaClient {
 				);
 	}
 
-	public void updateMessages() {
-		eaService.getMessages(0, 100)
+	public void updateMessages(Paging paging) {
+		eaService.getMessages(paging.getSkip(), paging.getTake())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -310,6 +313,7 @@ public class EaClient {
 							db.executeTransaction(realm -> realm.copyToRealmOrUpdate(messages));
 
 							db.close();
+							EventBus.getDefault().post(new StopRefreshingEvent());
 						},
 						this::sendError
 				);
@@ -392,6 +396,7 @@ public class EaClient {
 			e.printStackTrace();
 			ClientProvider.postNetworkError(errorThrowable);
 		}
+		EventBus.getDefault().post(new StopRefreshingEvent());
 	}
 
 	private void sendKnownError(Response<Void> voidResponse) {
@@ -407,5 +412,6 @@ public class EaClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		EventBus.getDefault().post(new StopRefreshingEvent());
 	}
 }

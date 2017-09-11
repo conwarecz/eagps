@@ -3,6 +3,7 @@ package net.aineuron.eagps.fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,6 +125,9 @@ public class OrderDetailFragment extends BaseFragment {
 		Address destinationAddress = order.getDestinationAddress();
 		if (destinationAddress != null) {
 			this.destinationAddress.setText(formatDestinationAddress(destinationAddress, order.getWorkshopName()));
+			this.destinationAddress.setVisibility(View.VISIBLE);
+		} else {
+			this.destinationAddress.setVisibility(View.GONE);
 		}
 
 		if (order.getEventDescription() != null) {

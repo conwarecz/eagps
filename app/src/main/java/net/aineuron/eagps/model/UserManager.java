@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.transfer.LoginInfo;
+import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -14,6 +16,12 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ARRIVED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
 
 /**
  * Created by Vit Veres on 29-May-17
@@ -148,5 +156,22 @@ public class UserManager {
 
 	public void logout() {
 		clientProvider.getEaClient().logout();
+	}
+
+	public boolean haveActiveOrder() {
+		boolean activeOrder = false;
+		Realm db = RealmHelper.getDb();
+		RealmResults<Order> activeOrders = db.where(Order.class)
+				.beginGroup()
+				.equalTo("status", ORDER_STATE_ASSIGNED)
+				.or()
+				.equalTo("status", ORDER_STATE_ARRIVED)
+				.endGroup()
+				.findAll();
+		if (activeOrders.size() > 0) {
+			activeOrder = true;
+			setStateBusyOnOrder();
+		}
+		return activeOrder;
 	}
 }

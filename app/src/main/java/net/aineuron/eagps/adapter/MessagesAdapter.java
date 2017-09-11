@@ -24,7 +24,6 @@ public class MessagesAdapter extends RealmRecyclerViewAdapter<Message, ItemViewW
 
 	public MessagesAdapter(OrderedRealmCollection<Message> data) {
 		super(data, true);
-		setHasStableIds(true);
 	}
 
 	@Override
@@ -42,6 +41,7 @@ public class MessagesAdapter extends RealmRecyclerViewAdapter<Message, ItemViewW
 			WindowManager windowManager = (WindowManager) holder.getView().getContext().getSystemService(Context.WINDOW_SERVICE);
 			width = windowManager.getDefaultDisplay().getWidth();
 		}
+
 		holder.getView().setLayoutParams(new RecyclerView.LayoutParams(width, RecyclerView.LayoutParams.WRAP_CONTENT));
 	}
 

@@ -22,6 +22,7 @@ import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.TowFragment;
+import net.aineuron.eagps.fragment.TowFragment_;
 import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
@@ -29,6 +30,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity
@@ -64,6 +66,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.savedInstanceState = savedInstanceState;
+		if (userManager.haveActiveOrder()) {
+			userManager.setStateBusyOnOrder();
+			userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+		}
 	}
 
 	@Override
@@ -140,7 +146,12 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	}
 
 	public void showFragment(@NonNull Fragment fragment) {
-		showFragment(fragment, true);
+		if (fragment instanceof TowFragment_) {
+			selectTab(MAIN_TAB_ID);
+			currentTabId = MAIN_TAB_ID;
+		} else {
+			showFragment(fragment, true);
+		}
 	}
 
 	public void showFragment(@NonNull Fragment fragment, boolean addToBackStack) {

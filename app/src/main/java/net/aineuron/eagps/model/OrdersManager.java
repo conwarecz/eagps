@@ -17,8 +17,12 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
 
+import io.reactivex.annotations.Nullable;
 import io.realm.Realm;
 import io.realm.RealmList;
+
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ARRIVED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
 
 /**
  * Created by Vit Veres on 05-Jun-17
@@ -107,5 +111,17 @@ public class OrdersManager {
 
 	public void sendOrder(Long orderId) {
 		clientProvider.getEaClient().sendOrder(orderId);
+	}
+
+	@Nullable
+	public Order getFirstActiveOrder() {
+		Realm db = RealmHelper.getDb();
+		return db.where(Order.class)
+				.beginGroup()
+				.equalTo("status", ORDER_STATE_ASSIGNED)
+				.or()
+				.equalTo("status", ORDER_STATE_ARRIVED)
+				.endGroup()
+				.findFirst();
 	}
 }

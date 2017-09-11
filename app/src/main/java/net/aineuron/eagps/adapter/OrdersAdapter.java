@@ -19,6 +19,7 @@ import net.aineuron.eagps.view.order.OrderItemView_;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ARRIVED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
 
@@ -59,6 +60,9 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 						case ORDER_STATE_ASSIGNED:
 							mMainActivityBase.showFragment(TowFragment.newInstance(obj.getId()));
 							break;
+						case ORDER_STATE_ARRIVED:
+							mMainActivityBase.showFragment(TowFragment.newInstance(obj.getId()));
+							break;
 						case ORDER_STATE_FINISHED:
 							mMainActivityBase.showFragment(OrderAttachmentsFragment.newInstance(obj.getId()));
 							break;
@@ -74,6 +78,7 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 			WindowManager windowManager = (WindowManager) holder.getView().getContext().getSystemService(Context.WINDOW_SERVICE);
 			width = windowManager.getDefaultDisplay().getWidth();
 		}
+
 		holder.getView().setLayoutParams(new RecyclerView.LayoutParams(width, RecyclerView.LayoutParams.WRAP_CONTENT));
 	}
 
