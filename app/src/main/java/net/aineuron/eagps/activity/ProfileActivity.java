@@ -23,6 +23,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
+
 @EActivity(R.layout.activity_profile)
 @OptionsMenu(R.menu.main_menu)
 public class ProfileActivity extends AppBarActivity {
@@ -66,7 +69,7 @@ public class ProfileActivity extends AppBarActivity {
 
 	@Click(R.id.logoutButton)
 	public void logoutClicked() {
-		if (!userManager.haveActiveOrder()) {
+		if (!userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID || userManager.getUser().getRoleId() == DISPATCHER_ID) {
 			showProgress();
             userManager.logout();
         } else {

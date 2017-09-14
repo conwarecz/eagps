@@ -108,6 +108,12 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		return OrderAttachmentsFragment_.builder().orderId(orderId).build();
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		hideProgress();
+	}
+
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(true);
@@ -125,7 +131,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Click(R.id.closeOrder)
 	public void closeOrder() {
-		getActivity().onBackPressed();
+		((MainActivityBase) getActivity()).showFragment(new OrdersFragment_());
 	}
 
 	@Click(R.id.sendOrder)
@@ -150,9 +156,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 
 		showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
-		if (order.getPhotos().getPhotoPaths().size() > 0) {
+		if (order.getPhotos().getPhotoPaths().size() > 0 && uploadedPhotos < order.getPhotos().getPhotoPaths().size()) {
 			uploadPhotos();
-		} else if (order.getOrderDocuments().getPhotoPaths().size() > 0) {
+		} else if (order.getOrderDocuments().getPhotoPaths().size() > 0 && uploadedSheets < order.getOrderDocuments().getPhotoPaths().size()) {
 			uploadSheets();
 		} else {
 			uploadFinishedSendOrder();

@@ -20,6 +20,7 @@ import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
+import net.aineuron.eagps.fragment.OrdersFragment_;
 import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.TowFragment;
 import net.aineuron.eagps.fragment.TowFragment_;
@@ -30,6 +31,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
@@ -38,6 +40,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	private static final String STATE_CURRENT_TAB_ID = "current_tab_id";
 	private static final int MAIN_TAB_ID = 0;
+	private static final int ORDERS_TAB_ID = 1;
 
 	@ViewById(R.id.bottomNavigationBar)
 	BottomNavigationBar bottomNavigation;
@@ -146,12 +149,18 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	}
 
 	public void showFragment(@NonNull Fragment fragment) {
-		if (fragment instanceof TowFragment_) {
+		if (fragment instanceof TowFragment_ && userManager.getUser().getRoleId() == WORKER_ID) {
 			selectTab(MAIN_TAB_ID);
 			currentTabId = MAIN_TAB_ID;
-		} else {
-			showFragment(fragment, true);
+		} else if (fragment instanceof OrdersFragment_) {
+			int tabId = 1;
+			if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
+				tabId = 0;
+			}
+			selectTab(tabId);
+			currentTabId = tabId;
 		}
+		showFragment(fragment, true);
 	}
 
 	public void showFragment(@NonNull Fragment fragment, boolean addToBackStack) {

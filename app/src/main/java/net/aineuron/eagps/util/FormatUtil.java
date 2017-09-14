@@ -18,14 +18,6 @@ public class FormatUtil {
             stringBuilder.append(System.getProperty("line.separator"));
         }
 
-        for (int i = 0; i < limits.size(); i++) {
-            if (i != 0) {
-                stringBuilder.append(System.getProperty("line.separator"));
-            }
-            RealmString realmString = limits.get(i);
-            stringBuilder.append(realmString.getValue());
-        }
-
 		return stringBuilder.toString();
 	}
 

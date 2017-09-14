@@ -32,11 +32,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import io.reactivex.annotations.Nullable;
 import io.realm.ObjectChangeSet;
 import io.realm.Realm;
 import io.realm.RealmModel;
 import io.realm.RealmObjectChangeListener;
+
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 
 /**
  * Created by Vit Veres on 19-Apr-17
@@ -55,7 +56,6 @@ public class TowFragment extends BaseFragment {
 	@Bean
 	ClientProvider clientProvider;
 
-	@Nullable
 	@FragmentArg
 	Long orderId;
 
@@ -87,19 +87,26 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		showProgress("Načítám detail", getString(R.string.dialog_wait_content));
-
-		setAppbarUpNavigation(false);
+		setAppbarUpNavigation(userManager.getUser().getRoleId() == DISPATCHER_ID);
 		setAppbarTitle("Na zásahu");
 
 		if (orderId == null) {
 			order = ordersManager.getFirstActiveOrder();
-			orderId = order.getId();
+			if (order != null) {
+				orderId = order.getId();
+			}
+		} else {
+			if (order == null || !order.getId().equals(orderId)) {
+				order = ordersManager.getOrderById(orderId);
+			}
 		}
 
-		setOrderListener();
+		if (order != null) {
+			setOrderListener();
 
-		clientProvider.getEaClient().getOrderDetail(orderId);
+			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			clientProvider.getEaClient().getOrderDetail(orderId);
+		}
 	}
 
 	@Click(R.id.finishOrder)
@@ -113,14 +120,19 @@ public class TowFragment extends BaseFragment {
 				.title("Důvod zrušení")
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
+				.autoDismiss(false)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
-					showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
-					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+					if (which >= 0) {
+						showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
+						ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+					}
 					return true;
 				})
 				.onPositive((dialog, which) -> {
 					if (dialog.getSelectedIndex() < 0) {
 						Toast.makeText(getContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
+					} else {
+						dialog.dismiss();
 					}
 				})
 				.positiveText("OK")
@@ -131,6 +143,7 @@ public class TowFragment extends BaseFragment {
 	public void onPause() {
 		super.onPause();
 		hideProgress();
+		order.removeAllChangeListeners();
 	}
 
 	@Click({R.id.photosStep, R.id.documentPhotos})
@@ -193,10 +206,11 @@ public class TowFragment extends BaseFragment {
 				order = ordersManager.getOrderById(orderId);
 				if (orderDetailHeader != null) {
 					setContent();
-					hideProgress();
 				}
+				hideProgress();
 			}
 		};
+		order.removeAllChangeListeners();
 		order.addChangeListener(objectListener);
 	}
 

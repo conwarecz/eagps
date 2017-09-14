@@ -373,8 +373,13 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						voidResponse ->
-								EventBus.getDefault().post(new SheetUploadedEvent())
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								EventBus.getDefault().post(new SheetUploadedEvent());
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
 						,
 						this::sendError
 				);
