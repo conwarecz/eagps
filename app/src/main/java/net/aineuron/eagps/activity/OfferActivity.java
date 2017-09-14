@@ -15,9 +15,9 @@ import net.aineuron.eagps.model.OfferManager;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
-import net.aineuron.eagps.model.database.order.ClientCar;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Offer;
+import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
@@ -89,9 +89,9 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Click(R.id.back)
 	void acceptClicked() {
-		showProgress("Měním stav", "Prosím čekejte...");
-		userManager.setStateBusyOnOrder();
-	}
+        showProgress("Měním stav", getString(R.string.dialog_wait_content));
+        userManager.setStateBusyOnOrder();
+    }
 
 	@Click(R.id.decline)
 	void declineClicked() {
@@ -105,10 +105,10 @@ public class OfferActivity extends AppCompatActivity {
 						Toast.makeText(this, "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
-					showProgress("Ruším zakázku", "Prosím čekejte...");
-					ordersManager.cancelOrder(offer.getId());
-					return true;
-				})
+                    showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
+                    ordersManager.cancelOrder(offer.getId(), Long.valueOf(which));
+                    return true;
+                })
 				.positiveText("OK")
 				.show();
 	}
@@ -120,7 +120,7 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Click(R.id.clientAddress)
 	void openMapClient() {
-		IntentUtils.openMapLocation(this, offer.getClientAddress().getLocation(), offer.getClientName());
+		IntentUtils.openMapLocation(this, offer.getClientAddress().getLocation(), offer.getClientFirstName() + " " + offer.getClientLastName());
 	}
 
 	@Click(R.id.destinationAddress)
@@ -129,16 +129,15 @@ public class OfferActivity extends AppCompatActivity {
 	}
 
 	private void setUi() {
-		ClientCar car = offer.getCar();
-		this.clientCar.setText(car.getModel() + ", " + car.getWeight() + " t");
+		this.clientCar.setText(offer.getClientCarModel() + ", " + offer.getClientCarWeight() + " t");
 
 		Address clientAddress = offer.getClientAddress();
-		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
+		this.clientAddress.setText(clientAddress.getAddress().getStreet() + ", " + clientAddress.getAddress().getCity() + ", " + clientAddress.getAddress().getZipCode());
 
 		DestinationAddress destinationAddress = offer.getDestinationAddress();
-		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
+		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getAddress().getStreet() + ", " + destinationAddress.getAddress().getAddress().getCity() + ", " + destinationAddress.getAddress().getAddress().getZipCode());
 
-		this.eventDescription.setText(offer.getEventDescription());
+		this.eventDescription.setText(FormatUtil.formatEvent(offer.getEventDescription()));
 	}
 
 	private void finishOfferActivity() {

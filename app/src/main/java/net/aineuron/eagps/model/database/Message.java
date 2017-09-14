@@ -3,6 +3,7 @@ package net.aineuron.eagps.model.database;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Vit Veres on 19-Jun-17
@@ -10,9 +11,11 @@ import io.realm.RealmObject;
  */
 
 public class Message extends RealmObject {
+	@PrimaryKey
 	private Long id;
-	private Date date;
-	private String message;
+	private Date time;
+	private String text;
+	private boolean read;
 
 	public Long getId() {
 		return id;
@@ -22,19 +25,27 @@ public class Message extends RealmObject {
 		this.id = id;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
-	public String getMessage() {
-		return message;
+	public String getText() {
+		return text;
 	}
 
-	public void setMessage(String message) {
-		this.message = message;
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public boolean isRead() {
+		return read;
+	}
+
+	public void setRead(boolean read) {
+		this.read = read;
 	}
 }

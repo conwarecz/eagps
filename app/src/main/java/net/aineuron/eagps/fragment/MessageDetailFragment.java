@@ -3,10 +3,13 @@ package net.aineuron.eagps.fragment;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.model.MessagesManager;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
@@ -20,6 +23,12 @@ import io.realm.Realm;
 
 @EFragment(R.layout.fragment_message_detail)
 public class MessageDetailFragment extends BaseFragment {
+
+	@Bean
+	MessagesManager messagesManager;
+
+	@Bean
+	ClientProvider clientProvider;
 
 	@FragmentArg
 	Long messageId = 0L;
@@ -46,7 +55,10 @@ public class MessageDetailFragment extends BaseFragment {
 			return;
 		}
 
-		messageText.setText(message.getMessage());
+		messagesManager.setMessageRead(message.getId(), true);
+		clientProvider.getEaClient().setMessageRead(message.getId(), true);
+
+		messageText.setText(message.getText());
 	}
 
 	@Override

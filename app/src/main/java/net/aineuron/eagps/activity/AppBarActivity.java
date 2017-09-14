@@ -12,8 +12,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
@@ -25,6 +27,8 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
+
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 
 /**
  * Created by Vit Veres on 30-May-17
@@ -67,7 +71,8 @@ public class AppBarActivity extends MainActivityBase {
 
 		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
 		menuState.getActionView().setOnClickListener(v -> {
-			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
+			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER) || userManager.haveActiveOrder()) {
+				Toast.makeText(this, "Při aktivní zakázce nelze měnit vůz!", Toast.LENGTH_LONG).show();
 				return;
 			}
 			CarSettingsActivity_.intent(this).resetCar(true).start();
@@ -119,9 +124,12 @@ public class AppBarActivity extends MainActivityBase {
 			return;
 		}
 
+		menuState.setVisible(true);
+
 		Long i = userManager.getSelectedStateId();
 		if (i == null) {
 			setActionBarColor(actionBar, primary);
+
 		} else if (i.equals(UserManager.STATE_ID_READY)) {
 			setActionBarColor(actionBar, ready);
 			stateIcon.setImageResource(R.drawable.icon_ready);
@@ -146,11 +154,20 @@ public class AppBarActivity extends MainActivityBase {
 			setActionBarColor(actionBar, primary);
 		}
 
+        if (userManager.getUser().getRoleId() == null || userManager.getUser().getRoleId() == DISPATCHER_ID) {
+            stateIcon.setVisibility(View.GONE);
+            licencePlate.setVisibility(View.GONE);
+            setActionBarColor(actionBar, primary);
+        } else {
+            stateIcon.setVisibility(View.VISIBLE);
+            licencePlate.setVisibility(View.VISIBLE);
+        }
+
 		User user = userManager.getUser();
 		profileName.setText(user.getName());
 
 		if (user.getCar() != null) {
-			String licensePlate = user.getCar().getLicensePlate();
+			String licensePlate = user.getCar().getLicencePlate();
 			licencePlate.setText(licensePlate);
 		}
 	}

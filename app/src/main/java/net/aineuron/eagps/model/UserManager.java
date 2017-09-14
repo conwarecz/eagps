@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.transfer.LoginInfo;
+import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -15,6 +17,12 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ARRIVED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
+
 /**
  * Created by Vit Veres on 29-May-17
  * as a part of Android-EAGPS project.
@@ -23,8 +31,8 @@ import java.util.Map;
 @EBean(scope = EBean.Scope.Singleton)
 public class UserManager {
 
-	public static final int WORKER_ID = 1;
-	public static final int DISPATCHER_ID = 2;
+	public static final int WORKER_ID = 2;
+	public static final int DISPATCHER_ID = 1;
 
 	public static final Long STATE_ID_READY = 1L;
 	public static final Long STATE_ID_BUSY = 2L;
@@ -65,12 +73,12 @@ public class UserManager {
 		String userObjectSerialized = "";
 		if (user != null) {
 			userObjectSerialized = gson.toJson(user);
+			pref.token().put(user.getToken());
 		}
 		pref.edit().userObjectSerialized().put(userObjectSerialized).apply();
 	}
 
 	public Long getSelectedCarId() {
-
 		Long value = pref.selectedCar().get();
 		if (value == -1) {
 			return null;
@@ -108,8 +116,14 @@ public class UserManager {
 	}
 
 	public void setStateNoCar() {
-		selectCar(null);
+		if (!getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+			releaseCar();
+		}
 		selectState(STATE_ID_NO_CAR);
+	}
+
+	public void releaseCar() {
+		clientProvider.getEaClient().releaseCar();
 	}
 
 	public Long getSelectedStateId() {
@@ -129,9 +143,12 @@ public class UserManager {
 	}
 
 	private void selectState(Long stateId) {
-		clientProvider.getEaClient().setState(stateId);
-	}
+        clientProvider.getEaClient().setUserState(stateId);
+    }
 
+	public void setFirebaseToken(String token) {
+		clientProvider.getEaClient().setUserFirebaseToken(token);
+	}
 
 	public void login(LoginInfo info) {
 		clientProvider.getEaClient().login(info);
@@ -139,5 +156,22 @@ public class UserManager {
 
 	public void logout() {
 		clientProvider.getEaClient().logout();
+	}
+
+	public boolean haveActiveOrder() {
+		boolean activeOrder = false;
+		Realm db = RealmHelper.getDb();
+		RealmResults<Order> activeOrders = db.where(Order.class)
+				.beginGroup()
+				.equalTo("status", ORDER_STATE_ASSIGNED)
+				.or()
+				.equalTo("status", ORDER_STATE_ARRIVED)
+				.endGroup()
+				.findAll();
+		if (activeOrders.size() > 0) {
+			activeOrder = true;
+			setStateBusyOnOrder();
+		}
+		return activeOrder;
 	}
 }

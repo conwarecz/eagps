@@ -1,6 +1,7 @@
 package net.aineuron.eagps.view.message;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -49,9 +50,15 @@ public class MessageItemView extends ConstraintLayout {
 	}
 
 	public void bind(final Message message) {
-		this.date.setText(Appl.dateFormat.format(message.getDate()));
-		this.time.setText(Appl.timeFormat.format(message.getDate()));
-		this.message.setText(message.getMessage());
+		if (!message.isRead()) {
+			this.message.setTypeface(Typeface.create(this.message.getTypeface(), Typeface.NORMAL), Typeface.BOLD);
+		} else {
+			this.message.setTypeface(Typeface.create(this.message.getTypeface(), Typeface.NORMAL), Typeface.NORMAL);
+		}
+
+		this.date.setText(Appl.dateFormat.format(message.getTime()));
+		this.time.setText(Appl.timeFormat.format(message.getTime()));
+		this.message.setText(message.getText());
 
 		this.setOnClickListener(v -> bus.post(new MessageClickedEvent(message.getId())));
 	}

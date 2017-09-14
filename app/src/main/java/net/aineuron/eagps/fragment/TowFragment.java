@@ -1,5 +1,7 @@
 package net.aineuron.eagps.fragment;
 
+import android.support.annotation.NonNull;
+import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -7,13 +9,16 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
+import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
-import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
@@ -21,10 +26,18 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import io.realm.ObjectChangeSet;
+import io.realm.Realm;
+import io.realm.RealmModel;
+import io.realm.RealmObjectChangeListener;
+
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 
 /**
  * Created by Vit Veres on 19-Apr-17
@@ -39,6 +52,12 @@ public class TowFragment extends BaseFragment {
 
 	@Bean
 	OrdersManager ordersManager;
+
+	@Bean
+	ClientProvider clientProvider;
+
+	@FragmentArg
+	Long orderId;
 
 	@ViewById(R.id.photosStep)
 	IcoLabelTextView photosStep;
@@ -59,46 +78,72 @@ public class TowFragment extends BaseFragment {
 	EventBus bus;
 
 	private Order order;
+	private Realm db;
+	private RealmObjectChangeListener objectListener;
 
-	public static TowFragment newInstance() {
-		return TowFragment_.builder().build();
+	public static TowFragment newInstance(Long orderId) {
+		return TowFragment_.builder().orderId(orderId).build();
 	}
 
 	@AfterViews
 	void afterViews() {
-		setAppbarUpNavigation(false);
+		setAppbarUpNavigation(userManager.getUser().getRoleId() == DISPATCHER_ID);
 		setAppbarTitle("Na zásahu");
 
-		order = ordersManager.getCurrentOrder();
+		if (orderId == null) {
+			order = ordersManager.getFirstActiveOrder();
+			if (order != null) {
+				orderId = order.getId();
+			}
+		} else {
+			if (order == null || !order.getId().equals(orderId)) {
+				order = ordersManager.getOrderById(orderId);
+			}
+		}
 
-		setContent();
+		if (order != null) {
+			setOrderListener();
+
+			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			clientProvider.getEaClient().getOrderDetail(orderId);
+		}
 	}
 
 	@Click(R.id.finishOrder)
 	void finishClicked() {
-		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderAttachmentsFragment.newInstance(order.getId()));
+		clientProvider.getEaClient().finalizeOrder(order.getId());
 	}
 
 	@Click(R.id.cancelOrder)
 	void cancelClicked() {
-		// TODO: Redo correctly with api call
 		new MaterialDialog.Builder(getContext())
 				.title("Důvod zrušení")
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
+				.autoDismiss(false)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
-					showProgress("Ruším zakázku", "Prosím čekejte...");
-					ordersManager.cancelOrder(order.getId());
+					if (which >= 0) {
+						showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
+						ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+					}
 					return true;
 				})
 				.onPositive((dialog, which) -> {
 					if (dialog.getSelectedIndex() < 0) {
 						Toast.makeText(getContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
+					} else {
+						dialog.dismiss();
 					}
 				})
 				.positiveText("OK")
 				.show();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		hideProgress();
+		order.removeAllChangeListeners();
 	}
 
 	@Click({R.id.photosStep, R.id.documentPhotos})
@@ -108,12 +153,12 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.clientAddress)
 	void clientAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
+		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientFirstName() + " " + order.getClientLastName());
 	}
 
 	@Click(R.id.destinationAddress)
 	void setDestinationAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
+		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getLocation(), order.getWorkshopName());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -123,16 +168,105 @@ public class TowFragment extends BaseFragment {
 		IntentUtils.openMainActivity(getContext());
 	}
 
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void apiFailedEvent(ApiErrorEvent e) {
+		e.throwable.printStackTrace();
+		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail: " + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+		hideProgress();
+		getActivity().onBackPressed();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void orderFinalized(OrderFinalizedEvent e) {
+		MainActivityBase activity = (MainActivityBase) getActivity();
+		activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
+	}
+
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {
 			MainActivityBase activity = (MainActivityBase) getActivity();
-			activity.showFragment(OrderDetailFragment.newInstance());
+			activity.showFragment(OrderDetailFragment.newInstance(null));
 		});
 
-		Address clientAddress = order.getClientAddress();
-		DestinationAddress destinationAddress = order.getDestinationAddress();
+		this.clientAddress.setText(formatClientAddress(order.getClientAddress()));
+		if (order.getWorkshopName() != null && order.getDestinationAddress() != null) {
+			this.destinationAddress.setVisibility(View.VISIBLE);
+			this.destinationAddress.setText(formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));
+		} else {
+			this.destinationAddress.setVisibility(View.GONE);
+		}
+	}
 
-		this.clientAddress.setText(clientAddress.getStreet() + ", " + clientAddress.getCity() + ", " + clientAddress.getZipCode());
-		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getStreet() + ", " + destinationAddress.getAddress().getCity() + ", " + destinationAddress.getAddress().getZipCode());
+	private void setOrderListener() {
+		order = ordersManager.getOrderById(orderId);
+		objectListener = new RealmObjectChangeListener() {
+			@Override
+			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
+				db = RealmHelper.getDb();
+				order = ordersManager.getOrderById(orderId);
+				if (orderDetailHeader != null) {
+					setContent();
+				}
+				hideProgress();
+			}
+		};
+		order.removeAllChangeListeners();
+		order.addChangeListener(objectListener);
+	}
+
+	// Building up addresses from what we have
+	@NonNull
+	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
+		String addressResult = "";
+		if (order.getDestinationAddress() != null) {
+			if (order.getWorkshopName() != null) {
+				addressResult += order.getWorkshopName();
+			}
+			if (destinationAddress.getAddress().getStreet() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getStreet();
+			}
+			if (destinationAddress.getAddress().getCity() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getCity();
+			}
+			if (destinationAddress.getAddress().getZipCode() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getZipCode();
+			}
+			this.destinationAddress.setText(addressResult);
+		}
+		return addressResult;
+	}
+
+	@NonNull
+	private String formatClientAddress(Address clientAddress) {
+		String addressResult = "";
+		// Building up addresses from what we have
+		if (order.getClientAddress() != null) {
+			if (clientAddress.getAddress().getStreet() != null) {
+				addressResult += clientAddress.getAddress().getStreet();
+			}
+			if (clientAddress.getAddress().getCity() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += clientAddress.getAddress().getCity();
+			}
+			if (clientAddress.getAddress().getZipCode() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += clientAddress.getAddress().getZipCode();
+			}
+			this.clientAddress.setText(addressResult);
+		}
+		return addressResult;
 	}
 }

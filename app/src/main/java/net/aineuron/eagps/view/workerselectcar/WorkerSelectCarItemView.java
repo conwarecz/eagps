@@ -46,7 +46,7 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 		carRadioText.setOnClickListener(null);
 
 		carRadioText.setChecked(isSelected);
-		carRadioText.setText(String.format("%s - %s", car.getLicensePlate(), car.getModel()));
+		carRadioText.setText(String.format("%s - %s", car.getLicencePlate(), car.getModel()));
 
 		if (isSelected) {
 			carRadioText.setTextColor(blue);
@@ -55,8 +55,8 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 		}
 
 		carRadioText.setOnClickListener(v -> {
-			bus.post(new WorkerCarSelectedEvent(car.getId()));
-			onItemChange.onChange();
-		});
+            bus.post(new WorkerCarSelectedEvent(car.getId(), isSelected));
+            onItemChange.onChange();
+        });
 	}
 }

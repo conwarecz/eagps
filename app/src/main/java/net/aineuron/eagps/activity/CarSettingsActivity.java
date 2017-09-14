@@ -11,11 +11,14 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.adapter.WorkerSelectCarAdapter;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
+import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
-import net.aineuron.eagps.model.CarsManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.util.IntentUtils;
 
@@ -28,6 +31,9 @@ import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EActivity(R.layout.activity_car_settings)
 public class CarSettingsActivity extends AppCompatActivity {
@@ -42,10 +48,10 @@ public class CarSettingsActivity extends AppCompatActivity {
 	WorkerSelectCarAdapter carAdapter;
 
 	@Bean
-	CarsManager carsManager;
+	UserManager userManager;
 
 	@Bean
-	UserManager userManager;
+	ClientProvider clientProvider;
 
 	@EventBusGreenRobot
 	EventBus bus;
@@ -54,6 +60,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	boolean resetCar;
 
 	private MaterialDialog progressDialog;
+	private List<Car> cars = new ArrayList<>();
 
 	@AfterViews
 	public void afterViews() {
@@ -74,27 +81,30 @@ public class CarSettingsActivity extends AppCompatActivity {
 		carsView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		carsView.setAdapter(carAdapter);
 		carsRefresh.setOnRefreshListener(() -> carsRefresh.setRefreshing(false));
+
+		carsRefresh.setRefreshing(true);
+		clientProvider.getEaClient().getCars();
 	}
 
 	@Click(R.id.skipLayout)
 	public void onSkip() {
 		userManager.setStateNoCar();
 		progressDialog = new MaterialDialog.Builder(this)
-				.title("Měním nastavení")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
+                .title(R.string.dialog_changing_settings)
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Vybírám auto")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
 		userManager.selectCar(e.selectedCarId);
 	}
 
@@ -105,10 +115,23 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
-		carAdapter.notifyDataChanged();
+	public void onCarsDownloaded(CarsDownloadedEvent e) {
+		carsRefresh.setRefreshing(false);
+		this.cars = e.cars;
+		carAdapter.setCars(e.cars);
+	}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
+        carAdapter.notifyDataChanged();
+        progressDialog.dismiss();
+        Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onCarSelectError(KnownErrorEvent e) {
 		progressDialog.dismiss();
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 
 	private void finishSettings() {

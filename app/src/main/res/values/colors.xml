@@ -16,4 +16,6 @@
 	<color name="ready">#2ECC71</color>
 	<color name="busy">#E67E22</color>
 	<color name="unavailable">#DC383A</color>
+    <color name="grayOrder">#9B9B9B</color>
+    <color name="createdOrder">#FF6A80</color>
 </resources>

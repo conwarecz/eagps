@@ -67,12 +67,12 @@ public class OrderDetailHeader extends ConstraintLayout {
 
 	@Click(R.id.clientAddress)
 	void clientAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientName());
+		IntentUtils.openMapLocation(getContext(), order.getClientAddress().getLocation(), order.getClientFirstName() + " " + order.getClientLastName());
 	}
 
 	@Click(R.id.destinationAddress)
 	void setDestinationAddressClicked() {
-		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getAddress().getLocation(), order.getDestinationAddress().getName());
+		IntentUtils.openMapLocation(getContext(), order.getDestinationAddress().getLocation(), order.getWorkshopName());
 	}
 
 	@Click(R.id.orderDetailButton)
@@ -87,12 +87,16 @@ public class OrderDetailHeader extends ConstraintLayout {
 			return;
 		}
 
-		this.claimNumber.setText(order.getClaimNumber());
-		this.clientName.setText(order.getClientName());
+		this.claimNumber.setText(order.getClaimSaxCode());
+		this.clientName.setText(order.getClientFirstName() + order.getClientLastName());
 		this.telephone.setText(order.getClientPhone());
-		this.clientCar.setText(order.getCar().getModel() + ", " + order.getCar().getWeight() + " t");
-		this.licensePlate.setText(order.getCar().getLicensePlate());
-		this.limit.setText(order.getLimitation().getLimit());
-		this.limit.setExtendedDescription(order.getLimitation().isExtendedDescription());
+		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight());
+		this.licensePlate.setText(order.getClientCarLicencePlate());
+		if (order.getLimitation() != null && order.getLimitation().getLimit() != null) {
+			this.limit.setText(order.getLimitation().getLimit());
+		}
+		if (order.getLimitation() != null) {
+			this.limit.setExtendedDescription(order.getLimitation().isExtendedDescription());
+		}
 	}
 }

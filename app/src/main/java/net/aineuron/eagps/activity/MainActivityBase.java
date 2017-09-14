@@ -16,11 +16,14 @@ import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.jetradar.multibackstack.BackStackActivity;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
+import net.aineuron.eagps.fragment.OrdersFragment_;
 import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.TowFragment;
+import net.aineuron.eagps.fragment.TowFragment_;
 import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
@@ -28,11 +31,16 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
+
 @EActivity
 public class MainActivityBase extends BackStackActivity implements BottomNavigationBar.OnTabSelectedListener {
 
 	private static final String STATE_CURRENT_TAB_ID = "current_tab_id";
 	private static final int MAIN_TAB_ID = 0;
+	private static final int ORDERS_TAB_ID = 1;
 
 	@ViewById(R.id.bottomNavigationBar)
 	BottomNavigationBar bottomNavigation;
@@ -61,6 +69,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.savedInstanceState = savedInstanceState;
+		if (userManager.haveActiveOrder()) {
+			userManager.setStateBusyOnOrder();
+			userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+		}
 	}
 
 	@Override
@@ -75,7 +87,12 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+		for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
+			getSupportFragmentManager().popBackStack();
+		}
 		showFragment(rootTabFragment(MAIN_TAB_ID), false);
+		currentTabId = MAIN_TAB_ID;
+		bottomNavigation.selectTab(currentTabId, false);
 	}
 
 	@Override
@@ -132,6 +149,17 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	}
 
 	public void showFragment(@NonNull Fragment fragment) {
+		if (fragment instanceof TowFragment_ && userManager.getUser().getRoleId() == WORKER_ID) {
+			selectTab(MAIN_TAB_ID);
+			currentTabId = MAIN_TAB_ID;
+		} else if (fragment instanceof OrdersFragment_) {
+			int tabId = 1;
+			if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
+				tabId = 0;
+			}
+			selectTab(tabId);
+			currentTabId = tabId;
+		}
 		showFragment(fragment, true);
 	}
 
@@ -149,14 +177,21 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setActiveColor(R.color.colorPrimary)
 				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
-
-		bottomNavigation
-				.addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
-				.addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
-				.addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
-				.setFirstSelectedPosition(0)
-				.initialise();
-	}
+        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+            bottomNavigation
+                    .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
+                    .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
+                    .addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
+                    .setFirstSelectedPosition(0)
+                    .initialise();
+        } else {
+            bottomNavigation
+                    .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
+                    .addItem(new BottomNavigationItem(R.drawable.icon_detail_car, "Správa vozidel"))
+                    .setFirstSelectedPosition(0)
+                    .initialise();
+        }
+    }
 
 	private void backTo(int tabId, @NonNull Fragment fragment) {
 		if (tabId != currentTabId) {
@@ -173,8 +208,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		}
 		resetBackStackToRoot(currentTabId);
 		Fragment rootFragment = popFragmentFromBackStack(currentTabId);
-		assert rootFragment != null;
-		backTo(currentTabId, rootFragment);
+//		assert rootFragment != null;
+		if (rootFragment != null) {
+			backTo(currentTabId, rootFragment);
+		}
 	}
 
 	private boolean isRootTabFragment(@NonNull Fragment fragment, int tabId) {
@@ -193,21 +230,32 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@NonNull
 	private Fragment rootTabFragment(int tabId) {
-		switch (tabId) {
-			case 0:
-				if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
-					return TowFragment.newInstance();
-				} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
-					return NoCarStateFragment.newInstance();
-				} else {
-					return StateFragment.newInstance();
-				}
-			case 1:
-				return OrdersFragment.newInstance();
-			case 2:
-				return MessagesFragment.newInstance();
-			default:
-				return StateFragment.newInstance();
-		}
-	}
+        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+            switch (tabId) {
+                case 0:
+                    if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
+                        return TowFragment.newInstance(null);
+                    } else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+                        return NoCarStateFragment.newInstance();
+                    } else {
+                        return StateFragment.newInstance();
+                    }
+                case 1:
+                    return OrdersFragment.newInstance();
+                case 2:
+                    return MessagesFragment.newInstance();
+                default:
+                    return StateFragment.newInstance();
+            }
+        } else {
+            switch (tabId) {
+                case 0:
+                    return OrdersFragment.newInstance();
+                case 1:
+                    return DispatcherSelectCarFragment.newInstance();
+                default:
+                    return OrdersFragment.newInstance();
+            }
+        }
+    }
 }

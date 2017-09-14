@@ -50,29 +50,33 @@ public class OrderItemView extends ConstraintLayout {
 	}
 
 	public void bind(Order order) {
-		if (order.isSent()) {
-			this.setBackgroundColor(getContext().getResources().getColor(R.color.ready));
-		} else if (!isPathEmpty(order.getOrderDocuments()) && !isPathEmpty(order.getPhotos())) {
-			this.setBackgroundColor(getContext().getResources().getColor(R.color.colorPrimary));
-		} else {
+		if (order.getStatus() == Order.ORDER_STATE_CREATED) {
+			this.setBackgroundColor(getContext().getResources().getColor(R.color.createdOrder));
+		} else if (order.getStatus() == Order.ORDER_STATE_ASSIGNED || order.getStatus() == Order.ORDER_STATE_ARRIVED) {
 			this.setBackgroundColor(getContext().getResources().getColor(R.color.busy));
-		}
-
-		date.setText(Appl.dateFormat.format(order.getTime()));
-		orderId.setText(order.getClaimNumber());
-		licensePlate.setText(order.getCar().getLicensePlate());
-
-		if (isPathEmpty(order.getOrderDocuments())) {
-			documentsCheck.setImageResource(R.drawable.icon_check);
+		} else if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
+			this.setBackgroundColor(getContext().getResources().getColor(R.color.colorPrimary));
+		} else if (order.getStatus() == Order.ORDER_STATE_SENT) {
+			this.setBackgroundColor(getContext().getResources().getColor(R.color.ready));
 		} else {
-			documentsCheck.setImageResource(R.drawable.icon_cross);
+			this.setBackgroundColor(getContext().getResources().getColor(R.color.grayOrder));
 		}
+
+		date.setText(Appl.dateFormat.format(order.getTimeCreated()));
+		orderId.setText(order.getClaimSaxCode());
+		licensePlate.setText(order.getClientCarLicencePlate());
+
+        if (isPathEmpty(order.getOrderDocuments())) {
+            documentsCheck.setImageResource(R.drawable.icon_cross);
+        } else {
+            documentsCheck.setImageResource(R.drawable.icon_check);
+        }
 
 		if (isPathEmpty(order.getPhotos())) {
-			photosCheck.setImageResource(R.drawable.icon_check);
-		} else {
-			photosCheck.setImageResource(R.drawable.icon_cross);
-		}
+            documentsCheck.setImageResource(R.drawable.icon_cross);
+        } else {
+            documentsCheck.setImageResource(R.drawable.icon_check);
+        }
 	}
 
 	private boolean isPathEmpty(PhotoPathsWithReason paths) {

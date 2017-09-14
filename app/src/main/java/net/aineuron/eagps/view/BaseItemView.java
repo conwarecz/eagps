@@ -2,7 +2,7 @@ package net.aineuron.eagps.view;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * Created by Vit Veres on 15-May-17
@@ -10,7 +10,7 @@ import android.widget.FrameLayout;
  * <p>
  * Type T is a view holder which needs to bind to the item view
  */
-public abstract class BaseItemView<T> extends FrameLayout {
+public abstract class BaseItemView<T> extends LinearLayout {
 	protected T item;
 
 	public BaseItemView(@NonNull Context context) {

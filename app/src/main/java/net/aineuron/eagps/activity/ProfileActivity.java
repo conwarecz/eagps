@@ -23,6 +23,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
+
 @EActivity(R.layout.activity_profile)
 @OptionsMenu(R.menu.main_menu)
 public class ProfileActivity extends AppBarActivity {
@@ -66,9 +69,13 @@ public class ProfileActivity extends AppBarActivity {
 
 	@Click(R.id.logoutButton)
 	public void logoutClicked() {
-		showProgress();
-		userManager.logout();
-	}
+		if (!userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID || userManager.getUser().getRoleId() == DISPATCHER_ID) {
+			showProgress();
+            userManager.logout();
+        } else {
+            Toast.makeText(getApplicationContext(), "Nyní nelze odhlásit, máte aktivní zakázku!", Toast.LENGTH_LONG).show();
+        }
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoggedInEvent(UserLoggedOutEvent e) {
@@ -90,10 +97,10 @@ public class ProfileActivity extends AppBarActivity {
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Přihlašuji stav")
-				.content("Prosím čekejte...")
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
 	}
 
 	private void dismissDialog() {

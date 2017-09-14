@@ -14,8 +14,9 @@ public class Car {
 	private Long statusId;
 	@SerializedName("User")
 	private Long userId;
-	private String licensePlate;
+	private String licencePlate;
 	private String model;
+	private boolean isSent = false;
 
 	public Long getId() {
 		return id;
@@ -41,12 +42,12 @@ public class Car {
 		this.userId = userId;
 	}
 
-	public String getLicensePlate() {
-		return licensePlate;
+	public String getLicencePlate() {
+		return licencePlate;
 	}
 
-	public void setLicensePlate(String licensePlate) {
-		this.licensePlate = licensePlate;
+	public void setLicencePlate(String licencePlate) {
+		this.licencePlate = licencePlate;
 	}
 
 	public String getModel() {
@@ -55,5 +56,13 @@ public class Car {
 
 	public void setModel(String model) {
 		this.model = model;
+	}
+
+	public boolean isSent() {
+		return isSent;
+	}
+
+	public void setSent(boolean sent) {
+		isSent = sent;
 	}
 }
