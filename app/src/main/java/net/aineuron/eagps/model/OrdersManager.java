@@ -124,4 +124,11 @@ public class OrdersManager {
 				.endGroup()
 				.findFirst();
 	}
+
+	public void addOrder(Order order) {
+		Realm db = RealmHelper.getDb();
+		db.executeTransaction(realm ->
+				realm.copyToRealm(order)
+		);
+	}
 }

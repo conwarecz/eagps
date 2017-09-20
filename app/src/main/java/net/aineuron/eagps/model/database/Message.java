@@ -1,5 +1,8 @@
 package net.aineuron.eagps.model.database;
 
+import com.google.gson.Gson;
+
+import java.io.Serializable;
 import java.util.Date;
 
 import io.realm.RealmObject;
@@ -10,12 +13,17 @@ import io.realm.annotations.PrimaryKey;
  * as a part of Android-EAGPS project.
  */
 
-public class Message extends RealmObject {
-	@PrimaryKey
+public class Message extends RealmObject implements Serializable {
+    @PrimaryKey
 	private Long id;
 	private Date time;
 	private String text;
 	private boolean read;
+
+    public static Message getFromJson(String json) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, Message.class);
+    }
 
 	public Long getId() {
 		return id;

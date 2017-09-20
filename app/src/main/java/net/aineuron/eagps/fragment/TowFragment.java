@@ -143,7 +143,11 @@ public class TowFragment extends BaseFragment {
 	public void onPause() {
 		super.onPause();
 		hideProgress();
-		order.removeAllChangeListeners();
+		try {
+			order.removeAllChangeListeners();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Click({R.id.photosStep, R.id.documentPhotos})

@@ -1,9 +1,14 @@
 package net.aineuron.eagps.model.database.order;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 
+import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
 import net.aineuron.eagps.model.database.RealmString;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import io.realm.RealmList;
@@ -15,8 +20,8 @@ import io.realm.annotations.PrimaryKey;
  * as a part of Android-EAGPS project.
  */
 
-public class Order extends RealmObject {
-    public static final int ORDER_STATE_CREATED = 1;
+public class Order extends RealmObject implements Serializable {
+	public static final int ORDER_STATE_CREATED = 1;
     public static final int ORDER_STATE_ASSIGNED = 2;
 	public static final int ORDER_STATE_ARRIVED = 3;
 	public static final int ORDER_STATE_FINISHED = 4;
@@ -51,6 +56,16 @@ public class Order extends RealmObject {
 	private boolean photosProvided;
 
 	private boolean isSent;
+
+	public static Order getFromJson(String json) {
+		Gson gson = new GsonBuilder()
+				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
+				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+						}.getType(),
+						RealmStringListTypeAdapter.INSTANCE)
+				.create();
+		return gson.fromJson(json, Order.class);
+	}
 
 	public Long getId() {
 		return id;

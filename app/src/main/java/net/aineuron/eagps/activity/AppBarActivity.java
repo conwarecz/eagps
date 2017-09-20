@@ -100,7 +100,7 @@ public class AppBarActivity extends MainActivityBase {
 				.setContentTitle("Nová zakázka")
 				.setContentText("Máte nabídku nové zakázky. Zobrazit detail.");
 
-		Intent notificationIntent = new Intent(this, OfferActivity_.class);
+        Intent notificationIntent = new Intent(this, NewOrderActivity_.class);
 
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		notificationBuilder.setContentIntent(contentIntent);

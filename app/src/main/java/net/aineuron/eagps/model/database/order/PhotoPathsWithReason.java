@@ -2,6 +2,8 @@ package net.aineuron.eagps.model.database.order;
 
 import net.aineuron.eagps.model.database.RealmString;
 
+import java.io.Serializable;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
@@ -10,7 +12,7 @@ import io.realm.RealmObject;
  * as a part of Android-EAGPS project.
  */
 
-public class PhotoPathsWithReason extends RealmObject {
+public class PhotoPathsWithReason extends RealmObject implements Serializable {
 	private String reasonForNoPhotos;
 	private RealmList<RealmString> photoPaths = new RealmList<>();
 

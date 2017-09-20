@@ -1,5 +1,9 @@
 package net.aineuron.eagps.util;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,5 +66,13 @@ public class FileUtils {
             System.err.println(e);
             return null;
         }
+    }
+
+    public static String fileToBase64(File file) {
+        Bitmap bm = BitmapFactory.decodeFile(file.getAbsolutePath());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+        byte[] b = baos.toByteArray();
+        return Base64.encodeToString(b, Base64.DEFAULT);
     }
 }

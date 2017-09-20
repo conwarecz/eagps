@@ -1,5 +1,7 @@
 package net.aineuron.eagps.model.database.order;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 
 /**
@@ -7,7 +9,7 @@ import io.realm.RealmObject;
  * as a part of eagps project.
  */
 
-public class AddressDetail extends RealmObject {
+public class AddressDetail extends RealmObject implements Serializable {
 	private String street;
 	private String city;
 	private String zipCode;

@@ -64,7 +64,7 @@ import io.realm.RealmObjectChangeListener;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
-import static net.aineuron.eagps.util.FileUtils.fileToByteArray2;
+import static net.aineuron.eagps.util.FileUtils.fileToBase64;
 
 /**
  * Created by Vit Veres on 07-Jun-17
@@ -334,8 +334,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		Photo photo = new Photo();
 		try {
 			photo.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
-			photo.setFileName(file.getName());
-			photo.setFileBytes(fileToByteArray2(file));
+			photo.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
+			photo.setFileString(fileToBase64(file));
+//			photo.setFileString(fileToByteArray2(file));
 			clientProvider.getEaClient().uploadPhoto(photo, order.getId());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -349,8 +350,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		Photo photo = new Photo();
 		try {
 			photo.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
-			photo.setFileName(file.getName());
-			photo.setFileBytes(fileToByteArray2(file));
+			photo.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
+			photo.setFileString(fileToBase64(file));
+//			photo.setFileString(fileToByteArray2(file));
 			clientProvider.getEaClient().uploadSheet(photo, order.getId());
 		} catch (Exception e) {
 			e.printStackTrace();

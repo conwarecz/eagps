@@ -1,6 +1,9 @@
 package net.aineuron.eagps.activity;
 
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -11,12 +14,10 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
-import net.aineuron.eagps.model.OfferManager;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
-import net.aineuron.eagps.model.database.order.DestinationAddress;
-import net.aineuron.eagps.model.database.order.Offer;
+import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
@@ -31,7 +32,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 @EActivity(R.layout.activity_offer)
-public class OfferActivity extends AppCompatActivity {
+public class NewOrderActivity extends AppCompatActivity {
 
 	@ViewById(R.id.back)
 	Button accept;
@@ -41,9 +42,6 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Bean
 	UserManager userManager;
-
-	@Bean
-	OfferManager offerManager;
 
 	@Bean
 	OrdersManager ordersManager;
@@ -61,12 +59,20 @@ public class OfferActivity extends AppCompatActivity {
 	IcoLabelTextView eventDescription;
 
 	private MaterialDialog progressDialog;
-	private Offer offer;
+	private Order order;
 
 	@AfterViews
 	void afterViews() {
 		getSupportActionBar().hide();
-		offer = offerManager.getOfferById(16385l);
+
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null) {
+			try {
+				order = (Order) bundle.getSerializable("order");
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
 
 		setUi();
 	}
@@ -90,7 +96,8 @@ public class OfferActivity extends AppCompatActivity {
 	@Click(R.id.back)
 	void acceptClicked() {
         showProgress("Měním stav", getString(R.string.dialog_wait_content));
-        userManager.setStateBusyOnOrder();
+		ordersManager.addOrder(order);
+		userManager.setStateBusyOnOrder();
     }
 
 	@Click(R.id.decline)
@@ -106,8 +113,8 @@ public class OfferActivity extends AppCompatActivity {
 						return false;
 					}
                     showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
-                    ordersManager.cancelOrder(offer.getId(), Long.valueOf(which));
-                    return true;
+					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+					return true;
                 })
 				.positiveText("OK")
 				.show();
@@ -115,29 +122,93 @@ public class OfferActivity extends AppCompatActivity {
 
 	@Click(R.id.showOnMap)
 	void openMap() {
-		IntentUtils.openRoute(this, offer.getDestinationAddress().getAddress().getLocation(), offer.getClientAddress().getLocation());
+		IntentUtils.openRoute(this, order.getDestinationAddress().getLocation(), order.getClientAddress().getLocation());
 	}
 
 	@Click(R.id.clientAddress)
 	void openMapClient() {
-		IntentUtils.openMapLocation(this, offer.getClientAddress().getLocation(), offer.getClientFirstName() + " " + offer.getClientLastName());
+		IntentUtils.openMapLocation(this, order.getClientAddress().getLocation(), order.getClientFirstName() + " " + order.getClientLastName());
 	}
 
 	@Click(R.id.destinationAddress)
 	void openMapDestination() {
-		IntentUtils.openMapLocation(this, offer.getDestinationAddress().getAddress().getLocation(), offer.getDestinationAddress().getName());
+		IntentUtils.openMapLocation(this, order.getDestinationAddress().getLocation(), order.getWorkshopName());
 	}
 
 	private void setUi() {
-		this.clientCar.setText(offer.getClientCarModel() + ", " + offer.getClientCarWeight() + " t");
+		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
 
-		Address clientAddress = offer.getClientAddress();
-		this.clientAddress.setText(clientAddress.getAddress().getStreet() + ", " + clientAddress.getAddress().getCity() + ", " + clientAddress.getAddress().getZipCode());
+		Address clientAddress = order.getClientAddress();
+		if (clientAddress != null) {
+			this.clientAddress.setText(formatClientAddress(clientAddress));
+		}
 
-		DestinationAddress destinationAddress = offer.getDestinationAddress();
-		this.destinationAddress.setText(destinationAddress.getName() + ", " + destinationAddress.getAddress().getAddress().getStreet() + ", " + destinationAddress.getAddress().getAddress().getCity() + ", " + destinationAddress.getAddress().getAddress().getZipCode());
+		Address destinationAddress = order.getDestinationAddress();
+		if (destinationAddress != null) {
+			this.destinationAddress.setText(formatDestinationAddress(destinationAddress, order.getWorkshopName()));
+			this.destinationAddress.setVisibility(View.VISIBLE);
+		} else {
+			this.destinationAddress.setVisibility(View.GONE);
+		}
 
-		this.eventDescription.setText(FormatUtil.formatEvent(offer.getEventDescription()));
+		if (order.getEventDescription() != null) {
+			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		}
+	}
+
+	// Building up addresses from what we have
+	@NonNull
+	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
+		String addressResult = "";
+		if (order.getDestinationAddress() != null) {
+			if (order.getWorkshopName() != null) {
+				addressResult += order.getWorkshopName();
+			}
+			if (destinationAddress.getAddress().getStreet() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getStreet();
+			}
+			if (destinationAddress.getAddress().getCity() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getCity();
+			}
+			if (destinationAddress.getAddress().getZipCode() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += destinationAddress.getAddress().getZipCode();
+			}
+			this.destinationAddress.setText(addressResult);
+		}
+		return addressResult;
+	}
+
+	@NonNull
+	private String formatClientAddress(Address clientAddress) {
+		String addressResult = "";
+		if (order.getClientAddress() != null) {
+			if (clientAddress.getAddress().getStreet() != null) {
+				addressResult += clientAddress.getAddress().getStreet();
+			}
+			if (clientAddress.getAddress().getCity() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += clientAddress.getAddress().getCity();
+			}
+			if (clientAddress.getAddress().getZipCode() != null) {
+				if (addressResult.length() > 0) {
+					addressResult += ", ";
+				}
+				addressResult += clientAddress.getAddress().getZipCode();
+			}
+			this.clientAddress.setText(addressResult);
+		}
+		return addressResult;
 	}
 
 	private void finishOfferActivity() {
