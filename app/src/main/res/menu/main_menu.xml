@@ -16,9 +16,9 @@
 		app:actionLayout="@layout/menu_profile"
 		app:showAsAction="always"/>
 
-	<item
-		android:id="@+id/actin_offer"
-		android:orderInCategory="80"
-		android:title="Nová zakázka"
-		app:showAsAction="never"/>
+    <!--<item-->
+    <!--android:id="@+id/actin_offer"-->
+    <!--android:orderInCategory="80"-->
+    <!--android:title="Nová zakázka"-->
+    <!--app:showAsAction="never"/>-->
 </menu>

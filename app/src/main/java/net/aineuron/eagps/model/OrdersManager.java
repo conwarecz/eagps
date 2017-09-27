@@ -2,6 +2,7 @@ package net.aineuron.eagps.model;
 
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.AddressDetail;
@@ -108,6 +109,14 @@ public class OrdersManager {
 	public void cancelOrder(Long orderId, Long reason) {
 		clientProvider.getEaClient().cancelOrder(orderId, reason);
 	}
+
+    public void clearDatabase() {
+        Realm db = RealmHelper.getDb();
+        db.executeTransaction(realm -> {
+            realm.where(Order.class).findAll().deleteAllFromRealm();
+            realm.where(Message.class).findAll().deleteAllFromRealm();
+        });
+    }
 
 	public void sendOrder(Long orderId) {
 		clientProvider.getEaClient().sendOrder(orderId);

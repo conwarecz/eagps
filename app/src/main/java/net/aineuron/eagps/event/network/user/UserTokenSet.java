@@ -5,4 +5,9 @@ package net.aineuron.eagps.event.network.user;
  */
 
 public class UserTokenSet {
+    public final Long userId;
+
+    public UserTokenSet(Long userId) {
+        this.userId = userId;
+    }
 }

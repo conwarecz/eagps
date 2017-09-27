@@ -14,6 +14,7 @@ import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
@@ -63,6 +64,10 @@ public class OrderDetailFragment extends BaseFragment {
 	@FragmentArg
 	Long orderId;
 
+	@Nullable
+	@FragmentArg
+	String title;
+
 	@Bean
 	OrdersManager ordersManager;
 
@@ -73,20 +78,28 @@ public class OrderDetailFragment extends BaseFragment {
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
 
-	public static OrderDetailFragment newInstance(Long orderId) {
-		return OrderDetailFragment_.builder().orderId(orderId).build();
+	public static OrderDetailFragment newInstance(Long orderId, String title) {
+		return OrderDetailFragment_.builder().orderId(orderId).title(title).build();
 	}
 
 	@AfterViews
 	void afterViews() {
-		setAppbarUpNavigation(true);
-		setAppbarTitle("Detail");
+		if (title == null || title.isEmpty()) {
+			setAppbarUpNavigation(true);
+			setAppbarTitle("Detail");
+		} else {
+			setAppbarUpNavigation(false);
+			setAppbarTitle(title);
+		}
 
 		if (orderId == null) {
+			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
 			this.order = ordersManager.getCurrentOrder();
 		} else {
 			setOrderListener();
-			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
 			clientProvider.getEaClient().getOrderDetail(orderId);
 		}
 

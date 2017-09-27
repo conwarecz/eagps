@@ -2,6 +2,7 @@ package net.aineuron.eagps.client;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.FieldNamingPolicy;
@@ -18,10 +19,12 @@ import net.aineuron.eagps.client.client.EaClient;
 import net.aineuron.eagps.client.client.EaClient_;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
+import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.transfer.KnownError;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -65,6 +68,9 @@ public class ClientProvider {
 	@Pref
 	Pref_ pref;
 
+    @Bean
+    UserManager userManager;
+
 	private Retrofit retrofit;
 	private EaClient eaClient;
 	private Gson gson;
@@ -78,8 +84,9 @@ public class ClientProvider {
 	}
 
     public void postUnauthorisedError() {
+        userManager.logout(userManager.getUser());
         Intent intent = new Intent(context, LoginActivity_.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
         Toast.makeText(context, "Přihlaste se znovu, prosím", Toast.LENGTH_LONG).show();
     }
@@ -128,7 +135,6 @@ public class ClientProvider {
 	public void rebuildRetrofit() {
 		String token = pref.token().get();
 
-
 		gson = new GsonBuilder()
 				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
 				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
@@ -152,11 +158,12 @@ public class ClientProvider {
 
         // Set token when not empty
         if (!token.isEmpty()) {
-			clientBuilder.addInterceptor(chain -> {
+            clientBuilder.addInterceptor(chain -> {
 				Request.Builder requestBuilder = chain.request().newBuilder();
-				requestBuilder.addHeader("Authorization", "Bearer " + token);
-				return chain.proceed(requestBuilder.build());
-			});
+                requestBuilder.addHeader("Authorization", "bearer " + token);
+                Log.d("Authorisation header", "Bearer " + token);
+                return chain.proceed(requestBuilder.build());
+            });
 		}
 
 //		try {

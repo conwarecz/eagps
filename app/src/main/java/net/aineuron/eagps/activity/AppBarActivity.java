@@ -1,14 +1,9 @@
 package net.aineuron.eagps.activity;
 
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,13 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
 
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
@@ -89,33 +82,33 @@ public class AppBarActivity extends MainActivityBase {
 		setUpActionBar();
 	}
 
-	@OptionsItem(R.id.actin_offer)
-	void actionOffer() {
-
-		Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
-				R.mipmap.ic_launcher);
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_NAME)
-				.setSmallIcon(R.mipmap.ic_launcher)
-				.setLargeIcon(icon)
-				.setContentTitle("Nová zakázka")
-				.setContentText("Máte nabídku nové zakázky. Zobrazit detail.");
-
-        Intent notificationIntent = new Intent(this, NewOrderActivity_.class);
-
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		notificationBuilder.setContentIntent(contentIntent);
-
-		Notification notification = notificationBuilder.build();
-		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		notification.defaults |= Notification.DEFAULT_SOUND;
-		currentNotificationID++;
-		int notificationId = currentNotificationID;
-		if (notificationId == Integer.MAX_VALUE - 1)
-			notificationId = 0;
-
-		notificationManager.notify(notificationId, notification);
-
-	}
+//	@OptionsItem(R.id.actin_offer)
+//	void actionOffer() {
+//
+//		Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
+//				R.mipmap.ic_launcher);
+//		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_NAME)
+//				.setSmallIcon(R.mipmap.ic_launcher)
+//				.setLargeIcon(icon)
+//				.setContentTitle("Nová zakázka")
+//				.setContentText("Máte nabídku nové zakázky. Zobrazit detail.");
+//
+//        Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
+//
+//		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//		notificationBuilder.setContentIntent(contentIntent);
+//
+//		Notification notification = notificationBuilder.build();
+//		notification.flags |= Notification.FLAG_AUTO_CANCEL;
+//		notification.defaults |= Notification.DEFAULT_SOUND;
+//		currentNotificationID++;
+//		int notificationId = currentNotificationID;
+//		if (notificationId == Integer.MAX_VALUE - 1)
+//			notificationId = 0;
+//
+//		notificationManager.notify(notificationId, notification);
+//
+//	}
 
 	private void setUpActionBar() {
 		ActionBar actionBar = getSupportActionBar();
@@ -154,7 +147,7 @@ public class AppBarActivity extends MainActivityBase {
 			setActionBarColor(actionBar, primary);
 		}
 
-        if (userManager.getUser().getRoleId() == null || userManager.getUser().getRoleId() == DISPATCHER_ID) {
+        if (userManager.getUser().getUserRole() == null || userManager.getUser().getUserRole() == DISPATCHER_ID) {
             stateIcon.setVisibility(View.GONE);
             licencePlate.setVisibility(View.GONE);
             setActionBarColor(actionBar, primary);
@@ -164,7 +157,7 @@ public class AppBarActivity extends MainActivityBase {
         }
 
 		User user = userManager.getUser();
-		profileName.setText(user.getName());
+        profileName.setText(user.getUserName());
 
 		if (user.getCar() != null) {
 			String licensePlate = user.getCar().getLicencePlate();

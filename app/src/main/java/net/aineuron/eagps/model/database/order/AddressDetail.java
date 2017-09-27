@@ -1,16 +1,13 @@
 package net.aineuron.eagps.model.database.order;
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 
 /**
  * Created by Vit Veres on 14.08.2017
  * as a part of eagps project.
  */
-
-public class AddressDetail extends RealmObject implements Serializable {
-	private String street;
+public class AddressDetail extends RealmObject {
+    private String street;
 	private String city;
 	private String zipCode;
 	private String country;

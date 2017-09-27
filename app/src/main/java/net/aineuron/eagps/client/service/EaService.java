@@ -33,6 +33,9 @@ public interface EaService {
     @POST("users/{userId}/logout")
     Maybe<Response<Void>> logout(@Path("userId") Long userId);
 
+    @GET("users/{userId}")
+    Maybe<User> getUser(@Path("userId") Long userId);
+
 	@GET("users/{userId}/cars/available")
 	Maybe<List<Car>> getCars(@Path("userId") Long userId);
 

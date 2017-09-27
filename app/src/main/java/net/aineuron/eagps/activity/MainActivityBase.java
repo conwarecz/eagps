@@ -17,6 +17,7 @@ import com.jetradar.multibackstack.BackStackActivity;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
+import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.OrdersFragment;
@@ -29,6 +30,7 @@ import net.aineuron.eagps.model.UserManager;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
@@ -41,6 +43,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private static final String STATE_CURRENT_TAB_ID = "current_tab_id";
 	private static final int MAIN_TAB_ID = 0;
 	private static final int ORDERS_TAB_ID = 1;
+	private static final int MESSAGES_TAB_ID = 2;
 
 	@ViewById(R.id.bottomNavigationBar)
 	BottomNavigationBar bottomNavigation;
@@ -51,6 +54,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Bean
 	UserManager userManager;
 
+	@Nullable
+	@Extra
+	Long messageId;
+
 	private Bundle savedInstanceState = null;
 	private Fragment currentFragment;
 	private int currentTabId;
@@ -59,9 +66,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	public void afterViewsLocal() {
 		initBottomNavigation();
 
-		if (savedInstanceState == null) {
-			bottomNavigation.selectTab(MAIN_TAB_ID, false);
-			showFragment(rootTabFragment(MAIN_TAB_ID));
+		if (messageId != null) {
+			onTabSelected(MESSAGES_TAB_ID);
+			showFragment(MessageDetailFragment.newInstance(messageId));
+		} else {
+			if (savedInstanceState == null) {
+				bottomNavigation.selectTab(MAIN_TAB_ID, false);
+				showFragment(rootTabFragment(MAIN_TAB_ID));
+			}
 		}
 	}
 
@@ -87,11 +99,17 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
-			getSupportFragmentManager().popBackStack();
+		messageId = intent.getLongExtra("messageId", -1L);
+		if (messageId != null && messageId != -1L) {
+			onTabSelected(MESSAGES_TAB_ID);
+			showFragment(MessageDetailFragment.newInstance(messageId));
+		} else {
+			for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
+				getSupportFragmentManager().popBackStack();
+			}
+			showFragment(rootTabFragment(MAIN_TAB_ID), false);
+			currentTabId = MAIN_TAB_ID;
 		}
-		showFragment(rootTabFragment(MAIN_TAB_ID), false);
-		currentTabId = MAIN_TAB_ID;
 		bottomNavigation.selectTab(currentTabId, false);
 	}
 
@@ -149,12 +167,12 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	}
 
 	public void showFragment(@NonNull Fragment fragment) {
-		if (fragment instanceof TowFragment_ && userManager.getUser().getRoleId() == WORKER_ID) {
+		if (fragment instanceof TowFragment_ && userManager.getUser().getUserRole() == WORKER_ID) {
 			selectTab(MAIN_TAB_ID);
 			currentTabId = MAIN_TAB_ID;
 		} else if (fragment instanceof OrdersFragment_) {
 			int tabId = 1;
-			if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
+			if (userManager.getUser().getUserRole() == DISPATCHER_ID) {
 				tabId = 0;
 			}
 			selectTab(tabId);
@@ -177,8 +195,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setActiveColor(R.color.colorPrimary)
 				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
-        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
-            bottomNavigation
+		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+			bottomNavigation
                     .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
                     .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
                     .addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
@@ -224,14 +242,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 		tr.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
 		tr.replace(R.id.fragmentContainer, fragment);
-		tr.commitAllowingStateLoss();
+		tr.commitNow();
 		currentFragment = fragment;
 	}
 
 	@NonNull
 	private Fragment rootTabFragment(int tabId) {
-        if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
-            switch (tabId) {
+		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+			switch (tabId) {
                 case 0:
                     if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
                         return TowFragment.newInstance(null);

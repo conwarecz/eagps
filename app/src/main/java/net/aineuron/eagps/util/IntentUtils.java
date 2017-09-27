@@ -24,6 +24,14 @@ public class IntentUtils {
 		MainActivity_.intent(context).start();
 	}
 
+    public static void openMainActivityWithMessage(Context context, Long messageId) {
+        MainActivity_.intent(context).extra("message", messageId).start();
+    }
+
+    public static Intent mainActivityIntent(Context context, Long messageId) {
+        return MainActivity_.intent(context).extra("messageId", messageId).get();
+    }
+
 	public static void openUrl(Context context, String url) {
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		try {

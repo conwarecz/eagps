@@ -1,10 +1,14 @@
 package net.aineuron.eagps;
 
+import android.app.Activity;
+import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,22 +33,24 @@ import io.realm.RealmConfiguration;
  */
 
 @EApplication
-public class Appl extends MultiDexApplication {
-
-	public static final String NOTIFFICATIONS_CHANNEL_NAME = "default";
-	public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+public class Appl extends MultiDexApplication implements
+        Application.ActivityLifecycleCallbacks, ComponentCallbacks2 {
+    public static final String NOTIFFICATIONS_CHANNEL_NAME = "default";
+    public static String stateOfLifeCycle = "";
+    public static boolean wasInBackground = true;
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 	public static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm");
-
 	public static RealmConfiguration dbConfig;
-
-	@EventBusGreenRobot
+    private static String TAG = Appl.class.getName();
+    @EventBusGreenRobot
 	EventBus bus;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
-		initRealm();
+        registerActivityLifecycleCallbacks(this);
+        initRealm();
 		initChannels();
 	}
 
@@ -87,4 +93,52 @@ public class Appl extends MultiDexApplication {
 			notificationManager.createNotificationChannel(channel);
 		}
 	}
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle arg1) {
+        wasInBackground = false;
+        stateOfLifeCycle = "Create";
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+        stateOfLifeCycle = "Start";
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+        stateOfLifeCycle = "Resume";
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+        stateOfLifeCycle = "Pause";
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+        stateOfLifeCycle = "Stop";
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle arg1) {
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+        wasInBackground = false;
+        stateOfLifeCycle = "Destroy";
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        if (stateOfLifeCycle.equals("Stop")) {
+            wasInBackground = true;
+        }
+        super.onTrimMemory(level);
+    }
+
+    public boolean wasInBackground() {
+        return wasInBackground;
+    }
 }

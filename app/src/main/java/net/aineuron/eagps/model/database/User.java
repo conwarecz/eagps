@@ -2,6 +2,10 @@ package net.aineuron.eagps.model.database;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.aineuron.eagps.model.database.order.Order;
+
+import java.util.List;
+
 /**
  * Created by Vit Veres on 29-May-17
  * as a part of Android-EAGPS project.
@@ -9,7 +13,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class User {
 	private Long userId;
-	private String name;
+    private Long id;
+    private String name;
 	private String roleName;
     @SerializedName("Role")
     private Integer roleId;
@@ -17,6 +22,11 @@ public class User {
 	private String token;
 	private Long carId;
 	private Car car;
+    private List<Order> currentOrders;
+    private Entity entity;
+    private Integer supplierId;
+    private Integer userRole;
+    private String userName;
 
 	public User() {
 	}
@@ -92,4 +102,52 @@ public class User {
 	public void setCar(Car car) {
 		this.car = car;
 	}
+
+    public List<Order> getCurrentOrders() {
+        return currentOrders;
+    }
+
+    public void setCurrentOrders(List<Order> currentOrders) {
+        this.currentOrders = currentOrders;
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public void setEntity(Entity entity) {
+        this.entity = entity;
+    }
+
+    public Integer getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Integer supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public Integer getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(Integer userRole) {
+        this.userRole = userRole;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

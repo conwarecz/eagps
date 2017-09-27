@@ -24,7 +24,7 @@
 		android:layout_height="14dp"
 		android:layout_gravity="center_horizontal"
 		android:clickable="false"
-		android:text="1T8 1234"
+		android:text="unknown"
 		android:textColor="#FFF"
 		android:textSize="12sp"
 		android:textStyle="bold"/>

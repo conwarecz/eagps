@@ -18,6 +18,7 @@ import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
@@ -87,7 +88,7 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		setAppbarUpNavigation(userManager.getUser().getRoleId() == DISPATCHER_ID);
+		setAppbarUpNavigation(userManager.getUser().getUserRole() == DISPATCHER_ID);
 		setAppbarTitle("Na zásahu");
 
 		if (orderId == null) {
@@ -103,8 +104,9 @@ public class TowFragment extends BaseFragment {
 
 		if (order != null) {
 			setOrderListener();
-
-			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
 			clientProvider.getEaClient().getOrderDetail(orderId);
 		}
 	}
@@ -189,7 +191,7 @@ public class TowFragment extends BaseFragment {
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {
 			MainActivityBase activity = (MainActivityBase) getActivity();
-			activity.showFragment(OrderDetailFragment.newInstance(null));
+			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
 
 		this.clientAddress.setText(formatClientAddress(order.getClientAddress()));

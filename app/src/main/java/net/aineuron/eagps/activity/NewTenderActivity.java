@@ -1,6 +1,5 @@
 package net.aineuron.eagps.activity;
 
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -32,7 +31,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 @EActivity(R.layout.activity_offer)
-public class NewOrderActivity extends AppCompatActivity {
+public class NewTenderActivity extends AppCompatActivity {
 
 	@ViewById(R.id.back)
 	Button accept;
@@ -65,14 +64,7 @@ public class NewOrderActivity extends AppCompatActivity {
 	void afterViews() {
 		getSupportActionBar().hide();
 
-		Bundle bundle = getIntent().getExtras();
-		if (bundle != null) {
-			try {
-				order = (Order) bundle.getSerializable("order");
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}
-		}
+        order = ordersManager.getOrderById(getIntent().getLongExtra("id", -1L));
 
 		setUi();
 	}

@@ -40,6 +40,7 @@ import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
@@ -120,11 +121,14 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		setAppbarTitle("Přílohy");
 
 		if (orderId == null) {
+			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
 			order = ordersManager.getCurrentOrder();
 			setContent();
 		} else {
 			setOrderListener();
-			showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
 			clientProvider.getEaClient().getOrderDetail(orderId);
 		}
 	}
@@ -277,7 +281,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {
 			MainActivityBase activity = (MainActivityBase) getActivity();
-			activity.showFragment(OrderDetailFragment.newInstance(null));
+			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
 
 		PhotoPathsWithReasonAdapter documents = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getOrderDocuments()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS).finish();

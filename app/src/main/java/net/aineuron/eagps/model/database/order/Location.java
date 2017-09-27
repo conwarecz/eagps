@@ -1,16 +1,13 @@
 package net.aineuron.eagps.model.database.order;
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 
 /**
  * Created by Vit Veres on 05-Jun-17
  * as a part of Android-EAGPS project.
  */
-
-public class Location extends RealmObject implements Serializable {
-	private double latitude;
+public class Location extends RealmObject {
+    private double latitude;
 	private double longitude;
 
 	public double getLatitude() {

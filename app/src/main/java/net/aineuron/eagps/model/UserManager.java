@@ -43,7 +43,9 @@ public class UserManager {
 	Pref_ pref;
 	@Bean
 	ClientProvider clientProvider;
-	private Map<Long, String> states = new HashMap<Long, String>() {
+    @Bean
+    OrdersManager ordersManager;
+    private Map<Long, String> states = new HashMap<Long, String>() {
 		{
 			put(STATE_ID_READY, "Ready");
 			put(STATE_ID_BUSY, "Busy");
@@ -59,8 +61,8 @@ public class UserManager {
 		gson = new Gson();
 	}
 
-	public synchronized User getUser() {
-		String userObjectSerialized = pref.userObjectSerialized().get();
+    public User getUser() {
+        String userObjectSerialized = pref.userObjectSerialized().get();
 
 		if (userObjectSerialized.isEmpty()) {
 			return null;
@@ -69,14 +71,14 @@ public class UserManager {
 		return gson.fromJson(userObjectSerialized, User.class);
 	}
 
-	public synchronized void setUser(User user) {
-		String userObjectSerialized = "";
+    public void setUser(User user) {
+        String userObjectSerialized = "";
 		if (user != null) {
 			userObjectSerialized = gson.toJson(user);
 			pref.token().put(user.getToken());
 		}
-		pref.edit().userObjectSerialized().put(userObjectSerialized).apply();
-	}
+        pref.userObjectSerialized().put(userObjectSerialized);
+    }
 
 	public Long getSelectedCarId() {
 		Long value = pref.selectedCar().get();
@@ -94,6 +96,7 @@ public class UserManager {
 
 		pref.edit().selectedCar().put(value).apply();
 	}
+
 
 	public void selectCar(Long selectedCarId) {
 		clientProvider.getEaClient().selectCar(selectedCarId);
@@ -147,16 +150,21 @@ public class UserManager {
     }
 
 	public void setFirebaseToken(String token) {
-		clientProvider.getEaClient().setUserFirebaseToken(token);
+        if (pref.token().get() != null && !pref.token().get().isEmpty()) {
+            clientProvider.rebuildRetrofit();
+        }
+        clientProvider.getEaClient().setUserFirebaseToken(token);
 	}
 
 	public void login(LoginInfo info) {
 		clientProvider.getEaClient().login(info);
 	}
 
-	public void logout() {
-		clientProvider.getEaClient().logout();
-	}
+    public void logout(User user) {
+        pref.clear();
+        ordersManager.clearDatabase();
+        clientProvider.getEaClient().logout(user);
+    }
 
 	public boolean haveActiveOrder() {
 		boolean activeOrder = false;
@@ -174,4 +182,8 @@ public class UserManager {
 		}
 		return activeOrder;
 	}
+
+    public void getUserData(Long userId) {
+        clientProvider.getEaClient().getUser(userId);
+    }
 }

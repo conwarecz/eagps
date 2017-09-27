@@ -15,6 +15,7 @@ import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
 import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
+import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.event.network.user.UserTokenSet;
@@ -68,6 +69,82 @@ public class EaClient {
 	public EaClient withRetrofit(Retrofit retrofit) {
 		this.eaService = retrofit.create(EaService.class);
 		return this;
+	}
+
+	public void login(LoginInfo info) {
+		if (info == null) {
+			return;
+		}
+
+		eaService.login(info)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						user -> {
+							userManager.setUser(user);
+							clientProvider.rebuildRetrofit();
+							EventBus.getDefault().post(new UserLoggedInEvent());
+						},
+						this::sendError
+				);
+	}
+
+	public void logout(User user) {
+		if (user == null) {
+			return;
+		}
+
+		eaService.logout(user.getUserId())
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						voidResponse -> {
+							userManager.setUser(null);
+							userManager.setSelectedCarId(-1l);
+							EventBus.getDefault().post(new UserLoggedOutEvent());
+						},
+						this::sendError
+				);
+	}
+
+	public void getUser(Long userId) {
+		eaService.getUser(userId)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						user -> {
+							// Need to keep some user info stored in User afted login response
+							user.setUserId(user.getId());
+							user.setToken(userManager.getUser().getToken());
+							user.setUserName(userManager.getUser().getUserName());
+							user.setRoleId(userManager.getUser().getRoleId());
+							user.setUserRole(userManager.getUser().getRoleId());
+
+							userManager.setUser(user);
+
+							// Dispatcher doesn't have Entity
+							if (user.getEntity() != null && user.getEntity().getEntityStatus() != null) {
+								userManager.setSelectedStateId(user.getEntity().getEntityStatus());
+							}
+							if (user.getEntity() != null && user.getEntity().getEntityId() != null) {
+								userManager.setSelectedCarId(user.getEntity().getEntityId());
+							}
+
+							// Copy all active orders to DB
+//							if(user.getCurrentOrders() != null && user.getCurrentOrders().size() > 0){
+//								userManager.setStateBusyOnOrder();
+//								Realm db = RealmHelper.getDb();
+//								db.executeTransaction(realm -> {
+//									for(Order order : user.getCurrentOrders()){
+//										realm.copyToRealmOrUpdate(order);
+//									}
+//								});
+//								db.close();
+//							}
+							EventBus.getDefault().post(new UserDataGotEvent());
+						},
+						this::sendError
+				);
 	}
 
 	public void selectCar(Long carId) {
@@ -148,7 +225,7 @@ public class EaClient {
 			serverState = STATE_ID_UNAVAILABLE;
 		}
 
-		eaService.setStatus(user.getUserId(), serverState)
+		eaService.setStatus(user.getEntity().getEntityId(), serverState)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -174,16 +251,18 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse -> {
-							Log.d("API Token", "Token put to user: " + token);
-							clientProvider.rebuildRetrofit();
-							EventBus.getDefault().post(new UserTokenSet());
+							if (voidResponse.isSuccessful()) {
+								Log.d("FCM Token", "Token put to user: " + token);
+								EventBus.getDefault().post(new UserTokenSet(user.getUserId()));
+							} else {
+								sendKnownError(voidResponse);
+							}
 						},
 						this::sendError
 				);
 	}
 
 	public void setCarState(Long stateId, Long carId) {
-
 		eaService.setStatus(carId, stateId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -279,7 +358,11 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
-								userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+								if (userManager.haveActiveOrder()) {
+									userManager.setSelectedStateId(UserManager.STATE_ID_BUSY_ORDER);
+								} else {
+									userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+								}
 								EventBus.getDefault().post(new OrderSentEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);
@@ -314,42 +397,6 @@ public class EaClient {
 
 							db.close();
 							EventBus.getDefault().post(new StopRefreshingEvent());
-						},
-						this::sendError
-				);
-	}
-
-	public void login(LoginInfo info) {
-		if (info == null) {
-			return;
-		}
-
-		eaService.login(info)
-				.subscribeOn(Schedulers.computation())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(
-						user -> {
-							userManager.setUser(user);
-							EventBus.getDefault().post(new UserLoggedInEvent());
-						},
-						this::sendError
-				);
-	}
-
-	public void logout() {
-		User loggedUser = userManager.getUser();
-		if (loggedUser == null) {
-			return;
-		}
-
-		eaService.logout(loggedUser.getUserId())
-				.subscribeOn(Schedulers.computation())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(
-						voidResponse -> {
-							userManager.setUser(null);
-							userManager.setSelectedCarId(-1l);
-							EventBus.getDefault().post(new UserLoggedOutEvent());
 						},
 						this::sendError
 				);

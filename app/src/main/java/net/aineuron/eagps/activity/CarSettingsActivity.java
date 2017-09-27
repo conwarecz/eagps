@@ -72,11 +72,13 @@ public class CarSettingsActivity extends AppCompatActivity {
 			return;
 		}
 
-		Long carId = user.getCarId();
-		if (carId != null && !resetCar) {
-			// Car Is already selected
-			finishSettings();
-		}
+        if (user.getEntity() != null) {
+            Long carId = user.getEntity().getEntityId();
+            if (carId != null && !resetCar) {
+                // Car Is already selected
+                finishSettings();
+            }
+        }
 
 		carsView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		carsView.setAdapter(carAdapter);

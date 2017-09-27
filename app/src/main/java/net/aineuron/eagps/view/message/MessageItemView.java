@@ -56,9 +56,11 @@ public class MessageItemView extends ConstraintLayout {
 			this.message.setTypeface(Typeface.create(this.message.getTypeface(), Typeface.NORMAL), Typeface.NORMAL);
 		}
 
-		this.date.setText(Appl.dateFormat.format(message.getTime()));
-		this.time.setText(Appl.timeFormat.format(message.getTime()));
-		this.message.setText(message.getText());
+        if (message.getTime() != null) {
+            this.date.setText(Appl.dateFormat.format(message.getTime()));
+            this.time.setText(Appl.timeFormat.format(message.getTime()));
+        }
+        this.message.setText(message.getText());
 
 		this.setOnClickListener(v -> bus.post(new MessageClickedEvent(message.getId())));
 	}

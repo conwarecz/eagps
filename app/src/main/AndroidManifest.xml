@@ -53,14 +53,18 @@
 			android:screenOrientation="sensorPortrait">
 		</activity>
 		<activity
-			android:name=".activity.NewOrderActivity_"
+            android:name=".activity.NewTenderActivity_"
 			android:screenOrientation="sensorPortrait">
 		</activity>
 		<activity
 			android:name=".activity.ProfileActivity_"
 			android:parentActivityName=".activity.MainActivity_"
-			android:screenOrientation="sensorPortrait">>
-		</activity>
+            android:screenOrientation="sensorPortrait">>
+        </activity>
+        <activity
+            android:name=".activity.OrderConfirmationActivity_"
+            android:screenOrientation="sensorPortrait">>
+        </activity>
 	</application>
 
 </manifest>

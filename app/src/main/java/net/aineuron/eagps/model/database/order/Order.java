@@ -8,7 +8,6 @@ import com.google.gson.reflect.TypeToken;
 import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
 import net.aineuron.eagps.model.database.RealmString;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import io.realm.RealmList;
@@ -19,9 +18,8 @@ import io.realm.annotations.PrimaryKey;
  * Created by Vit Veres on 06-Jun-17
  * as a part of Android-EAGPS project.
  */
-
-public class Order extends RealmObject implements Serializable {
-	public static final int ORDER_STATE_CREATED = 1;
+public class Order extends RealmObject {
+    public static final int ORDER_STATE_CREATED = 1;
     public static final int ORDER_STATE_ASSIGNED = 2;
 	public static final int ORDER_STATE_ARRIVED = 3;
 	public static final int ORDER_STATE_FINISHED = 4;
@@ -60,7 +58,8 @@ public class Order extends RealmObject implements Serializable {
 	public static Order getFromJson(String json) {
 		Gson gson = new GsonBuilder()
 				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+//				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
 						}.getType(),
 						RealmStringListTypeAdapter.INSTANCE)
 				.create();
@@ -243,3 +242,4 @@ public class Order extends RealmObject implements Serializable {
 		isSent = sent;
 	}
 }
+

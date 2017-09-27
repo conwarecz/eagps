@@ -9,4 +9,5 @@
     <string name="car_waiting">Čekání</string>
     <string name="car_on_duty">Na zásahu</string>
     <string name="dialog_changing_settings">Měním nastavení</string>
+    <string name="confirmation_ok">OK</string>
 </resources>

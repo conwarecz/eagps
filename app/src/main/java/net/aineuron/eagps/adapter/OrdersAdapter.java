@@ -67,8 +67,8 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 							mMainActivityBase.showFragment(OrderAttachmentsFragment.newInstance(obj.getId()));
 							break;
 						default:
-							mMainActivityBase.showFragment(OrderDetailFragment.newInstance(obj.getId()));
-							break;
+                            mMainActivityBase.showFragment(OrderDetailFragment.newInstance(obj.getId(), null));
+                            break;
 					}
 				}
 			}

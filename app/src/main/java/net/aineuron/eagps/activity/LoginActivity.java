@@ -12,11 +12,15 @@ import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
+import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserTokenSet;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.IntentUtils;
 
@@ -25,6 +29,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -49,6 +54,12 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	@EventBusGreenRobot
 	EventBus bus;
+
+	@Pref
+	Pref_ pref;
+
+	@Bean
+	ClientProvider clientProvider;
 
 	private Validator validator;
 	private MaterialDialog progressDialog;
@@ -114,6 +125,11 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTokenSet(UserTokenSet e) {
+		getUserData(e.userId);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onUserDataGot(UserDataGotEvent e) {
 		finishLogin();
 	}
 
@@ -124,9 +140,13 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		}
 	}
 
+	private void getUserData(Long userId) {
+		userManager.getUserData(userId);
+	}
+
 	private void finishLogin() {
-		userManager.haveActiveOrder();
-		if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId() == WORKER_ID) {
+		User user = userManager.getUser();
+		if ((user.getUserRole() != null && user.getUserRole() == WORKER_ID) && (user.getEntity() == null || user.getEntity().getEntityId() == null)) {
 			CarSettingsActivity_.intent(this).start();
         } else {
             IntentUtils.openMainActivity(this);
