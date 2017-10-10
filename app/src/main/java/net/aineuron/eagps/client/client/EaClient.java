@@ -15,6 +15,8 @@ import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
 import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
+import net.aineuron.eagps.event.network.order.TenderAcceptSuccessEvent;
+import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
@@ -27,6 +29,7 @@ import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.Paging;
+import net.aineuron.eagps.model.transfer.tender.TenderModel;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
@@ -465,5 +468,39 @@ public class EaClient {
 			e.printStackTrace();
 		}
 		EventBus.getDefault().post(new StopRefreshingEvent());
+	}
+
+	public void acceptTender(Long tenderId, TenderModel tenderModel) {
+		eaService.acceptTender(tenderId, tenderModel)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								EventBus.getDefault().post(new TenderAcceptSuccessEvent());
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
+						,
+						this::sendError
+				);
+	}
+
+	public void rejectTender(Long tenderId, TenderModel tenderModel) {
+		eaService.rejectTender(tenderId, tenderModel)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								EventBus.getDefault().post(new TenderRejectSuccessEvent());
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
+						,
+						this::sendError
+				);
 	}
 }

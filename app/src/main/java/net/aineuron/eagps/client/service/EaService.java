@@ -6,6 +6,7 @@ import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.transfer.LoginInfo;
+import net.aineuron.eagps.model.transfer.tender.TenderModel;
 
 import java.util.List;
 
@@ -81,4 +82,11 @@ public interface EaService {
     // Cars
     @PUT("entities/{entityId}/status")
     Maybe<Response<Void>> setStatus(@Path("entityId") long entityId, @Body Long status);
+
+    // Tenders
+    @PUT("tenders/{tenderId}/accept")
+    Maybe<Response<Void>> acceptTender(@Path("tenderId") long tenderId, @Body TenderModel tenderModel);
+
+    @PUT("tenders/{tenderId}/reject")
+    Maybe<Response<Void>> rejectTender(@Path("tenderId") long tenderId, @Body TenderModel tenderModel);
 }

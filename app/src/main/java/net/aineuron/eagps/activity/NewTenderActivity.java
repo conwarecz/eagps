@@ -1,6 +1,7 @@
 package net.aineuron.eagps.activity;
 
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -10,13 +11,20 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Address;
+import net.aineuron.eagps.model.database.order.AddressDetail;
+import net.aineuron.eagps.model.database.order.Limitation;
+import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.transfer.tender.OrderSerializable;
+import net.aineuron.eagps.model.transfer.tender.TenderModel;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
@@ -25,10 +33,13 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import io.realm.RealmList;
 
 @EActivity(R.layout.activity_offer)
 public class NewTenderActivity extends AppCompatActivity {
@@ -48,6 +59,18 @@ public class NewTenderActivity extends AppCompatActivity {
 	@EventBusGreenRobot
 	EventBus bus;
 
+	@Bean
+	ClientProvider clientProvider;
+
+	@Extra
+	OrderSerializable orderSerializable;
+
+	@Extra
+	String title;
+
+	@Extra
+	Long tenderId;
+
 	@ViewById(R.id.clientCar)
 	IcoLabelTextView clientCar;
 	@ViewById(R.id.clientAddress)
@@ -59,12 +82,23 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	private MaterialDialog progressDialog;
 	private Order order;
+	private TenderModel tenderModel;
 
 	@AfterViews
 	void afterViews() {
-		getSupportActionBar().hide();
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null && title != null) {
+			actionBar.setTitle(title);
+			actionBar.setDefaultDisplayHomeAsUpEnabled(false);
+		}
 
-        order = ordersManager.getOrderById(getIntent().getLongExtra("id", -1L));
+		if (orderSerializable != null) {
+			makeRealmOrder();
+		}
+
+		tenderModel = new TenderModel();
+		tenderModel.setEntityId(userManager.getSelectedCarId());
+		tenderModel.setUserName(userManager.getUser().getUserName());
 
 		setUi();
 	}
@@ -87,9 +121,12 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	@Click(R.id.back)
 	void acceptClicked() {
-        showProgress("Měním stav", getString(R.string.dialog_wait_content));
-		ordersManager.addOrder(order);
-		userManager.setStateBusyOnOrder();
+		clientProvider.getEaClient().acceptTender(tenderId, tenderModel);
+		finish();
+//        showProgress("Měním stav", getString(R.string.dialog_wait_content));
+//		ordersManager.addOrder(order);
+//		userManager.setStateBusyOnOrder();
+
     }
 
 	@Click(R.id.decline)
@@ -104,8 +141,10 @@ public class NewTenderActivity extends AppCompatActivity {
 						Toast.makeText(this, "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
-                    showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
-					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+//                    showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
+//					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+					clientProvider.getEaClient().rejectTender(tenderId, tenderModel);
+					finish();
 					return true;
                 })
 				.positiveText("OK")
@@ -128,7 +167,9 @@ public class NewTenderActivity extends AppCompatActivity {
 	}
 
 	private void setUi() {
-		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
+		if (order.getClientCarModel() != null && order.getClientCarWeight() != null && order.getClientCarLicencePlate() != null) {
+			this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
+		}
 
 		Address clientAddress = order.getClientAddress();
 		if (clientAddress != null) {
@@ -228,5 +269,73 @@ public class NewTenderActivity extends AppCompatActivity {
 		}
 
 		progressDialog.dismiss();
+	}
+
+	private void makeRealmOrder() {
+		order = new Order();
+		order.setStatus(orderSerializable.getStatus());
+		order.setClaimSaxCode(orderSerializable.getClaimSaxCode());
+
+		if (orderSerializable.getClientAddress() != null) {
+			Address clientAddress = new Address();
+			if (orderSerializable.getClientAddress().getAddress() != null) {
+				AddressDetail clientAddressDetail = new AddressDetail();
+				clientAddressDetail.setCity(orderSerializable.getClientAddress().getAddress().getCity());
+				clientAddressDetail.setCountry(orderSerializable.getClientAddress().getAddress().getCountry());
+				clientAddressDetail.setStreet(orderSerializable.getClientAddress().getAddress().getStreet());
+				clientAddressDetail.setZipCode(orderSerializable.getClientAddress().getAddress().getZipCode());
+				clientAddress.setAddress(clientAddressDetail);
+			}
+
+			if (orderSerializable.getClientAddress().getLocation() != null) {
+				Location clientLocation = new Location();
+				clientLocation.setLatitude(orderSerializable.getClientAddress().getLocation().getLatitude());
+				clientLocation.setLongitude(orderSerializable.getClientAddress().getLocation().getLongitude());
+				clientAddress.setLocation(clientLocation);
+			}
+			order.setClientAddress(clientAddress);
+		}
+
+		if (orderSerializable.getDestinationAddress() != null) {
+			Address destinationAddress = new Address();
+			if (orderSerializable.getDestinationAddress().getAddress() != null) {
+				AddressDetail destinationAddressDetail = new AddressDetail();
+				destinationAddressDetail.setCity(orderSerializable.getDestinationAddress().getAddress().getCity());
+				destinationAddressDetail.setCountry(orderSerializable.getDestinationAddress().getAddress().getCountry());
+				destinationAddressDetail.setStreet(orderSerializable.getDestinationAddress().getAddress().getStreet());
+				destinationAddressDetail.setZipCode(orderSerializable.getDestinationAddress().getAddress().getZipCode());
+				destinationAddress.setAddress(destinationAddressDetail);
+			}
+
+			if (orderSerializable.getDestinationAddress().getLocation() != null) {
+				Location destinationLocation = new Location();
+				destinationLocation.setLatitude(orderSerializable.getDestinationAddress().getLocation().getLatitude());
+				destinationLocation.setLongitude(orderSerializable.getDestinationAddress().getLocation().getLongitude());
+				destinationAddress.setLocation(destinationLocation);
+			}
+			order.setClientAddress(destinationAddress);
+		}
+
+		order.setDestinationType(orderSerializable.getDestinationType());
+		order.setClientCarLicencePlate(orderSerializable.getClientCarLicencePlate());
+		order.setClientCarModel(orderSerializable.getClientCarModel());
+		order.setClientCarWeight(orderSerializable.getClientCarWeight());
+		RealmList<RealmString> eventDescription = new RealmList<>();
+		for (int i = 0; i < orderSerializable.getEventDescription().size(); i++) {
+			RealmString event = new RealmString();
+			event.setValue(orderSerializable.getEventDescription().get(i));
+			eventDescription.add(event);
+		}
+		order.setEventDescription(eventDescription);
+		order.setClientFirstName(orderSerializable.getClientFirstName());
+		order.setClientLastName(orderSerializable.getClientLastName());
+		order.setClientPhone(orderSerializable.getClientPhone());
+
+		Limitation limitation = new Limitation();
+		limitation.setLimit(orderSerializable.getLimitation().getLimit());
+		order.setLimitation(limitation);
+
+		order.setId(orderSerializable.getId());
+		order.setWorkshopName(orderSerializable.getWorkshopName());
 	}
 }

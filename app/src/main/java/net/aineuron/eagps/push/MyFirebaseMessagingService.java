@@ -21,12 +21,20 @@ import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Tender;
+import net.aineuron.eagps.model.transfer.tender.AddressDetailSerializable;
+import net.aineuron.eagps.model.transfer.tender.AddressSerializable;
+import net.aineuron.eagps.model.transfer.tender.LimitationSerializable;
+import net.aineuron.eagps.model.transfer.tender.LocationSerializable;
+import net.aineuron.eagps.model.transfer.tender.OrderSerializable;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.Realm;
 
@@ -81,12 +89,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void handleNewTender(RemoteMessage remoteMessage) {
-        final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
-        Long id = order.getId();
-        Realm realm = RealmHelper.getDb();
-        realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
+        Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
         Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
-        notificationIntent.putExtra("id", id);
+        OrderSerializable orderSerializable = makeSerializableOrder(tender.getOrder());
+        notificationIntent.putExtra("orderSerializable", orderSerializable);
+        notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
+        notificationIntent.putExtra("tenderId", tender.getTenderId());
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
@@ -170,5 +178,74 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(notificationId, notification);
+    }
+
+    private OrderSerializable makeSerializableOrder(Order order) {
+        OrderSerializable orderSerializable = new OrderSerializable();
+        orderSerializable.setStatus(order.getStatus());
+        orderSerializable.setClaimSaxCode(order.getClaimSaxCode());
+
+        AddressSerializable clientAddress = null;
+        if (order.getClientAddress() != null && order.getClientAddress().getAddress() != null) {
+            clientAddress = new AddressSerializable();
+            AddressDetailSerializable clientAddressDetail = new AddressDetailSerializable();
+            clientAddressDetail.setCity(order.getClientAddress().getAddress().getCity());
+            clientAddressDetail.setCountry(order.getClientAddress().getAddress().getCountry());
+            clientAddressDetail.setStreet(order.getClientAddress().getAddress().getStreet());
+            clientAddressDetail.setZipCode(order.getClientAddress().getAddress().getZipCode());
+            clientAddress.setAddress(clientAddressDetail);
+
+            LocationSerializable clientLocation = null;
+            if (order.getClientAddress().getLocation() != null) {
+                clientLocation = new LocationSerializable();
+                clientLocation.setLatitude(order.getClientAddress().getLocation().getLatitude());
+                clientLocation.setLongitude(order.getClientAddress().getLocation().getLongitude());
+                clientAddress.setLocation(clientLocation);
+                orderSerializable.setClientAddress(clientAddress);
+            }
+        }
+
+        if (order.getDestinationAddress() != null) {
+            AddressSerializable destinationAddress = null;
+            if (order.getDestinationAddress().getAddress() != null) {
+                destinationAddress = new AddressSerializable();
+                AddressDetailSerializable destinationAddressDetail = new AddressDetailSerializable();
+                destinationAddressDetail.setCity(order.getDestinationAddress().getAddress().getCity());
+                destinationAddressDetail.setCountry(order.getDestinationAddress().getAddress().getCountry());
+                destinationAddressDetail.setStreet(order.getDestinationAddress().getAddress().getStreet());
+                destinationAddressDetail.setZipCode(order.getDestinationAddress().getAddress().getZipCode());
+                destinationAddress.setAddress(destinationAddressDetail);
+            }
+
+            if (order.getDestinationAddress().getLocation() != null) {
+                LocationSerializable destinationLocation = new LocationSerializable();
+                destinationLocation.setLatitude(order.getDestinationAddress().getLocation().getLatitude());
+                destinationLocation.setLongitude(order.getDestinationAddress().getLocation().getLongitude());
+                destinationAddress.setLocation(destinationLocation);
+                orderSerializable.setClientAddress(destinationAddress);
+            }
+        }
+
+        orderSerializable.setDestinationType(order.getDestinationType());
+        orderSerializable.setClientCarLicencePlate(order.getClientCarLicencePlate());
+        orderSerializable.setClientCarModel(order.getClientCarModel());
+        orderSerializable.setClientCarWeight(order.getClientCarWeight());
+        List<String> eventDescription = new ArrayList<>();
+        for (int i = 0; i < order.getEventDescription().size(); i++) {
+            eventDescription.add(order.getEventDescription().get(i).getValue());
+        }
+        orderSerializable.setEventDescription(eventDescription);
+        orderSerializable.setClientFirstName(order.getClientFirstName());
+        orderSerializable.setClientLastName(order.getClientLastName());
+        orderSerializable.setClientPhone(order.getClientPhone());
+
+        LimitationSerializable limitation = new LimitationSerializable();
+        limitation.setLimit(order.getLimitation().getLimit());
+        orderSerializable.setLimitation(limitation);
+
+        orderSerializable.setId(order.getId());
+        orderSerializable.setWorkshopName(order.getWorkshopName());
+
+        return orderSerializable;
     }
 }
