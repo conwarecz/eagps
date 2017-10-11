@@ -9,6 +9,8 @@ public class TenderModel {
     private String smsNumber;
     private String userName;
     private Long departureDelayMinutes;
+    private Long rejectReason;
+    private String rejectComment;
 
     public Long getEntityId() {
         return entityId;
@@ -40,5 +42,21 @@ public class TenderModel {
 
     public void setDepartureDelayMinutes(Long departureDelayMinutes) {
         this.departureDelayMinutes = departureDelayMinutes;
+    }
+
+    public Long getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(Long rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
+    public String getRejectComment() {
+        return rejectComment;
+    }
+
+    public void setRejectComment(String rejectComment) {
+        this.rejectComment = rejectComment;
     }
 }

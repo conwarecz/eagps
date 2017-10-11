@@ -9,8 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
-import com.tmtron.greenannotations.EventBusGreenRobot;
-
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.adapter.DispatcherSelectCarAdapter;
 import net.aineuron.eagps.client.ClientProvider;
@@ -29,7 +27,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -64,9 +61,6 @@ public class DispatcherSelectCarFragment extends BaseFragment {
 
     @Bean
     DispatcherSelectCarAdapter carAdapter;
-
-    @EventBusGreenRobot
-    EventBus bus;
 
     private Realm db;
     private RealmResults<Order> ordersRealmQuery;

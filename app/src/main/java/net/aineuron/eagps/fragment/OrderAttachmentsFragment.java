@@ -15,7 +15,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.tmtron.greenannotations.EventBusGreenRobot;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.SelectionSpecBuilder;
@@ -50,7 +49,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -87,9 +85,6 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@ViewById(R.id.orderPhotosView)
 	RecyclerView orderPhotosView;
 
-	@EventBusGreenRobot
-	EventBus bus;
-
 	@FragmentArg
 	Long orderId;
 
@@ -125,11 +120,16 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			order = ordersManager.getCurrentOrder();
 			setContent();
 		} else {
+			order = ordersManager.getOrderById(orderId);
 			setOrderListener();
-			if (NetworkUtil.isConnected(getContext())) {
-				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			if (order == null) {
+				if (NetworkUtil.isConnected(getContext())) {
+					showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+				}
+				clientProvider.getEaClient().getOrderDetail(orderId);
+			} else {
+				setContent();
 			}
-			clientProvider.getEaClient().getOrderDetail(orderId);
 		}
 	}
 
@@ -269,7 +269,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 			for (Uri uri : mSelected) {
 				if (db == null) {
-					Realm db = RealmHelper.getDb();
+					db = RealmHelper.getDb();
 				}
 				db.executeTransaction(realm -> paths.add(new RealmString(BitmapUtil.getRealPathFromUri(getContext(), uri))));
 			}
@@ -284,24 +284,28 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
 
-		PhotoPathsWithReasonAdapter documents = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getOrderDocuments()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS).finish();
-		PhotoPathsWithReasonAdapter photos = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getPhotos()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS).finish();
-
 		LinearLayoutManager horizontalManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 		LinearLayoutManager horizontalManager2 = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-
-		orderDocumentsView.setLayoutManager(horizontalManager);
-		orderPhotosView.setLayoutManager(horizontalManager2);
 
 		DividerItemDecoration decor = new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL);
 		Drawable verticalDivider = ContextCompat.getDrawable(getActivity(), R.drawable.vertical_divider);
 		decor.setDrawable(verticalDivider);
 
-		orderDocumentsView.addItemDecoration(decor);
-		orderPhotosView.addItemDecoration(decor);
+		PhotoPathsWithReasonAdapter documents = null;
+		if (order.getOrderDocuments() != null) {
+			documents = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getOrderDocuments()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS).finish();
+			orderDocumentsView.setLayoutManager(horizontalManager);
+			orderDocumentsView.addItemDecoration(decor);
+			orderDocumentsView.setAdapter(documents);
+		}
 
-		orderDocumentsView.setAdapter(documents);
-		orderPhotosView.setAdapter(photos);
+		PhotoPathsWithReasonAdapter photos = null;
+		if (order.getPhotos() != null) {
+			photos = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getPhotos()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS).finish();
+			orderPhotosView.setLayoutManager(horizontalManager2);
+			orderPhotosView.addItemDecoration(decor);
+			orderPhotosView.setAdapter(photos);
+		}
 	}
 
 	private SelectionSpecBuilder getMattise() {

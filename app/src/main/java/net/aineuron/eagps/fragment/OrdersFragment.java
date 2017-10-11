@@ -7,8 +7,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.tmtron.greenannotations.EventBusGreenRobot;
-
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.OrdersAdapter;
@@ -23,7 +21,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -47,9 +44,6 @@ public class OrdersFragment extends BaseFragment {
 
 	@Bean
 	ClientProvider clientProvider;
-
-	@EventBusGreenRobot
-	EventBus eventBus;
 
 	private Realm db;
 	private RealmResults<Order> ordersRealmQuery;

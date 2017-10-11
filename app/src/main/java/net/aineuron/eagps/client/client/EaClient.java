@@ -2,6 +2,8 @@ package net.aineuron.eagps.client.client;
 
 import android.util.Log;
 
+import com.tmtron.greenannotations.EventBusGreenRobot;
+
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.RetrofitException;
@@ -67,6 +69,9 @@ public class EaClient {
 	@Pref
 	Pref_ pref;
 
+	@EventBusGreenRobot
+	EventBus eventBus;
+
 	private EaService eaService;
 
 	public EaClient withRetrofit(Retrofit retrofit) {
@@ -86,7 +91,7 @@ public class EaClient {
 						user -> {
 							userManager.setUser(user);
 							clientProvider.rebuildRetrofit();
-							EventBus.getDefault().post(new UserLoggedInEvent());
+							eventBus.post(new UserLoggedInEvent());
 						},
 						this::sendError
 				);
@@ -104,7 +109,7 @@ public class EaClient {
 						voidResponse -> {
 							userManager.setUser(null);
 							userManager.setSelectedCarId(-1l);
-							EventBus.getDefault().post(new UserLoggedOutEvent());
+							eventBus.post(new UserLoggedOutEvent());
 						},
 						this::sendError
 				);
@@ -144,7 +149,7 @@ public class EaClient {
 //								});
 //								db.close();
 //							}
-							EventBus.getDefault().post(new UserDataGotEvent());
+							eventBus.post(new UserDataGotEvent());
 						},
 						this::sendError
 				);
@@ -167,7 +172,7 @@ public class EaClient {
 							user.setCar(car);
 							userManager.setUser(user);
 							userManager.setSelectedStateId(car == null ? STATE_ID_NO_CAR : STATE_ID_READY);
-							EventBus.getDefault().post(new CarSelectedEvent());
+							eventBus.post(new CarSelectedEvent());
 						},
 						this::sendError
 				);
@@ -190,7 +195,7 @@ public class EaClient {
 							user.setCar(null);
 							userManager.setUser(user);
 							userManager.setSelectedStateId(null);
-							EventBus.getDefault().post(new CarSelectedEvent());
+							eventBus.post(new CarSelectedEvent());
 						},
 						this::sendError
 				);
@@ -207,7 +212,7 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						cars -> {
-							EventBus.getDefault().post(new CarsDownloadedEvent(cars));
+							eventBus.post(new CarsDownloadedEvent(cars));
 						},
 						this::sendError
 				);
@@ -234,9 +239,9 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							userManager.setSelectedStateId(stateId);
-							EventBus.getDefault().post(new StateSelectedEvent());
+							eventBus.post(new StateSelectedEvent());
 							if (stateId.equals(STATE_ID_NO_CAR)) {
-								EventBus.getDefault().post(new CarSelectedEvent());
+								eventBus.post(new CarSelectedEvent());
 							}
 						},
 						this::sendError
@@ -256,7 +261,7 @@ public class EaClient {
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
 								Log.d("FCM Token", "Token put to user: " + token);
-								EventBus.getDefault().post(new UserTokenSet(user.getUserId()));
+								eventBus.post(new UserTokenSet(user.getUserId()));
 							} else {
 								sendKnownError(voidResponse);
 							}
@@ -271,7 +276,7 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
-								EventBus.getDefault().post(new CarStatusChangedEvent(carId))
+								eventBus.post(new CarStatusChangedEvent(carId))
 						,
 						this::sendError
 				);
@@ -291,7 +296,7 @@ public class EaClient {
 							});
 
 							db.close();
-							EventBus.getDefault().post(new StopRefreshingEvent());
+							eventBus.post(new StopRefreshingEvent());
 						},
 						this::sendError
 				);
@@ -310,8 +315,8 @@ public class EaClient {
 							);
 
 							db.close();
-						},
-						this::sendError
+							eventBus.post(new StopRefreshingEvent());
+						}, this::sendError
 				);
 	}
 
@@ -326,7 +331,7 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
-								EventBus.getDefault().post(new OrderCanceledEvent(orderId)),
+								eventBus.post(new OrderCanceledEvent(orderId)),
 						this::sendError
 				);
 	}
@@ -343,7 +348,7 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-							EventBus.getDefault().post(new OrderFinalizedEvent(orderId));
+							eventBus.post(new OrderFinalizedEvent(orderId));
 						},
 						this::sendError
 				);
@@ -366,7 +371,7 @@ public class EaClient {
 								} else {
 									userManager.setSelectedStateId(UserManager.STATE_ID_READY);
 								}
-								EventBus.getDefault().post(new OrderSentEvent(orderId));
+								eventBus.post(new OrderSentEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);
 							}
@@ -399,7 +404,7 @@ public class EaClient {
 							db.executeTransaction(realm -> realm.copyToRealmOrUpdate(messages));
 
 							db.close();
-							EventBus.getDefault().post(new StopRefreshingEvent());
+							eventBus.post(new StopRefreshingEvent());
 						},
 						this::sendError
 				);
@@ -412,7 +417,7 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
-								EventBus.getDefault().post(new PhotoUploadedEvent())
+								eventBus.post(new PhotoUploadedEvent())
 						,
 						this::sendError
 				);
@@ -425,7 +430,7 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
-								EventBus.getDefault().post(new SheetUploadedEvent());
+								eventBus.post(new SheetUploadedEvent());
 							} else {
 								sendKnownError(voidResponse);
 							}
@@ -451,7 +456,7 @@ public class EaClient {
 			e.printStackTrace();
 			ClientProvider.postNetworkError(errorThrowable);
 		}
-		EventBus.getDefault().post(new StopRefreshingEvent());
+		eventBus.post(new StopRefreshingEvent());
 	}
 
 	private void sendKnownError(Response<Void> voidResponse) {
@@ -467,7 +472,7 @@ public class EaClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		EventBus.getDefault().post(new StopRefreshingEvent());
+		eventBus.post(new StopRefreshingEvent());
 	}
 
 	public void acceptTender(Long tenderId, TenderModel tenderModel) {
@@ -477,7 +482,7 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
-								EventBus.getDefault().post(new TenderAcceptSuccessEvent());
+								eventBus.post(new TenderAcceptSuccessEvent());
 							} else {
 								sendKnownError(voidResponse);
 							}
@@ -494,7 +499,7 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
-								EventBus.getDefault().post(new TenderRejectSuccessEvent());
+								eventBus.post(new TenderRejectSuccessEvent());
 							} else {
 								sendKnownError(voidResponse);
 							}

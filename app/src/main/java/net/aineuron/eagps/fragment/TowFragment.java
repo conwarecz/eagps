@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
@@ -29,7 +28,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -75,9 +73,6 @@ public class TowFragment extends BaseFragment {
 	@ViewById(R.id.orderDetailHeader)
 	OrderDetailHeader orderDetailHeader;
 
-	@EventBusGreenRobot
-	EventBus bus;
-
 	private Order order;
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
@@ -103,6 +98,7 @@ public class TowFragment extends BaseFragment {
 		}
 
 		if (order != null) {
+			setContent();
 			setOrderListener();
 			if (NetworkUtil.isConnected(getContext())) {
 				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
@@ -179,7 +175,6 @@ public class TowFragment extends BaseFragment {
 		e.throwable.printStackTrace();
 		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail: " + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		hideProgress();
-		getActivity().onBackPressed();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -194,7 +189,12 @@ public class TowFragment extends BaseFragment {
 			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
 
-		this.clientAddress.setText(formatClientAddress(order.getClientAddress()));
+		if (order.getClientAddress() != null) {
+			this.clientAddress.setVisibility(View.VISIBLE);
+			this.clientAddress.setText(formatClientAddress(order.getClientAddress()));
+		} else {
+			this.clientAddress.setVisibility(View.GONE);
+		}
 		if (order.getWorkshopName() != null && order.getDestinationAddress() != null) {
 			this.destinationAddress.setVisibility(View.VISIBLE);
 			this.destinationAddress.setText(formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));

@@ -62,12 +62,18 @@ public class OrderItemView extends ConstraintLayout {
 			this.setBackgroundColor(getContext().getResources().getColor(R.color.grayOrder));
 		}
 
-		date.setText(Appl.dateFormat.format(order.getTimeCreated()));
-		orderId.setText(order.getClaimSaxCode());
-		licensePlate.setText(order.getClientCarLicencePlate());
+		if (order.getTimeCreated() != null) {
+			date.setText(Appl.dateFormat.format(order.getTimeCreated()));
+		}
+		if (order.getClaimSaxCode() != null) {
+			orderId.setText(order.getClaimSaxCode());
+		}
+		if (order.getClientCarLicencePlate() != null) {
+			licensePlate.setText(order.getClientCarLicencePlate());
+		}
 
-        if (isPathEmpty(order.getOrderDocuments())) {
-            documentsCheck.setImageResource(R.drawable.icon_cross);
+		if (isPathEmpty(order.getOrderDocuments())) {
+			documentsCheck.setImageResource(R.drawable.icon_cross);
         } else {
             documentsCheck.setImageResource(R.drawable.icon_check);
         }

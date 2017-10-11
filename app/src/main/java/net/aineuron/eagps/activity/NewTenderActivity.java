@@ -141,9 +141,10 @@ public class NewTenderActivity extends AppCompatActivity {
 						Toast.makeText(this, "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
-//                    showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
+//                    showProgress("Odesílám zamítnutí", getString(R.string.dialog_wait_content));
 //					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
-					clientProvider.getEaClient().rejectTender(tenderId, tenderModel);
+                    tenderModel.setRejectReason(Long.valueOf(which));
+                    clientProvider.getEaClient().rejectTender(tenderId, tenderModel);
 					finish();
 					return true;
                 })

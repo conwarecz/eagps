@@ -124,9 +124,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(message));
         Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
         notificationIntent.putExtra("messageId", id);
-//        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        notificationIntent.putExtra("id", id);
-//        notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {

@@ -5,13 +5,25 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.tmtron.greenannotations.EventBusGreenRobot;
+
+import net.aineuron.eagps.event.ui.StopRefreshingEvent;
+
+import org.androidannotations.annotations.EFragment;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by Vit Veres on 19-Apr-17
  * as a part of Android-EAGPS project.
  */
 
+@EFragment
 public class BaseFragment extends Fragment {
+
+	@EventBusGreenRobot
+	EventBus eventBus;
 
 	private MaterialDialog progressDialog;
 
@@ -52,5 +64,10 @@ public class BaseFragment extends Fragment {
 		}
 
 		progressDialog.dismiss();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void stopRefreshing(StopRefreshingEvent e) {
+		hideProgress();
 	}
 }
