@@ -98,6 +98,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(notificationIntent);
         }
     }
@@ -113,6 +114,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(notificationIntent);
         }
     }
@@ -127,6 +129,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(notificationIntent);
         }
     }
