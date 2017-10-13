@@ -146,12 +146,12 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	private void finishLogin() {
 		User user = userManager.getUser();
+		dismissDialog();
 		if ((user.getUserRole() != null && user.getUserRole() == WORKER_ID) && (user.getEntity() == null || user.getEntity().getEntityId() == null)) {
 			CarSettingsActivity_.intent(this).start();
         } else {
             IntentUtils.openMainActivity(this);
         }
-		dismissDialog();
 		finish();
 	}
 

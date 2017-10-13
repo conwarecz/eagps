@@ -65,6 +65,10 @@
             android:name=".activity.OrderConfirmationActivity_"
             android:screenOrientation="sensorPortrait">>
         </activity>
-	</application>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="39501ebffa517ef476eaa16fed763d96cccbbf6d" />
+    </application>
 
 </manifest>

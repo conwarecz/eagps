@@ -1,6 +1,7 @@
 package net.aineuron.eagps.activity;
 
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
+import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
@@ -30,6 +32,7 @@ import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -71,6 +74,9 @@ public class NewTenderActivity extends AppCompatActivity {
 	@Extra
 	Long tenderId;
 
+	@App
+	Appl appl;
+
 	@ViewById(R.id.clientCar)
 	IcoLabelTextView clientCar;
 	@ViewById(R.id.clientAddress)
@@ -79,6 +85,8 @@ public class NewTenderActivity extends AppCompatActivity {
 	IcoLabelTextView destinationAddress;
 	@ViewById(R.id.eventDescription)
 	IcoLabelTextView eventDescription;
+	@ViewById(R.id.showOnMap)
+	ConstraintLayout map;
 
 	private MaterialDialog progressDialog;
 	private Order order;
@@ -110,7 +118,7 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplicationContext(), e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
 		finishOfferActivity();
 	}
 
@@ -121,8 +129,44 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	@Click(R.id.back)
 	void acceptClicked() {
-		clientProvider.getEaClient().acceptTender(tenderId, tenderModel);
-		finish();
+		new MaterialDialog.Builder(this)
+				.title("Budete vyjíždět později?")
+				.items(R.array.delay_minutes)
+				.itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+					@Override
+					public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+						/**
+						 * If you use alwaysCallMultiChoiceCallback(), which is discussed below,
+						 * returning false here won't allow the newly selected check box to actually be selected
+						 * (or the newly unselected check box to be unchecked).
+						 * See the limited multi choice dialog example in the sample project for details.
+						 **/
+						return true;
+					}
+				})
+				.positiveText("ANO")
+				.onPositive((dialog, which) -> {
+					if (dialog.getSelectedIndex() == -1) {
+						Toast.makeText(getApplicationContext(), "Musíte vybrat jednu možnost", Toast.LENGTH_LONG).show();
+					} else {
+						tenderModel.setDepartureDelayMinutes(Long.valueOf(getResources().getStringArray(R.array.delay_minutes)[dialog.getSelectedIndex()]));
+						clientProvider.getEaClient().acceptTender(tenderId, tenderModel);
+						if (!appl.wasInBackground()) {
+							IntentUtils.openMainActivity(getApplicationContext());
+						}
+						finish();
+					}
+				})
+				.negativeText("NE")
+				.onNegative((dialog, which) -> {
+					clientProvider.getEaClient().acceptTender(tenderId, tenderModel);
+					if (!appl.wasInBackground()) {
+						IntentUtils.openMainActivity(getApplicationContext());
+					}
+					finish();
+				})
+				.show();
+
 //        showProgress("Měním stav", getString(R.string.dialog_wait_content));
 //		ordersManager.addOrder(order);
 //		userManager.setStateBusyOnOrder();
@@ -138,13 +182,16 @@ public class NewTenderActivity extends AppCompatActivity {
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
 					if (which < 0) {
-						Toast.makeText(this, "Vyberte důvod", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
 //                    showProgress("Odesílám zamítnutí", getString(R.string.dialog_wait_content));
 //					ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
                     tenderModel.setRejectReason(Long.valueOf(which));
                     clientProvider.getEaClient().rejectTender(tenderId, tenderModel);
+					if (!appl.wasInBackground()) {
+						IntentUtils.openMainActivity(getApplicationContext());
+					}
 					finish();
 					return true;
                 })
@@ -175,6 +222,9 @@ public class NewTenderActivity extends AppCompatActivity {
 		Address clientAddress = order.getClientAddress();
 		if (clientAddress != null) {
 			this.clientAddress.setText(formatClientAddress(clientAddress));
+			this.clientAddress.setVisibility(View.VISIBLE);
+		} else {
+			this.clientAddress.setVisibility(View.GONE);
 		}
 
 		Address destinationAddress = order.getDestinationAddress();
@@ -183,6 +233,12 @@ public class NewTenderActivity extends AppCompatActivity {
 			this.destinationAddress.setVisibility(View.VISIBLE);
 		} else {
 			this.destinationAddress.setVisibility(View.GONE);
+		}
+
+		if (order.getClientAddress() == null || order.getDestinationAddress() == null) {
+			this.map.setVisibility(View.INVISIBLE);
+		} else {
+			this.map.setVisibility(View.VISIBLE);
 		}
 
 		if (order.getEventDescription() != null) {

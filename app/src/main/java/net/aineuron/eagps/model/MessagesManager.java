@@ -1,9 +1,13 @@
 package net.aineuron.eagps.model;
 
+import com.tmtron.greenannotations.EventBusGreenRobot;
+
+import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.EBean;
+import org.greenrobot.eventbus.EventBus;
 
 import io.realm.Realm;
 
@@ -14,6 +18,9 @@ import io.realm.Realm;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class MessagesManager {
+
+	@EventBusGreenRobot
+	EventBus eventBus;
 
 	public void setMessageRead(Long id, boolean isRead) {
 		Realm db = RealmHelper.getDb();
@@ -26,5 +33,16 @@ public class MessagesManager {
 		});
 
 		db.close();
+	}
+
+	public boolean isSomeMessageUnread() {
+		Realm db = RealmHelper.getDb();
+		boolean unread = false;
+		Message message = db.where(Message.class).equalTo("read", false).findFirst();
+		if (message != null) {
+			unread = true;
+		}
+		eventBus.post(new MessageStatusChangedEvent(unread));
+		return unread;
 	}
 }

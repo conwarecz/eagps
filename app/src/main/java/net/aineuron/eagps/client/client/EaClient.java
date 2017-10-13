@@ -276,7 +276,13 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
-								eventBus.post(new CarStatusChangedEvent(carId))
+						{
+							if (voidResponse.isSuccessful()) {
+								eventBus.post(new CarStatusChangedEvent(carId));
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
 						,
 						this::sendError
 				);

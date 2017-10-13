@@ -1,6 +1,7 @@
 package net.aineuron.eagps.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,9 +14,12 @@ import android.widget.FrameLayout;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.ashokvarma.bottomnavigation.ShapeBadgeItem;
 import com.jetradar.multibackstack.BackStackActivity;
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
@@ -25,6 +29,7 @@ import net.aineuron.eagps.fragment.OrdersFragment_;
 import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.TowFragment;
 import net.aineuron.eagps.fragment.TowFragment_;
+import net.aineuron.eagps.model.MessagesManager;
 import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
@@ -32,6 +37,9 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
@@ -54,21 +62,33 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Bean
 	UserManager userManager;
 
+	@Bean
+	MessagesManager messagesManager;
+
 	@Nullable
 	@Extra
 	Long messageId;
 
+	@EventBusGreenRobot
+	EventBus eventBus;
+
 	private Bundle savedInstanceState = null;
 	private Fragment currentFragment;
 	private int currentTabId;
+	private BottomNavigationItem messagesItem;
+	private ShapeBadgeItem shapeBadgeItem;
 
 	@AfterViews
 	public void afterViewsLocal() {
 		initBottomNavigation();
 
 		if (messageId != null) {
+			checkMessageIcon();
+			bottomNavigation.selectTab(MAIN_TAB_ID, false);
+			bottomNavigation.selectTab(MESSAGES_TAB_ID, false);
 			onTabSelected(MESSAGES_TAB_ID);
 			showFragment(MessageDetailFragment.newInstance(messageId));
+			messageId = null;
 		} else {
 			if (savedInstanceState == null) {
 				bottomNavigation.selectTab(MAIN_TAB_ID, false);
@@ -81,6 +101,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.savedInstanceState = savedInstanceState;
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		if (userManager.haveActiveOrder()) {
 			userManager.setStateBusyOnOrder();
 			userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
@@ -196,12 +221,23 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
 		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+			messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
+			shapeBadgeItem = new ShapeBadgeItem()
+					.setShape(ShapeBadgeItem.SHAPE_OVAL)
+					.setSizeInDp(this, 10, 10)
+					.setShapeColor(Color.RED)
+					.hide();
+			messagesItem.setBadgeItem(shapeBadgeItem);
+			if (messagesManager.isSomeMessageUnread()) {
+				shapeBadgeItem.show();
+			}
 			bottomNavigation
                     .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
                     .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
-                    .addItem(new BottomNavigationItem(R.drawable.icon_messages, "Zprávy"))
-                    .setFirstSelectedPosition(0)
-                    .initialise();
+					.addItem(messagesItem)
+					.setFirstSelectedPosition(0)
+					.initialise();
+
         } else {
             bottomNavigation
                     .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
@@ -210,6 +246,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
                     .initialise();
         }
     }
+
+	public void checkMessageIcon() {
+		messageStatusChanged(new MessageStatusChangedEvent(messagesManager.isSomeMessageUnread()));
+	}
 
 	private void backTo(int tabId, @NonNull Fragment fragment) {
 		if (tabId != currentTabId) {
@@ -251,9 +291,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
 			switch (tabId) {
                 case 0:
-                    if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER)) {
-                        return TowFragment.newInstance(null);
-                    } else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+					if (userManager.haveActiveOrder()) {
+						return TowFragment.newInstance(null);
+					} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
                         return NoCarStateFragment.newInstance();
                     } else {
                         return StateFragment.newInstance();
@@ -276,4 +316,29 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
             }
         }
     }
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void messageStatusChanged(MessageStatusChangedEvent e) {
+		if (messagesManager.isSomeMessageUnread()) {
+			shapeBadgeItem.show();
+		} else {
+			shapeBadgeItem.hide();
+		}
+//		bottomNavigation.removeItem(messagesItem);
+//		if(e.unread){
+//			messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
+//			messagesItem.setBadgeItem(new ShapeBadgeItem()
+//					.setShape(ShapeBadgeItem.SHAPE_OVAL)
+//					.setSizeInPixels(10,10)
+//					.setShapeColor(Color.RED)
+//					.show()
+//			);
+//		} else {
+//			messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
+//		}
+//		bottomNavigation.addItem(messagesItem);
+////		int position = bottomNavigation.getCurrentSelectedPosition();
+////		bottomNavigation.setFirstSelectedPosition(position);
+//		bottomNavigation.initialise();
+	}
 }

@@ -13,6 +13,7 @@ import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.event.network.ApiErrorEvent;
@@ -24,6 +25,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 
+import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -52,7 +54,8 @@ public class Appl extends MultiDexApplication implements
         registerActivityLifecycleCallbacks(this);
         initRealm();
 		initChannels();
-	}
+        Fabric.with(this, new Crashlytics());
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onApiErrorEvent(ApiErrorEvent e) {
@@ -108,11 +111,13 @@ public class Appl extends MultiDexApplication implements
     @Override
     public void onActivityResumed(Activity activity) {
         stateOfLifeCycle = "Resume";
+        wasInBackground = false;
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
         stateOfLifeCycle = "Pause";
+        wasInBackground = true;
     }
 
     @Override
