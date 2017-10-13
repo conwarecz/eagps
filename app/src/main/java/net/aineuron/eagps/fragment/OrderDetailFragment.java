@@ -93,8 +93,7 @@ public class OrderDetailFragment extends BaseFragment {
 		}
 
 		if (orderId == null) {
-			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
-			this.order = ordersManager.getCurrentOrder();
+			this.order = ordersManager.getFirstActiveOrder();
 		} else {
 			setOrderListener();
 			if (NetworkUtil.isConnected(getContext())) {

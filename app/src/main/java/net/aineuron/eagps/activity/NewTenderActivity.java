@@ -130,17 +130,11 @@ public class NewTenderActivity extends AppCompatActivity {
 	@Click(R.id.back)
 	void acceptClicked() {
 		new MaterialDialog.Builder(this)
-				.title("Budete vyjíždět později?")
+				.title("Budete mít zpoždění? Pokud ano vyberte kolik minut:")
 				.items(R.array.delay_minutes)
 				.itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
 					@Override
 					public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-						/**
-						 * If you use alwaysCallMultiChoiceCallback(), which is discussed below,
-						 * returning false here won't allow the newly selected check box to actually be selected
-						 * (or the newly unselected check box to be unchecked).
-						 * See the limited multi choice dialog example in the sample project for details.
-						 **/
 						return true;
 					}
 				})

@@ -116,8 +116,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		setAppbarTitle("Přílohy");
 
 		if (orderId == null) {
-			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
-			order = ordersManager.getCurrentOrder();
+			order = ordersManager.getFirstActiveOrder();
 			setContent();
 		} else {
 			order = ordersManager.getOrderById(orderId);

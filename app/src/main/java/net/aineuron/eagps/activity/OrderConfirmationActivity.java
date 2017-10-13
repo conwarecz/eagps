@@ -27,6 +27,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
     @Click(R.id.confirmationButton)
     void okClicked() {
         IntentUtils.openMainActivity(this);
+        finish();
     }
 
     @AfterViews

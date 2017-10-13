@@ -337,8 +337,14 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
-								eventBus.post(new OrderCanceledEvent(orderId)),
-						this::sendError
+						{
+							if (voidResponse.isSuccessful()) {
+								eventBus.post(new OrderCanceledEvent(orderId));
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
+						, this::sendError
 				);
 	}
 
@@ -353,8 +359,12 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse -> {
-							userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-							eventBus.post(new OrderFinalizedEvent(orderId));
+							if (voidResponse.isSuccessful()) {
+								userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+								eventBus.post(new OrderFinalizedEvent(orderId));
+							} else {
+								sendKnownError(voidResponse);
+							}
 						},
 						this::sendError
 				);
@@ -394,7 +404,13 @@ public class EaClient {
 		eaService.setRead(messageId, isRead)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(aVoid -> Log.d("MessageSetRead", "Message Set Read success"),
+				.subscribe(voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								Log.d("MessageSetRead", "Message Set Read success");
+							} else {
+								sendKnownError(voidResponse);
+							}
+						},
 						this::sendError
 				);
 	}
@@ -423,9 +439,14 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
-								eventBus.post(new PhotoUploadedEvent())
-						,
-						this::sendError
+						{
+							if (voidResponse.isSuccessful()) {
+								eventBus.post(new PhotoUploadedEvent());
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
+						, this::sendError
 				);
 	}
 

@@ -10,6 +10,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.model.OrdersManager;
@@ -175,6 +176,11 @@ public class TowFragment extends BaseFragment {
 		e.throwable.printStackTrace();
 		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail: " + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		hideProgress();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void knownErrorEvent(KnownErrorEvent e) {
+		Toast.makeText(getContext(), "Zadaný požadavek se nepovedlo zpracovat, zkontrolujte připojení", Toast.LENGTH_LONG).show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
