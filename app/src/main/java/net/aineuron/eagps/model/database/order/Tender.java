@@ -1,7 +1,9 @@
 package net.aineuron.eagps.model.database.order;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
 import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
@@ -17,15 +19,16 @@ import io.realm.RealmList;
  */
 
 public class Tender implements Serializable {
-    private Order order;
-    private Message message;
+    private Order Order;
+    private Message Message;
+    @SerializedName("tenderId")
     private Long tenderId;
     private boolean isMessage = false;
 
     public static Order getOrderFromJson(String json) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-//                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
                         }.getType(),
                         RealmStringListTypeAdapter.INSTANCE)
@@ -37,7 +40,7 @@ public class Tender implements Serializable {
     public static Message getMessageFromJson(String json) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-//                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
                         }.getType(),
                         RealmStringListTypeAdapter.INSTANCE)
@@ -49,7 +52,7 @@ public class Tender implements Serializable {
     public static Tender getTender(String json) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-//                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
                         }.getType(),
                         RealmStringListTypeAdapter.INSTANCE)
@@ -57,12 +60,20 @@ public class Tender implements Serializable {
         return gson.fromJson(json, Tender.class);
     }
 
-    public Order getOrder() {
-        return order;
+    public net.aineuron.eagps.model.database.order.Order getOrder() {
+        return Order;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrder(net.aineuron.eagps.model.database.order.Order order) {
+        Order = order;
+    }
+
+    public net.aineuron.eagps.model.database.Message getMessage() {
+        return Message;
+    }
+
+    public void setMessage(net.aineuron.eagps.model.database.Message message) {
+        Message = message;
     }
 
     public Long getTenderId() {
@@ -71,18 +82,5 @@ public class Tender implements Serializable {
 
     public void setTenderId(Long tenderId) {
         this.tenderId = tenderId;
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public boolean isMessage() {
-        isMessage = message != null;
-        return isMessage;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
     }
 }
