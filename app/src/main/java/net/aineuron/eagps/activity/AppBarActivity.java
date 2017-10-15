@@ -82,34 +82,6 @@ public class AppBarActivity extends MainActivityBase {
 		setUpActionBar();
 	}
 
-//	@OptionsItem(R.id.actin_offer)
-//	void actionOffer() {
-//
-//		Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
-//				R.mipmap.ic_launcher);
-//		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_NAME)
-//				.setSmallIcon(R.mipmap.ic_launcher)
-//				.setLargeIcon(icon)
-//				.setContentTitle("Nová zakázka")
-//				.setContentText("Máte nabídku nové zakázky. Zobrazit detail.");
-//
-//        Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
-//
-//		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//		notificationBuilder.setContentIntent(contentIntent);
-//
-//		Notification notification = notificationBuilder.build();
-//		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-//		notification.defaults |= Notification.DEFAULT_SOUND;
-//		currentNotificationID++;
-//		int notificationId = currentNotificationID;
-//		if (notificationId == Integer.MAX_VALUE - 1)
-//			notificationId = 0;
-//
-//		notificationManager.notify(notificationId, notification);
-//
-//	}
-
 	private void setUpActionBar() {
 		ActionBar actionBar = getSupportActionBar();
 

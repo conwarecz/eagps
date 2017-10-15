@@ -35,7 +35,7 @@ public class MessagesManager {
 		db.close();
 	}
 
-	public boolean isSomeMessageUnread() {
+	public boolean checkUnreadMessage() {
 		Realm db = RealmHelper.getDb();
 		boolean unread = false;
 		Message message = db.where(Message.class).equalTo("read", false).findFirst();

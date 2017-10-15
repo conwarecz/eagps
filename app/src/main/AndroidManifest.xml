@@ -59,11 +59,11 @@
 		<activity
 			android:name=".activity.ProfileActivity_"
 			android:parentActivityName=".activity.MainActivity_"
-            android:screenOrientation="sensorPortrait">>
+            android:screenOrientation="sensorPortrait">
         </activity>
         <activity
             android:name=".activity.OrderConfirmationActivity_"
-            android:screenOrientation="sensorPortrait">>
+            android:screenOrientation="sensorPortrait">
         </activity>
 
         <meta-data

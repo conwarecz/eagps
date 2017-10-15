@@ -6,7 +6,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
@@ -19,7 +18,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -35,9 +33,6 @@ public class ProfileActivity extends AppBarActivity {
 
 	@ViewById(R.id.telephoneView)
 	IcoLabelTextView profile;
-
-	@EventBusGreenRobot
-	EventBus bus;
 
 	private MaterialDialog progressDialog;
 	private User user;
@@ -72,7 +67,7 @@ public class ProfileActivity extends AppBarActivity {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onLoggedInEvent(UserLoggedOutEvent e) {
+	public void onLoggedOutEvent(UserLoggedOutEvent e) {
 		dismissDialog();
 		showLogin();
 	}
@@ -90,8 +85,8 @@ public class ProfileActivity extends AppBarActivity {
 
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)
-				.title("Přihlašuji stav")
-                .content(getString(R.string.dialog_wait_content))
+				.title("Odhlašuji stav")
+				.content(getString(R.string.dialog_wait_content))
                 .cancelable(false)
                 .progress(true, 0)
                 .show();

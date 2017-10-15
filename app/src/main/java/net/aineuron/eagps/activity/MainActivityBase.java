@@ -75,7 +75,6 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private Bundle savedInstanceState = null;
 	private Fragment currentFragment;
 	private int currentTabId;
-	private BottomNavigationItem messagesItem;
 	private ShapeBadgeItem shapeBadgeItem;
 
 	@AfterViews
@@ -83,7 +82,6 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		initBottomNavigation();
 
 		if (messageId != null) {
-			checkMessageIcon();
 			bottomNavigation.selectTab(MAIN_TAB_ID, false);
 			bottomNavigation.selectTab(MESSAGES_TAB_ID, false);
 			onTabSelected(MESSAGES_TAB_ID);
@@ -221,16 +219,16 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
 		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
-			messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
+			BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
 			shapeBadgeItem = new ShapeBadgeItem()
 					.setShape(ShapeBadgeItem.SHAPE_OVAL)
 					.setSizeInDp(this, 10, 10)
 					.setShapeColor(Color.RED)
 					.hide();
-			messagesItem.setBadgeItem(shapeBadgeItem);
-			if (messagesManager.isSomeMessageUnread()) {
+			if (messagesManager.checkUnreadMessage()) {
 				shapeBadgeItem.show();
 			}
+			messagesItem.setBadgeItem(shapeBadgeItem);
 			bottomNavigation
                     .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
                     .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
@@ -246,10 +244,6 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
                     .initialise();
         }
     }
-
-	public void checkMessageIcon() {
-		messageStatusChanged(new MessageStatusChangedEvent(messagesManager.isSomeMessageUnread()));
-	}
 
 	private void backTo(int tabId, @NonNull Fragment fragment) {
 		if (tabId != currentTabId) {
@@ -319,26 +313,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void messageStatusChanged(MessageStatusChangedEvent e) {
-		if (messagesManager.isSomeMessageUnread()) {
+		if (e.unread) {
 			shapeBadgeItem.show();
 		} else {
 			shapeBadgeItem.hide();
 		}
-//		bottomNavigation.removeItem(messagesItem);
-//		if(e.unread){
-//			messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
-//			messagesItem.setBadgeItem(new ShapeBadgeItem()
-//					.setShape(ShapeBadgeItem.SHAPE_OVAL)
-//					.setSizeInPixels(10,10)
-//					.setShapeColor(Color.RED)
-//					.show()
-//			);
-//		} else {
-//			messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
-//		}
-//		bottomNavigation.addItem(messagesItem);
-////		int position = bottomNavigation.getCurrentSelectedPosition();
-////		bottomNavigation.setFirstSelectedPosition(position);
-//		bottomNavigation.initialise();
 	}
 }
