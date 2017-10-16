@@ -4,7 +4,7 @@ import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.database.order.Photo;
+import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.tender.TenderModel;
 
@@ -74,10 +74,10 @@ public interface EaService {
 
     // Photos
     @POST("orders/{orderId}/photos")
-    Maybe<Response<Void>> uploadPhoto(@Path("orderId") Long orderId, @Body Photo photo);
+    Maybe<Response<Void>> uploadPhoto(@Path("orderId") Long orderId, @Body PhotoFile photoFile);
 
     @POST("orders/{orderId}/ordersheets")
-    Maybe<Response<Void>> uploadSheet(@Path("orderId") Long orderId, @Body Photo photo);
+    Maybe<Response<Void>> uploadSheet(@Path("orderId") Long orderId, @Body PhotoFile photoFile);
 
     // Cars
     @PUT("entities/{entityId}/status")

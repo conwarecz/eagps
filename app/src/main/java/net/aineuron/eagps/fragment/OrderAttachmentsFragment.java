@@ -35,7 +35,7 @@ import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.database.order.Photo;
+import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.IntentUtils;
@@ -121,15 +121,14 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			setContent();
 		} else {
 			order = ordersManager.getOrderById(orderId);
-			setOrderListener();
-			if (order == null) {
-				if (NetworkUtil.isConnected(getContext())) {
-					showProgress("Načítám detail", getString(R.string.dialog_wait_content));
-				}
-				clientProvider.getEaClient().getOrderDetail(orderId);
-			} else {
+			if (order != null) {
 				setContent();
 			}
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
+			setOrderListener();
+			clientProvider.getEaClient().getOrderDetail(orderId);
 		}
 	}
 
@@ -339,32 +338,32 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private void uploadPhotos() {
 		String path = order.getPhotos().getPhotoPaths().get(uploadedPhotos).getValue();
 		File file = new File(path);
-		Photo photo = new Photo();
+		PhotoFile photoFile = new PhotoFile();
 		try {
-			photo.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
-			photo.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
-			photo.setFileString(fileToBase64(file));
-//			photo.setFileString(fileToByteArray2(file));
-			clientProvider.getEaClient().uploadPhoto(photo, order.getId());
+			photoFile.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
+			photoFile.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
+			photoFile.setFileString(fileToBase64(file));
+//			photoFile.setFileString(fileToByteArray2(file));
+			clientProvider.getEaClient().uploadPhoto(photoFile, order.getId());
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d("Photo file", "Couldn't create byte stream from file");
+			Log.d("PhotoFile file", "Couldn't create byte stream from file");
 		}
 	}
 
 	private void uploadSheets() {
 		String path = order.getOrderDocuments().getPhotoPaths().get(uploadedSheets).getValue();
 		File file = new File(path);
-		Photo photo = new Photo();
+		PhotoFile photoFile = new PhotoFile();
 		try {
-			photo.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
-			photo.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
-			photo.setFileString(fileToBase64(file));
-//			photo.setFileString(fileToByteArray2(file));
-			clientProvider.getEaClient().uploadSheet(photo, order.getId());
+			photoFile.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
+			photoFile.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
+			photoFile.setFileString(fileToBase64(file));
+//			photoFile.setFileString(fileToByteArray2(file));
+			clientProvider.getEaClient().uploadSheet(photoFile, order.getId());
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d("Photo file", "Couldn't create byte stream from file");
+			Log.d("PhotoFile file", "Couldn't create byte stream from file");
 		}
 	}
 

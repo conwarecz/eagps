@@ -88,7 +88,9 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 
 		if (photoPathsWithReason.getPhotoPaths().size() == 0) {
 			items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_PHOTOS, photoPathsWithReason).withAddPhotoTargetId(addPhotoTarget));
-			items.add(new PhotoPathsWithReasonViewModel(TYPE_REASON, photoPathsWithReason));
+
+			// TODO: Odkomentovat, když bude za potřebí reason
+//			items.add(new PhotoPathsWithReasonViewModel(TYPE_REASON, photoPathsWithReason));
 			return;
 		}
 

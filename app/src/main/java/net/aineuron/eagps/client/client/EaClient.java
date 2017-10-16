@@ -27,7 +27,7 @@ import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
-import net.aineuron.eagps.model.database.order.Photo;
+import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.Paging;
@@ -433,9 +433,9 @@ public class EaClient {
 	}
 
 	// Pictures
-	public void uploadPhoto(Photo photo, Long orderId) {
-		eaService.uploadPhoto(orderId, photo)
-				.subscribeOn(Schedulers.computation())
+    public void uploadPhoto(PhotoFile photoFile, Long orderId) {
+        eaService.uploadPhoto(orderId, photoFile)
+                .subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
@@ -450,9 +450,9 @@ public class EaClient {
 				);
 	}
 
-	public void uploadSheet(Photo photo, Long orderId) {
-		eaService.uploadSheet(orderId, photo)
-				.subscribeOn(Schedulers.computation())
+    public void uploadSheet(PhotoFile photoFile, Long orderId) {
+        eaService.uploadSheet(orderId, photoFile)
+                .subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse -> {

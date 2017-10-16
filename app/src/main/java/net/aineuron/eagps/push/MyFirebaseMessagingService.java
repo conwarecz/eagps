@@ -80,7 +80,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleAcceptedOrder(remoteMessage);
                 break;
             case TENDER_NOT_WON:
-                handleAcceptedOrder(remoteMessage);
+                handleNotWonTender(remoteMessage);
                 break;
             case NEW_MESSAGE:
                 handleMessage(remoteMessage);
@@ -92,6 +92,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
         Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
         OrderSerializable orderSerializable = makeSerializableOrder(tender.getOrder());
+        currentNotificationID = orderSerializable.getId().intValue();
         notificationIntent.putExtra("orderSerializable", orderSerializable);
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
         notificationIntent.putExtra("tenderId", tender.getTenderId());
@@ -106,32 +107,34 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleAcceptedOrder(RemoteMessage remoteMessage) {
         final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
         Long id = order.getId();
+        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
         realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
-        if (wasInBackground) {
+//        if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
-        } else {
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            getApplicationContext().startActivity(notificationIntent);
-        }
+//        } else {
+//            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            getApplicationContext().startActivity(notificationIntent);
+//        }
     }
 
     private void handleMessage(RemoteMessage remoteMessage) {
         final Message message = Tender.getMessageFromJson(remoteMessage.getData().get("message"));
         Long id = message.getId();
+        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
         realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(message));
         Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
         notificationIntent.putExtra("messageId", id);
-        if (wasInBackground) {
+//        if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
-        } else {
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            getApplicationContext().startActivity(notificationIntent);
-        }
+//        } else {
+//            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            getApplicationContext().startActivity(notificationIntent);
+//        }
     }
 
     private void handleUpdatedOrder(RemoteMessage remoteMessage) {
@@ -142,8 +145,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
-    private void notWonTender(RemoteMessage remoteMessage) {
+    private void handleNotWonTender(RemoteMessage remoteMessage) {
+        final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
+        Long id = order.getId();
+        currentNotificationID = id.intValue();
 
+        // TODO: doděat až bude rozseknuto jak to má vůbec vypadat a chovat se
+        if (wasInBackground) {
+            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+        } else {
+            Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
+        }
     }
 
     /**
@@ -153,6 +165,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String title, String messageBody, Intent notificationIntent) {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Tries to remove cancelled tender from notifications
+        if (type == TENDER_NOT_WON) {
+            notificationManager.cancel(currentNotificationID);
+            return;
+        }
+
         Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
                 R.mipmap.ic_launcher);
 
@@ -169,13 +190,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Notification notification = notificationBuilder.build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notification.defaults |= Notification.DEFAULT_SOUND;
-        currentNotificationID++;
-        int notificationId = currentNotificationID;
-        if (notificationId == Integer.MAX_VALUE - 1)
-            notificationId = 0;
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        currentNotificationID++;
+        int notificationId = currentNotificationID;
+//        if (notificationId == Integer.MAX_VALUE - 1)
+//            notificationId = 0;
 
         notificationManager.notify(notificationId, notification);
     }

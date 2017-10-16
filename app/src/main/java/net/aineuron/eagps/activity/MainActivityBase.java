@@ -69,6 +69,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Extra
 	Long messageId;
 
+    @Nullable
+    @Extra
+    boolean cancelTender;
+
 	@EventBusGreenRobot
 	EventBus eventBus;
 

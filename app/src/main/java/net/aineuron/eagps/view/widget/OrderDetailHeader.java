@@ -87,12 +87,32 @@ public class OrderDetailHeader extends ConstraintLayout {
 			return;
 		}
 
-		this.claimNumber.setText(order.getClaimSaxCode());
-		this.clientName.setText(order.getClientFirstName() + order.getClientLastName());
-		this.telephone.setText(order.getClientPhone());
-		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight());
-		this.licensePlate.setText(order.getClientCarLicencePlate());
-		if (order.getLimitation() != null && order.getLimitation().getLimit() != null) {
+        if (order.getClaimSaxCode() != null) {
+            this.claimNumber.setText(order.getClaimSaxCode());
+        }
+        String name = "";
+        if (order.getClientFirstName() != null) {
+            name = order.getClientFirstName();
+        }
+        if (order.getClientLastName() != null) {
+            name = name + " " + order.getClientFirstName();
+        }
+        this.clientName.setText(name);
+        if (order.getClientPhone() != null) {
+            this.telephone.setText(order.getClientPhone());
+        }
+        String car = "";
+        if (order.getClientCarModel() != null) {
+            car = order.getClientCarModel();
+        }
+        if (order.getClientCarWeight() != null) {
+            car = car + ", " + order.getClientCarWeight();
+        }
+        this.clientCar.setText(car);
+        if (order.getClientCarLicencePlate() != null) {
+            this.licensePlate.setText(order.getClientCarLicencePlate());
+        }
+        if (order.getLimitation() != null && order.getLimitation().getLimit() != null) {
 			this.limit.setText(order.getLimitation().getLimit());
 		}
 		if (order.getLimitation() != null) {

@@ -10,4 +10,7 @@
     <string name="car_on_duty">Na zásahu</string>
     <string name="dialog_changing_settings">Měním nastavení</string>
     <string name="confirmation_ok">OK</string>
+    <string name="dispatcher_unavailable">Nedostupna</string>
+    <string name="dispatcher_busy">Na zásahu</string>
+    <string name="dispatcher_ready">Připravena</string>
 </resources>
