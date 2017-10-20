@@ -44,7 +44,7 @@ public class Order extends RealmObject {
     private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
 	private PhotoPathsWithReason orderDocuments = new PhotoPathsWithReason();
-	private PhotoPathsWithReason photos = new PhotoPathsWithReason();
+    private RealmList<Photo> photos = new RealmList<>();
 
 	private String workshopName;
 	private int destinationType;
@@ -53,6 +53,8 @@ public class Order extends RealmObject {
 
 	private boolean orderSheetProvided;
 	private boolean photosProvided;
+    private String reasonForNoPhotosDocuments;
+    private String reasonForNoPhotosPhotos;
 
 	private boolean isSent;
 
@@ -187,14 +189,6 @@ public class Order extends RealmObject {
 		this.orderDocuments = orderDocuments;
 	}
 
-	public PhotoPathsWithReason getPhotos() {
-		return photos;
-	}
-
-	public void setPhotos(PhotoPathsWithReason photos) {
-		this.photos = photos;
-	}
-
 	public String getWorkshopName() {
 		return workshopName;
 	}
@@ -242,5 +236,29 @@ public class Order extends RealmObject {
 	public void setSent(boolean sent) {
 		isSent = sent;
 	}
+
+    public RealmList<Photo> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(RealmList<Photo> photos) {
+        this.photos = photos;
+    }
+
+    public String getReasonForNoPhotosDocuments() {
+        return reasonForNoPhotosDocuments;
+    }
+
+    public void setReasonForNoPhotosDocuments(String reasonForNoPhotosDocuments) {
+        this.reasonForNoPhotosDocuments = reasonForNoPhotosDocuments;
+    }
+
+    public String getReasonForNoPhotosPhotos() {
+        return reasonForNoPhotosPhotos;
+    }
+
+    public void setReasonForNoPhotosPhotos(String reasonForNoPhotosPhotos) {
+        this.reasonForNoPhotosPhotos = reasonForNoPhotosPhotos;
+    }
 }
 

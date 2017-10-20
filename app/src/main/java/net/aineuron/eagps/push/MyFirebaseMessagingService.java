@@ -49,6 +49,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static final int TENDER_CANCELED = 4;
     public static final int TENDER_NOT_WON = 5;
     public static final int NEW_MESSAGE = 6;
+    public static final int CAR_STATUS_CHANGE = 7;
     private static final String TAG = "FCM Service";
     @Bean
     UserManager userManager;
@@ -84,6 +85,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
             case NEW_MESSAGE:
                 handleMessage(remoteMessage);
+                break;
+            case CAR_STATUS_CHANGE:
+//                handleCarStatusChange(remoteMessage);
                 break;
         }
     }
@@ -158,6 +162,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    private void handleCarStatusChange(RemoteMessage remoteMessage) {
+        final Message message = Tender.getMessageFromJson(remoteMessage.getData().get("message"));
+        int id = message.getNewStatus();
+        currentNotificationID = -1;
+        Realm realm = RealmHelper.getDb();
+        realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(message));
+//        Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
+//        notificationIntent.putExtra("messageId", id);
+
+//        sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+    }
+
     /**
      * Create and show a simple notification containing the received FCM message.
      *
@@ -176,13 +192,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
                 R.mipmap.ic_launcher);
+        NotificationCompat.Builder notificationBuilder = null;
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_NAME)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(icon)
-                .setContentTitle(title)
-                .setCategory(String.valueOf(type))
-                .setContentText(messageBody);
+        if (type == TENDER_NEW) {
+
+            notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_TENDER)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(icon)
+                    .setContentTitle(title)
+                    .setCategory(Notification.CATEGORY_CALL)
+                    .setContentText(messageBody);
+        } else {
+            notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_DEFAULT)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLargeIcon(icon)
+                    .setContentTitle(title)
+                    .setCategory(String.valueOf(type))
+                    .setContentText(messageBody);
+        }
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         notificationBuilder.setContentIntent(contentIntent);

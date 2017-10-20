@@ -187,7 +187,8 @@ public class TowFragment extends BaseFragment {
 	public void orderFinalized(OrderFinalizedEvent e) {
 		MainActivityBase activity = (MainActivityBase) getActivity();
 		activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
-	}
+        userManager.setStateReady();
+    }
 
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {

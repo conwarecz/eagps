@@ -33,10 +33,9 @@ import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.ui.AddPhotoEvent;
 import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
-import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoFile;
-import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.NetworkUtil;
@@ -53,7 +52,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.ObjectChangeSet;
@@ -98,7 +97,6 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
 	private int uploadedPhotos = 0;
-	private int uploadedSheets = 0;
 
 	public static OrderAttachmentsFragment newInstance(Long orderId) {
 		return OrderAttachmentsFragment_.builder().orderId(orderId).build();
@@ -139,17 +137,19 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Click(R.id.sendOrder)
 	public void sendOrder() {
-		boolean isValid = true;
 
-		if (order.getOrderDocuments().getPhotoPaths().size() == 0 && order.getOrderDocuments().getReasonForNoPhotos().isEmpty()) {
-			isValid = false;
+		boolean hasPhotos = false;
+		boolean hasDocuments = false;
+
+		for (Photo photo : order.getPhotos()) {
+			if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+				hasPhotos = true;
+			} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+				hasDocuments = true;
+			}
 		}
 
-		if (order.getPhotos().getPhotoPaths().size() == 0 && order.getPhotos().getReasonForNoPhotos().isEmpty()) {
-			isValid = false;
-		}
-
-		if (!isValid) {
+		if (!hasPhotos || !hasDocuments) {
 			new MaterialDialog.Builder(getContext())
 					.title("Chyba")
 					.content("Zakázku nelze odeslat, neboť nemáte přiřazeny fotografie, zakázkový list nebo není vyplněn důvod, proč tyto dokumenty nemůžete dodat.")
@@ -159,10 +159,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 
 		showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
-		if (order.getPhotos().getPhotoPaths().size() > 0 && uploadedPhotos < order.getPhotos().getPhotoPaths().size()) {
+		if (order.getPhotos().size() > 0 && uploadedPhotos < order.getPhotos().size()) {
 			uploadPhotos();
-		} else if (order.getOrderDocuments().getPhotoPaths().size() > 0 && uploadedSheets < order.getOrderDocuments().getPhotoPaths().size()) {
-			uploadSheets();
 		} else {
 			uploadFinishedSendOrder();
 		}
@@ -188,14 +186,12 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onRemovePhotoClicked(RemovePhotoEvent e) {
-		PhotoPathsWithReason photoPathsWithReason = e.photoPathsWithReason;
+		List<Photo> photos = e.photos;
 		String photoPath = e.photoPath;
-
-		for (Iterator<RealmString> iterator = photoPathsWithReason.getPhotoPaths().iterator(); iterator.hasNext(); ) {
-			RealmString pp = iterator.next();
-			if (pp.getValue().equalsIgnoreCase(photoPath)) {
-				iterator.remove();
-				setContent();
+		// TODO: ZKONTORLOVAT FUNKČNOST
+		for (Photo photo : photos) {
+			if (photo.getLocalPath().equalsIgnoreCase(photoPath)) {
+				e.photos.remove(photo);
 				return;
 			}
 		}
@@ -204,10 +200,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onPhotoUploadedEvent(PhotoUploadedEvent e) {
 		uploadedPhotos++;
-		if (uploadedPhotos < order.getPhotos().getPhotoPaths().size()) {
+		if (uploadedPhotos < order.getPhotos().size()) {
 			uploadPhotos();
-		} else if (uploadedSheets < order.getOrderDocuments().getPhotoPaths().size()) {
-			uploadSheets();
 		} else {
 			uploadFinishedSendOrder();
 		}
@@ -215,12 +209,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onSheetUploadedEvent(SheetUploadedEvent e) {
-		uploadedSheets++;
-		if (uploadedSheets < order.getOrderDocuments().getPhotoPaths().size()) {
-			uploadSheets();
-		} else {
-			uploadFinishedSendOrder();
-		}
+		onPhotoUploadedEvent(new PhotoUploadedEvent());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -258,19 +247,31 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			List<Uri> mSelected = Matisse.obtainResult(data);
 			Log.d("Matisse", "mSelected: " + mSelected);
 
+			// TODO: Rozdělit dle requestCode == REQUEST_CODE_CHOOSE_DOCS
+//			List<String> paths = new ArrayList<>();
+//			for(Photo photo : order.getPhotos()){
+//				paths.add(photo.getLocalPath());
+//			}
 
-			List<RealmString> paths;
-			if (requestCode == REQUEST_CODE_CHOOSE_DOCS) {
-				paths = order.getOrderDocuments().getPhotoPaths();
-			} else {
-				paths = order.getPhotos().getPhotoPaths();
+//			for (Uri uri : mSelected) {
+//				if (db == null) {
+//					db = RealmHelper.getDb();
+//				}
+//				db.executeTransaction(realm -> paths.add(BitmapUtil.getRealPathFromUri(getContext(), uri)));
+//			}
+			if (db == null && mSelected.size() > 0) {
+				db = RealmHelper.getDb();
 			}
 
 			for (Uri uri : mSelected) {
-				if (db == null) {
-					db = RealmHelper.getDb();
+				Photo photo = new Photo();
+				photo.setLocalPath(BitmapUtil.getRealPathFromUri(getContext(), uri));
+				if (requestCode == REQUEST_CODE_CHOOSE_DOCS) {
+					photo.setType(Photo.PHOTO_TYPE_DOCUMENT);
+				} else {
+					photo.setType(Photo.PHOTO_TYPE_PHOTO);
 				}
-				db.executeTransaction(realm -> paths.add(new RealmString(BitmapUtil.getRealPathFromUri(getContext(), uri))));
+				db.executeTransaction(realm -> order.getPhotos().add(photo));
 			}
 
 			setContent();
@@ -290,20 +291,39 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		Drawable verticalDivider = ContextCompat.getDrawable(getActivity(), R.drawable.vertical_divider);
 		decor.setDrawable(verticalDivider);
 
-		PhotoPathsWithReasonAdapter documents = null;
-		if (order.getOrderDocuments() != null) {
-			documents = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getOrderDocuments()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS).finish();
-			orderDocumentsView.setLayoutManager(horizontalManager);
-			orderDocumentsView.addItemDecoration(decor);
-			orderDocumentsView.setAdapter(documents);
+		List<Photo> photos = new ArrayList<>();
+		List<Photo> documents = new ArrayList<>();
+
+		for (Photo photo : order.getPhotos()) {
+			if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+				photos.add(photo);
+			} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+				documents.add(photo);
+			}
 		}
 
-		PhotoPathsWithReasonAdapter photos = null;
+		PhotoPathsWithReasonAdapter documentsAdapter = null;
 		if (order.getPhotos() != null) {
-			photos = PhotoPathsWithReasonAdapter_.getInstance_(getContext()).withPhotoPaths(order.getPhotos()).withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS).finish();
+			documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+					.withPhotoPaths(documents)
+					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS)
+					.withReason(order.getReasonForNoPhotosDocuments())
+					.finish();
+			orderDocumentsView.setLayoutManager(horizontalManager);
+			orderDocumentsView.addItemDecoration(decor);
+			orderDocumentsView.setAdapter(documentsAdapter);
+		}
+
+		PhotoPathsWithReasonAdapter photosAdapter = null;
+		if (order.getPhotos() != null) {
+			photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+					.withPhotoPaths(photos)
+					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS)
+					.withReason(order.getReasonForNoPhotosPhotos())
+					.finish();
 			orderPhotosView.setLayoutManager(horizontalManager2);
 			orderPhotosView.addItemDecoration(decor);
-			orderPhotosView.setAdapter(photos);
+			orderPhotosView.setAdapter(photosAdapter);
 		}
 	}
 
@@ -336,7 +356,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	}
 
 	private void uploadPhotos() {
-		String path = order.getPhotos().getPhotoPaths().get(uploadedPhotos).getValue();
+		String path = order.getPhotos().get(uploadedPhotos).getLocalPath();
 		File file = new File(path);
 		PhotoFile photoFile = new PhotoFile();
 		try {
@@ -344,23 +364,11 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			photoFile.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
 			photoFile.setFileString(fileToBase64(file));
 //			photoFile.setFileString(fileToByteArray2(file));
-			clientProvider.getEaClient().uploadPhoto(photoFile, order.getId());
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.d("PhotoFile file", "Couldn't create byte stream from file");
-		}
-	}
-
-	private void uploadSheets() {
-		String path = order.getOrderDocuments().getPhotoPaths().get(uploadedSheets).getValue();
-		File file = new File(path);
-		PhotoFile photoFile = new PhotoFile();
-		try {
-			photoFile.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
-			photoFile.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
-			photoFile.setFileString(fileToBase64(file));
-//			photoFile.setFileString(fileToByteArray2(file));
-			clientProvider.getEaClient().uploadSheet(photoFile, order.getId());
+			if (order.getPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_PHOTO) {
+				clientProvider.getEaClient().uploadPhoto(photoFile, order.getId());
+			} else if (order.getPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+				clientProvider.getEaClient().uploadSheet(photoFile, order.getId());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.d("PhotoFile file", "Couldn't create byte stream from file");

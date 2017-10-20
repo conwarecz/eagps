@@ -124,11 +124,45 @@ public class OrderDetailFragment extends BaseFragment {
 
 	private void setUi() {
 
-		this.header.setText("Detail objednávky " + order.getClaimSaxCode());
+        if (order.getClaimSaxCode() != null) {
+            this.header.setText("Detail objednávky " + order.getClaimSaxCode());
+        }
 
-		this.client.setText(order.getClientFirstName() + " " + order.getClientLastName() + ", " + order.getClientPhone());
+        String client = "";
+        if (order.getClientFirstName() != null) {
+            client = client + order.getClientFirstName();
+        }
+        if (order.getClientLastName() != null) {
+            if (client.length() > 0) {
+                client = client + " ";
+            }
+            client = client + order.getClientLastName();
+        }
+        if (order.getClientPhone() != null) {
+            if (client.length() > 0) {
+                client = client + ", ";
+            }
+            client = client + order.getClientPhone();
+        }
+        this.client.setText(client);
 
-		this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
+        String clientCar = "";
+        if (order.getClientCarModel() != null) {
+            clientCar = clientCar + order.getClientCarModel();
+        }
+        if (order.getClientCarWeight() != null) {
+            if (clientCar.length() > 0) {
+                clientCar = clientCar + ", ";
+            }
+            clientCar = clientCar + order.getClientCarWeight();
+        }
+        if (order.getClientCarLicencePlate() != null) {
+            if (clientCar.length() > 0) {
+                clientCar = clientCar + ", ";
+            }
+            clientCar = clientCar + order.getClientCarLicencePlate();
+        }
+        this.clientCar.setText(clientCar);
 
 		Address clientAddress = order.getClientAddress();
 		if (clientAddress != null) {

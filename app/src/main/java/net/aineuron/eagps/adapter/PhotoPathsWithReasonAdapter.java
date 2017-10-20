@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
+import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.viewmodel.PhotoPathsWithReasonViewModel;
 import net.aineuron.eagps.view.ItemViewWrapper;
 import net.aineuron.eagps.view.photopathswithreason.AddMorePhotosView_;
@@ -17,6 +17,7 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static net.aineuron.eagps.view.photopathswithreason.BasePhotoPathsWithReasonView.TYPE_ADD_MORE_PHOTOS;
 import static net.aineuron.eagps.view.photopathswithreason.BasePhotoPathsWithReasonView.TYPE_ADD_PHOTOS;
@@ -35,17 +36,23 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 	Context context;
 
 	private int addPhotoTarget = -1;
-	private PhotoPathsWithReason photoPathsWithReason;
+    private List<Photo> photos;
+    private String reason;
 
-	public PhotoPathsWithReasonAdapter withPhotoPaths(PhotoPathsWithReason photoPathsWithReason) {
-		this.photoPathsWithReason = photoPathsWithReason;
-		return this;
+    public PhotoPathsWithReasonAdapter withPhotoPaths(List<Photo> photos) {
+        this.photos = photos;
+        return this;
 	}
 
 	public PhotoPathsWithReasonAdapter withAddPhotoTargetId(int addPhotoTarget) {
 		this.addPhotoTarget = addPhotoTarget;
 		return this;
 	}
+
+    public PhotoPathsWithReasonAdapter withReason(String reason) {
+        this.reason = reason;
+        return this;
+    }
 
 	public PhotoPathsWithReasonAdapter finish() {
 		notifyDataChanged();
@@ -86,18 +93,23 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 	private void notifyDataChanged() {
 		items = new ArrayList<>();
 
-		if (photoPathsWithReason.getPhotoPaths().size() == 0) {
-			items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_PHOTOS, photoPathsWithReason).withAddPhotoTargetId(addPhotoTarget));
+        if (photos.size() == 0) {
+            items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_PHOTOS, photos)
+                    .withAddPhotoTargetId(addPhotoTarget)
+                    .withReason(reason));
 
-			// TODO: Odkomentovat, když bude za potřebí reason
-//			items.add(new PhotoPathsWithReasonViewModel(TYPE_REASON, photoPathsWithReason));
-			return;
+            items.add(new PhotoPathsWithReasonViewModel(TYPE_REASON, photos));
+            return;
 		}
 
-		for (int i = 0; i < photoPathsWithReason.getPhotoPaths().size(); i++) {
-			items.add(new PhotoPathsWithReasonViewModel(TYPE_PHOTO, photoPathsWithReason).withPhotoPath(i, photoPathsWithReason.getPhotoPaths().get(i).getValue()));
-		}
-		items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_MORE_PHOTOS, photoPathsWithReason).withAddPhotoTargetId(addPhotoTarget));
+        for (int i = 0; i < photos.size(); i++) {
+            items.add(new PhotoPathsWithReasonViewModel(TYPE_PHOTO, photos)
+                    .withPhotoPath(i, photos.get(i).getLocalPath())
+                    .withReason(reason));
+        }
+        items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_MORE_PHOTOS, photos)
+                .withAddPhotoTargetId(addPhotoTarget)
+                .withReason(reason));
 
 		notifyDataSetChanged();
 	}

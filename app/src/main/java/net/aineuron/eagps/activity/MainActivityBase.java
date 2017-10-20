@@ -218,32 +218,35 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private void initBottomNavigation() {
 		bottomNavigation.setTabSelectedListener(this);
 
-		bottomNavigation
-				.setActiveColor(R.color.colorPrimary)
-				.setInActiveColor(R.color.grayText)
-				.setBarBackgroundColor(R.color.backgroundWhite);
-		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
-			BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
-			shapeBadgeItem = new ShapeBadgeItem()
-					.setShape(ShapeBadgeItem.SHAPE_OVAL)
-					.setSizeInDp(this, 10, 10)
-					.setShapeColor(Color.RED)
-					.hide();
-			if (messagesManager.checkUnreadMessage()) {
-				shapeBadgeItem.show();
-			}
-			messagesItem.setBadgeItem(shapeBadgeItem);
+        BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
+        messagesItem.setBadgeItem(shapeBadgeItem);
+        shapeBadgeItem = new ShapeBadgeItem()
+                .setShape(ShapeBadgeItem.SHAPE_OVAL)
+                .setSizeInDp(this, 10, 10)
+                .setShapeColor(Color.RED)
+                .hide();
+        if (messagesManager.checkUnreadMessage()) {
+            shapeBadgeItem.show();
+        }
+
+        bottomNavigation
+                .setActiveColor(R.color.colorPrimary)
+                .setInActiveColor(R.color.grayText)
+                .setBarBackgroundColor(R.color.backgroundWhite);
+        if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+
 			bottomNavigation
                     .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
                     .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
 					.addItem(messagesItem)
 					.setFirstSelectedPosition(0)
 					.initialise();
-
+            // Dispatcher mode
         } else {
             bottomNavigation
                     .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
                     .addItem(new BottomNavigationItem(R.drawable.icon_detail_car, "Správa vozidel"))
+                    .addItem(messagesItem)
                     .setFirstSelectedPosition(0)
                     .initialise();
         }
@@ -287,7 +290,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@NonNull
 	private Fragment rootTabFragment(int tabId) {
 		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
-			switch (tabId) {
+            // Driver mode
+            switch (tabId) {
                 case 0:
 					if (userManager.haveActiveOrder()) {
 						return TowFragment.newInstance(null);
@@ -304,11 +308,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
                     return StateFragment.newInstance();
             }
         } else {
+            // Dispatcher mode
             switch (tabId) {
                 case 0:
                     return OrdersFragment.newInstance();
                 case 1:
                     return DispatcherSelectCarFragment.newInstance();
+                case 2:
+                    return MessagesFragment.newInstance();
                 default:
                     return OrdersFragment.newInstance();
             }

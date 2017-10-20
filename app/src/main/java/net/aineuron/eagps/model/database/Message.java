@@ -19,6 +19,7 @@ public class Message extends RealmObject implements Serializable {
 	private Date time;
 	private String text;
 	private boolean read;
+    private int newStatus;
 
     public static Message getFromJson(String json) {
         Gson gson = new Gson();
@@ -56,4 +57,12 @@ public class Message extends RealmObject implements Serializable {
 	public void setRead(boolean read) {
 		this.read = read;
 	}
+
+    public int getNewStatus() {
+        return newStatus;
+    }
+
+    public void setNewStatus(int newStatus) {
+        this.newStatus = newStatus;
+    }
 }

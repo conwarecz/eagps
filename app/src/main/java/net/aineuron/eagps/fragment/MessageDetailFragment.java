@@ -58,8 +58,10 @@ public class MessageDetailFragment extends BaseFragment {
 		messagesManager.setMessageRead(message.getId(), true);
 		clientProvider.getEaClient().setMessageRead(message.getId(), true);
 
-		messageText.setText(message.getText());
-		messagesManager.checkUnreadMessage();
+        if (message.getText() != null) {
+            messageText.setText(message.getText());
+        }
+        messagesManager.checkUnreadMessage();
 	}
 
 	@Override

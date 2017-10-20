@@ -7,8 +7,12 @@ import io.realm.RealmObject;
  */
 
 public class Photo extends RealmObject {
+    public final static int PHOTO_TYPE_PHOTO = 1;
+    public final static int PHOTO_TYPE_DOCUMENT = 2;
+
     private Long id;
     private int type;
+    private String localPath;
 
     public Long getId() {
         return id;
@@ -24,5 +28,13 @@ public class Photo extends RealmObject {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 }

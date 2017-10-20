@@ -47,7 +47,7 @@ public class AttachmentPhotoView extends BasePhotoPathsWithReasonView {
 				.content("Opravdu chcete smazat fotku nebo dokument?")
 				.positiveText("Ano")
 				.negativeText("Zrušit")
-				.onPositive((dialog, which) -> bus.post(new RemovePhotoEvent(item.photoPathsWithReason, item.photoPath)))
+				.onPositive((dialog, which) -> bus.post(new RemovePhotoEvent(item.photos, item.photoPath)))
 				.show();
 	}
 }

@@ -62,7 +62,9 @@ public class AppBarActivity extends MainActivityBase {
 		stateIcon = menuState.getActionView().findViewById(R.id.stateIcon);
 		licencePlate = menuState.getActionView().findViewById(R.id.licensePlate);
 
-		menuProfile.getActionView().setOnClickListener(v -> ProfileActivity_.intent(this).start());
+		menuProfile.getActionView().setOnClickListener(v ->
+				ProfileActivity_.intent(this).start()
+		);
 		menuState.getActionView().setOnClickListener(v -> {
 			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER) || userManager.haveActiveOrder()) {
 				Toast.makeText(this, "Při aktivní zakázce nelze měnit vůz!", Toast.LENGTH_LONG).show();
@@ -129,11 +131,13 @@ public class AppBarActivity extends MainActivityBase {
         }
 
 		User user = userManager.getUser();
-        profileName.setText(user.getUserName());
+		if (user != null) {
+			profileName.setText(user.getUserName());
 
-		if (user.getCar() != null) {
-			String licensePlate = user.getCar().getLicencePlate();
-			licencePlate.setText(licensePlate);
+			if (user.getEntity() != null) {
+				String licensePlate = user.getEntity().getLicencePlate();
+				licencePlate.setText(licensePlate);
+			}
 		}
 	}
 

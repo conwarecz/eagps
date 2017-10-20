@@ -39,14 +39,14 @@ public class ReasonView extends BasePhotoPathsWithReasonView {
 			title.setText("Důvod nepořízení zakázkového listu");
 			reason.setHint("Nahrát zakázkový list");
 		}
-		reason.setText(item.photoPathsWithReason.getReasonForNoPhotos());
-	}
+        reason.setText(item.reason);
+    }
 
 	@TextChange(R.id.reason)
 	void onReasonChanged() {
 		String reasonText = reason.getText().toString();
 
         Realm db = RealmHelper.getDb();
-        db.executeTransaction(realm -> item.photoPathsWithReason.setReasonForNoPhotos(reasonText));
+        db.executeTransaction(realm -> item.setReason(reasonText));
     }
 }

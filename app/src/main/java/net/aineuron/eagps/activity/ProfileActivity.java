@@ -45,11 +45,17 @@ public class ProfileActivity extends AppBarActivity {
 			return;
 		}
 
-		roleView.setText(user.getRoleName());
-		nameView.setText(user.getUserName());
-		profile.setLabelText("Telefon");
-		profile.setText(user.getPhone());
-	}
+        if (user.getRoleName() != null) {
+            roleView.setText(user.getRoleName());
+        }
+        if (user.getUserName() != null) {
+            nameView.setText(user.getUserName());
+        }
+        if (user.getPhone() != null) {
+            profile.setLabelText("Telefon");
+            profile.setText(user.getPhone());
+        }
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

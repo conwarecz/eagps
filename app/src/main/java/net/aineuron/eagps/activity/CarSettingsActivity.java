@@ -124,11 +124,16 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
-        carAdapter.notifyDataChanged();
-        progressDialog.dismiss();
-        Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-    }
+	public void onApiError(ApiErrorEvent e) {
+		carAdapter.notifyDataChanged();
+		carsRefresh.setRefreshing(false);
+		try {
+			progressDialog.dismiss();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {

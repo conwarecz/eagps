@@ -1,6 +1,8 @@
 package net.aineuron.eagps.event.ui;
 
-import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
+import net.aineuron.eagps.model.database.order.Photo;
+
+import java.util.List;
 
 /**
  * Created by Vit Veres on 10.08.2017
@@ -8,11 +10,11 @@ import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
  */
 
 public class RemovePhotoEvent {
-	public final PhotoPathsWithReason photoPathsWithReason;
-	public final String photoPath;
+    public final List<Photo> photos;
+    public final String photoPath;
 
-	public RemovePhotoEvent(PhotoPathsWithReason photoPathsWithReason, String photoPath) {
-		this.photoPath = photoPath;
-		this.photoPathsWithReason = photoPathsWithReason;
-	}
+    public RemovePhotoEvent(List<Photo> photos, String photoPath) {
+        this.photoPath = photoPath;
+        this.photos = photos;
+    }
 }

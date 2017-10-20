@@ -9,7 +9,7 @@ import android.widget.TextView;
 import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.database.order.PhotoPathsWithReason;
+import net.aineuron.eagps.model.database.order.Photo;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
@@ -72,20 +72,27 @@ public class OrderItemView extends ConstraintLayout {
 			licensePlate.setText(order.getClientCarLicencePlate());
 		}
 
-		if (isPathEmpty(order.getOrderDocuments())) {
-			documentsCheck.setImageResource(R.drawable.icon_cross);
-        } else {
-            documentsCheck.setImageResource(R.drawable.icon_check);
+        boolean hasDocuments = false;
+        boolean hasPhotos = false;
+
+        for (Photo photo : order.getPhotos()) {
+            if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+                hasPhotos = true;
+            } else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+                hasDocuments = true;
+            }
         }
 
-		if (isPathEmpty(order.getPhotos())) {
+        if (hasDocuments) {
+            documentsCheck.setImageResource(R.drawable.icon_check);
+        } else {
             documentsCheck.setImageResource(R.drawable.icon_cross);
-        } else {
-            documentsCheck.setImageResource(R.drawable.icon_check);
         }
-	}
 
-	private boolean isPathEmpty(PhotoPathsWithReason paths) {
-		return paths == null || paths.getPhotoPaths().size() == 0;
+        if (hasPhotos) {
+            documentsCheck.setImageResource(R.drawable.icon_check);
+        } else {
+            documentsCheck.setImageResource(R.drawable.icon_cross);
+        }
 	}
 }

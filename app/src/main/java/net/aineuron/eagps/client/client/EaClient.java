@@ -27,6 +27,7 @@ import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
@@ -297,6 +298,15 @@ public class EaClient {
 						orders -> {
 							Realm db = RealmHelper.getDb();
 
+							for (Order order : orders) {
+								if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
+									Order previousOrder = ordersManager.getOrderById(order.getId());
+									if (previousOrder != null) {
+										order.setPhotos(previousOrder.getPhotos());
+									}
+								}
+							}
+
 							db.executeTransaction(realm -> {
 								realm.copyToRealmOrUpdate(orders);
 							});
@@ -315,6 +325,13 @@ public class EaClient {
 				.subscribe(
 						order -> {
 							Realm db = RealmHelper.getDb();
+
+							if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
+								Order previousOrder = ordersManager.getOrderById(order.getId());
+								if (previousOrder != null) {
+									order.setPhotos(previousOrder.getPhotos());
+								}
+							}
 
 							db.executeTransaction(realm ->
 									realm.copyToRealmOrUpdate(order)

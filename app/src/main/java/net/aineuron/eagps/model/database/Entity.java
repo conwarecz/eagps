@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class Entity implements Serializable {
     private Long entityId;
     private Long entityStatus;
+    private String licencePlate;
 
     public Long getEntityId() {
         return entityId;
@@ -24,5 +25,13 @@ public class Entity implements Serializable {
 
     public void setEntityStatus(Long entityStatus) {
         this.entityStatus = entityStatus;
+    }
+
+    public String getLicencePlate() {
+        return licencePlate;
+    }
+
+    public void setLicencePlate(String licencePlate) {
+        this.licencePlate = licencePlate;
     }
 }
