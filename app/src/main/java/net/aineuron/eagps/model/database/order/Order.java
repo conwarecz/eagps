@@ -43,7 +43,6 @@ public class Order extends RealmObject {
     private Address clientAddress;
     private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
-	private PhotoPathsWithReason orderDocuments = new PhotoPathsWithReason();
     private RealmList<Photo> photos = new RealmList<>();
 
 	private String workshopName;
@@ -51,8 +50,6 @@ public class Order extends RealmObject {
     @SerializedName("Destination")
     private Address destinationAddress;
 
-	private boolean orderSheetProvided;
-	private boolean photosProvided;
     private String reasonForNoPhotosDocuments;
     private String reasonForNoPhotosPhotos;
 
@@ -181,14 +178,6 @@ public class Order extends RealmObject {
 		this.limitation = limitation;
 	}
 
-	public PhotoPathsWithReason getOrderDocuments() {
-		return orderDocuments;
-	}
-
-	public void setOrderDocuments(PhotoPathsWithReason orderDocuments) {
-		this.orderDocuments = orderDocuments;
-	}
-
 	public String getWorkshopName() {
 		return workshopName;
 	}
@@ -212,22 +201,6 @@ public class Order extends RealmObject {
     public void setDestinationAddress(Address destinationAddress) {
         this.destinationAddress = destinationAddress;
     }
-
-	public boolean isOrderSheetProvided() {
-		return orderSheetProvided;
-	}
-
-	public void setOrderSheetProvided(boolean orderSheetProvided) {
-		this.orderSheetProvided = orderSheetProvided;
-	}
-
-	public boolean isPhotosProvided() {
-		return photosProvided;
-	}
-
-	public void setPhotosProvided(boolean photosProvided) {
-		this.photosProvided = photosProvided;
-	}
 
 	public boolean isSent() {
 		return isSent;

@@ -3,7 +3,6 @@ package net.aineuron.eagps.model.database.order;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
 import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
@@ -21,8 +20,7 @@ import io.realm.RealmList;
 public class Tender implements Serializable {
     private Order Order;
     private Message Message;
-    @SerializedName("tenderId")
-    private Long tenderId;
+    private Long TenderId;
     private boolean isMessage = false;
 
     public static Order getOrderFromJson(String json) {
@@ -77,10 +75,10 @@ public class Tender implements Serializable {
     }
 
     public Long getTenderId() {
-        return tenderId;
+        return TenderId;
     }
 
     public void setTenderId(Long tenderId) {
-        this.tenderId = tenderId;
+        TenderId = tenderId;
     }
 }

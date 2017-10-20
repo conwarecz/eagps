@@ -34,9 +34,9 @@ public class UserManager {
 	public static final int WORKER_ID = 2;
 	public static final int DISPATCHER_ID = 1;
 
-	public static final Long STATE_ID_READY = 1L;
-	public static final Long STATE_ID_BUSY = 2L;
-	public static final Long STATE_ID_UNAVAILABLE = 3L;
+	public static final Long STATE_ID_READY = 2L;
+	public static final Long STATE_ID_BUSY = 3L;
+	public static final Long STATE_ID_UNAVAILABLE = 1L;
 	public static final Long STATE_ID_BUSY_ORDER = 80L;
 	public static final Long STATE_ID_NO_CAR = 90L;
 	@Pref

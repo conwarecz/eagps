@@ -26,6 +26,7 @@ import net.aineuron.eagps.event.network.user.UserTokenSet;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.Entity;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
@@ -168,6 +169,12 @@ public class EaClient {
 				.subscribe(
 						car -> {
 							userManager.setSelectedCarId(carId);
+
+							Entity entity = new Entity();
+							entity.setEntityId(car.getId());
+							entity.setEntityStatus(car.getStatusId());
+							entity.setLicencePlate(car.getLicencePlate());
+							user.setEntity(entity);
 
 							user.setCarId(carId);
 							user.setCar(car);
