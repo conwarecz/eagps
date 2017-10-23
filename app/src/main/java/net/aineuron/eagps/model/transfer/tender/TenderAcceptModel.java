@@ -1,16 +1,14 @@
 package net.aineuron.eagps.model.transfer.tender;
 
 /**
- * Created by Petr Kresta, AiNeuron s.r.o. on 10.10.2017.
+ * Created by Petr Kresta, AiNeuron s.r.o. on 23.10.2017.
  */
 
-public class TenderModel {
+public class TenderAcceptModel {
     private Long entityId;
     private String smsNumber;
     private String userName;
     private Long departureDelayMinutes;
-    private Long rejectReason;
-    private String rejectComment;
 
     public Long getEntityId() {
         return entityId;
@@ -42,21 +40,5 @@ public class TenderModel {
 
     public void setDepartureDelayMinutes(Long departureDelayMinutes) {
         this.departureDelayMinutes = departureDelayMinutes;
-    }
-
-    public Long getRejectReason() {
-        return rejectReason;
-    }
-
-    public void setRejectReason(Long rejectReason) {
-        this.rejectReason = rejectReason;
-    }
-
-    public String getRejectComment() {
-        return rejectComment;
-    }
-
-    public void setRejectComment(String rejectComment) {
-        this.rejectComment = rejectComment;
     }
 }

@@ -5,13 +5,14 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-import org.androidannotations.annotations.EBean;
+import net.aineuron.eagps.event.network.user.FirebaseTokenRefreshedEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 05.09.2017.
  */
 
-@EBean
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     private static final String TAG = "FirebaseIDService";
 
@@ -33,5 +34,8 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
      */
     private void sendRegistrationToServer(String token) {
         // Add custom implementation, as needed.
+        if (token != null) {
+            EventBus.getDefault().post(new FirebaseTokenRefreshedEvent(token));
+        }
     }
 }

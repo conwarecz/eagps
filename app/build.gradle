@@ -23,8 +23,8 @@ android {
 		applicationId "net.aineuron.eagps"
 		minSdkVersion 16
 		targetSdkVersion 26
-		versionCode 23
-		versionName "0.2.9"
+		versionCode 24
+		versionName "0.3.0"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {
@@ -94,6 +94,7 @@ dependencies {
 	implementation 'com.github.jetradarmobile:multibackstack:1.2.1'
 	implementation 'com.afollestad.material-dialogs:core:0.9.4.5'
 	implementation 'com.mobsandgeeks:android-saripaar:2.0.3'
+	implementation 'mobi.upod:time-duration-picker:1.1.3'
 
 	implementation 'com.zhihu.android:matisse:0.4.3'
 
@@ -118,7 +119,7 @@ dependencies {
 	//Notifications
 	implementation 'com.google.firebase:firebase-messaging:11.2.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
-        transitive = true;
+        transitive = true
     }
 }
 apply plugin: 'com.google.gms.google-services'

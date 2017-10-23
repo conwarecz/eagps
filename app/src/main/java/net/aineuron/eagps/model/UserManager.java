@@ -1,5 +1,6 @@
 package net.aineuron.eagps.model;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
 import net.aineuron.eagps.Pref_;
@@ -10,10 +11,12 @@ import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -160,11 +163,23 @@ public class UserManager {
 		clientProvider.getEaClient().login(info);
 	}
 
-    public void logout(User user) {
-        pref.clear();
-        ordersManager.clearDatabase();
-        clientProvider.getEaClient().logout(user);
-    }
+	@Background
+	public void logout(User user) {
+		final String token = FirebaseInstanceId.getInstance().getToken();
+		try {
+			FirebaseInstanceId.getInstance().deleteToken(token, token);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			FirebaseInstanceId.getInstance().deleteInstanceId();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		pref.clear();
+		ordersManager.clearDatabase();
+		clientProvider.getEaClient().logout(user);
+	}
 
 	public boolean haveActiveOrder() {
 		boolean activeOrder = false;

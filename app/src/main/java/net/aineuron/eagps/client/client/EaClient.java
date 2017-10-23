@@ -29,11 +29,13 @@ import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Entity;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.Paging;
-import net.aineuron.eagps.model.transfer.tender.TenderModel;
+import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
+import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import io.realm.RealmList;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
@@ -228,7 +231,7 @@ public class EaClient {
 
 	public void setUserState(Long stateId) {
 		User user = userManager.getUser();
-		if (user == null) {
+		if (user == null || user.getEntity() == null || user.getEntity().getEntityId() == null) {
 			return;
 		}
 
@@ -303,13 +306,19 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						orders -> {
+							if (orders.size() <= 0) {
+								eventBus.post(new StopRefreshingEvent());
+								return;
+							}
+
 							Realm db = RealmHelper.getDb();
 
 							for (Order order : orders) {
 								if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
 									Order previousOrder = ordersManager.getOrderById(order.getId());
 									if (previousOrder != null) {
-										order.setPhotos(previousOrder.getPhotos());
+										RealmList<Photo> photos = previousOrder.getPhotos();
+										order.setPhotos(photos);
 									}
 								}
 							}
@@ -336,7 +345,11 @@ public class EaClient {
 							if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
 								Order previousOrder = ordersManager.getOrderById(order.getId());
 								if (previousOrder != null) {
-									order.setPhotos(previousOrder.getPhotos());
+									RealmList<Photo> photos = new RealmList<>();
+									for (Photo photo : previousOrder.getPhotos()) {
+										photos.add(photo);
+									}
+									order.setPhotos(photos);
 								}
 							}
 
@@ -526,7 +539,7 @@ public class EaClient {
 		eventBus.post(new StopRefreshingEvent());
 	}
 
-	public void acceptTender(Long tenderId, TenderModel tenderModel) {
+	public void acceptTender(Long tenderId, TenderAcceptModel tenderModel) {
 		eaService.acceptTender(tenderId, tenderModel)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -543,7 +556,7 @@ public class EaClient {
 				);
 	}
 
-	public void rejectTender(Long tenderId, TenderModel tenderModel) {
+	public void rejectTender(Long tenderId, TenderRejectModel tenderModel) {
 		eaService.rejectTender(tenderId, tenderModel)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())

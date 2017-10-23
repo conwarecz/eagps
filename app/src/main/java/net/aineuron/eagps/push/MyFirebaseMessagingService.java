@@ -53,6 +53,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FCM Service";
     @Bean
     UserManager userManager;
+    //    @Pref
+//    Pref_ pref;
     @App
     Appl app;
     private int currentNotificationID = 0;
@@ -61,6 +63,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+//        if(!pref.userObjectSerialized().exists()){
+//            return;
+//        }
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         app = (Appl) getApplication();
         wasInBackground = app.wasInBackground();

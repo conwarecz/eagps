@@ -6,7 +6,8 @@ import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.LoginInfo;
-import net.aineuron.eagps.model.transfer.tender.TenderModel;
+import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
+import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 
 import java.util.List;
 
@@ -85,8 +86,8 @@ public interface EaService {
 
     // Tenders
     @PUT("tenders/{tenderId}/accept")
-    Maybe<Response<Void>> acceptTender(@Path("tenderId") long tenderId, @Body TenderModel tenderModel);
+    Maybe<Response<Void>> acceptTender(@Path("tenderId") long tenderId, @Body TenderAcceptModel tenderModel);
 
     @PUT("tenders/{tenderId}/reject")
-    Maybe<Response<Void>> rejectTender(@Path("tenderId") long tenderId, @Body TenderModel tenderModel);
+    Maybe<Response<Void>> rejectTender(@Path("tenderId") long tenderId, @Body TenderRejectModel tenderModel);
 }

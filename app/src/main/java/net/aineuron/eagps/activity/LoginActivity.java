@@ -16,6 +16,7 @@ import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.user.FirebaseTokenRefreshedEvent;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserTokenSet;
@@ -72,10 +73,10 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 			// User logged in
 			showProgress();
 			setFirebaseToken();
+		} else {
+			validator = new Validator(this);
+			validator.setValidationListener(this);
 		}
-
-		validator = new Validator(this);
-		validator.setValidationListener(this);
 	}
 
 	@Click(R.id.loginButton)
@@ -133,6 +134,11 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		finishLogin();
 	}
 
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onFirebaseTokenRefreshed(FirebaseTokenRefreshedEvent e) {
+		userManager.setFirebaseToken(e.token);
+	}
+
 	private void setFirebaseToken() {
 		String token = FirebaseInstanceId.getInstance().getToken();
 		if (token != null) {
@@ -146,7 +152,9 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	private void finishLogin() {
 		User user = userManager.getUser();
-		dismissDialog();
+		if (progressDialog.isShowing()) {
+			dismissDialog();
+		}
 		if ((user.getUserRole() != null && user.getUserRole() == WORKER_ID) && (user.getEntity() == null || user.getEntity().getEntityId() == null)) {
 			CarSettingsActivity_.intent(this).start();
         } else {
@@ -156,12 +164,14 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	}
 
 	private void showProgress() {
-		progressDialog = new MaterialDialog.Builder(this)
-				.title("Přihlašuji stav")
-                .content(getString(R.string.dialog_wait_content))
-                .cancelable(false)
-                .progress(true, 0)
-                .show();
+		if (progressDialog == null || !progressDialog.isShowing()) {
+			progressDialog = new MaterialDialog.Builder(this)
+					.title("Přihlašuji stav")
+					.content(getString(R.string.dialog_wait_content))
+					.cancelable(false)
+					.progress(true, 0)
+					.show();
+		}
 	}
 
 	private void dismissDialog() {
