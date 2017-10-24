@@ -28,8 +28,6 @@ import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Entity;
 import net.aineuron.eagps.model.database.User;
-import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
@@ -48,7 +46,6 @@ import java.io.IOException;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
-import io.realm.RealmList;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
@@ -191,11 +188,11 @@ public class EaClient {
 
 	public void releaseCar() {
 		User user = userManager.getUser();
-		if (user == null || user.getUserId() == null || user.getCarId() == null) {
+		if (user == null || user.getUserId() == null || user.getEntity() == null || user.getEntity().getEntityId() == null) {
 			return;
 		}
 
-		eaService.releaseCarFromUser(user.getUserId(), user.getCarId())
+		eaService.releaseCarFromUser(user.getUserId(), user.getEntity().getEntityId())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -250,7 +247,7 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							userManager.setSelectedStateId(stateId);
-							eventBus.post(new StateSelectedEvent());
+							eventBus.post(new StateSelectedEvent(stateId));
 							if (stateId.equals(STATE_ID_NO_CAR)) {
 								eventBus.post(new CarSelectedEvent());
 							}
@@ -312,20 +309,9 @@ public class EaClient {
 							}
 
 							Realm db = RealmHelper.getDb();
-
-							for (Order order : orders) {
-								if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
-									Order previousOrder = ordersManager.getOrderById(order.getId());
-									if (previousOrder != null) {
-										RealmList<Photo> photos = previousOrder.getPhotos();
-										order.setPhotos(photos);
-									}
-								}
-							}
-
-							db.executeTransaction(realm -> {
-								realm.copyToRealmOrUpdate(orders);
-							});
+							db.executeTransaction(realm ->
+									realm.copyToRealmOrUpdate(orders)
+							);
 
 							db.close();
 							eventBus.post(new StopRefreshingEvent());
@@ -341,18 +327,6 @@ public class EaClient {
 				.subscribe(
 						order -> {
 							Realm db = RealmHelper.getDb();
-
-							if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
-								Order previousOrder = ordersManager.getOrderById(order.getId());
-								if (previousOrder != null) {
-									RealmList<Photo> photos = new RealmList<>();
-									for (Photo photo : previousOrder.getPhotos()) {
-										photos.add(photo);
-									}
-									order.setPhotos(photos);
-								}
-							}
-
 							db.executeTransaction(realm ->
 									realm.copyToRealmOrUpdate(order)
 							);

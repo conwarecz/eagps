@@ -20,6 +20,7 @@ import io.realm.RealmList;
 public class Tender implements Serializable {
     private Order Order;
     private Message Message;
+    private Long NewStatus;
     private Long TenderId;
     private boolean isMessage = false;
 
@@ -45,6 +46,18 @@ public class Tender implements Serializable {
                 .create();
         Tender tender = gson.fromJson(json, Tender.class);
         return tender.getMessage();
+    }
+
+    public static Long getNewStatusFromJson(String json) {
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+                        }.getType(),
+                        RealmStringListTypeAdapter.INSTANCE)
+                .create();
+        Tender tender = gson.fromJson(json, Tender.class);
+        return tender.getNewStatus();
     }
 
     public static Tender getTender(String json) {
@@ -80,5 +93,13 @@ public class Tender implements Serializable {
 
     public void setTenderId(Long tenderId) {
         TenderId = tenderId;
+    }
+
+    public Long getNewStatus() {
+        return NewStatus;
+    }
+
+    public void setNewStatus(Long newStatus) {
+        NewStatus = newStatus;
     }
 }

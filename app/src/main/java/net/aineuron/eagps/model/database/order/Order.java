@@ -43,15 +43,15 @@ public class Order extends RealmObject {
     private Address clientAddress;
     private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
-    private RealmList<Photo> photos = new RealmList<>();
+	private RealmList<Photo> photos = new RealmList<>();
 
 	private String workshopName;
 	private int destinationType;
     @SerializedName("Destination")
     private Address destinationAddress;
 
-    private String reasonForNoPhotosDocuments;
-    private String reasonForNoPhotosPhotos;
+	private String reasonForNoDocuments;
+	private String reasonForNoPhotos;
 
 	private boolean isSent;
 
@@ -218,20 +218,20 @@ public class Order extends RealmObject {
         this.photos = photos;
     }
 
-    public String getReasonForNoPhotosDocuments() {
-        return reasonForNoPhotosDocuments;
-    }
+	public String getReasonForNoDocuments() {
+		return reasonForNoDocuments;
+	}
 
-    public void setReasonForNoPhotosDocuments(String reasonForNoPhotosDocuments) {
-        this.reasonForNoPhotosDocuments = reasonForNoPhotosDocuments;
-    }
+	public void setReasonForNoDocuments(String reasonForNoDocuments) {
+		this.reasonForNoDocuments = reasonForNoDocuments;
+	}
 
-    public String getReasonForNoPhotosPhotos() {
-        return reasonForNoPhotosPhotos;
-    }
+	public String getReasonForNoPhotos() {
+		return reasonForNoPhotos;
+	}
 
-    public void setReasonForNoPhotosPhotos(String reasonForNoPhotosPhotos) {
-        this.reasonForNoPhotosPhotos = reasonForNoPhotosPhotos;
-    }
+	public void setReasonForNoPhotos(String reasonForNoPhotos) {
+		this.reasonForNoPhotos = reasonForNoPhotos;
+	}
 }
 

@@ -12,7 +12,7 @@ public class Photo extends RealmObject {
 
     private Long id;
     private int type;
-    private String localPath;
+    private String path;
 
     public Long getId() {
         return id;
@@ -30,11 +30,11 @@ public class Photo extends RealmObject {
         this.type = type;
     }
 
-    public String getLocalPath() {
-        return localPath;
+    public String getPath() {
+        return path;
     }
 
-    public void setLocalPath(String localPath) {
-        this.localPath = localPath;
+    public void setPath(String path) {
+        this.path = path;
     }
 }

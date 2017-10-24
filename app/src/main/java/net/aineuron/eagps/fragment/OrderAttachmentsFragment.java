@@ -33,6 +33,7 @@ import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.ui.AddPhotoEvent;
 import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
+import net.aineuron.eagps.model.database.order.LocalPhotos;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoFile;
@@ -97,6 +98,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
 	private int uploadedPhotos = 0;
+	private LocalPhotos localPhotos;
 
 	public static OrderAttachmentsFragment newInstance(Long orderId) {
 		return OrderAttachmentsFragment_.builder().orderId(orderId).build();
@@ -113,11 +115,22 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		setAppbarUpNavigation(true);
 		setAppbarTitle("Přílohy");
 
+		if (db == null) {
+			db = RealmHelper.getDb();
+		}
+
 		if (orderId == null) {
 			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
 			order = ordersManager.getCurrentOrder();
 			setContent();
 		} else {
+			localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			if (localPhotos == null) {
+				localPhotos = new LocalPhotos();
+				localPhotos.setOrderId(orderId);
+				db.executeTransaction(realm -> realm.copyToRealmOrUpdate(localPhotos));
+				localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			}
 			order = ordersManager.getOrderById(orderId);
 			if (order != null) {
 				setContent();
@@ -141,7 +154,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		boolean hasPhotos = false;
 		boolean hasDocuments = false;
 
-		for (Photo photo : order.getPhotos()) {
+		for (Photo photo : localPhotos.getLocalPhotos()) {
 			if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
 				hasPhotos = true;
 			} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
@@ -159,7 +172,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 
 		showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
-		if (order.getPhotos().size() > 0 && uploadedPhotos < order.getPhotos().size()) {
+		if (localPhotos.getLocalPhotos().size() > 0 && uploadedPhotos < localPhotos.getLocalPhotos().size()) {
 			uploadPhotos();
 		} else {
 			uploadFinishedSendOrder();
@@ -169,8 +182,12 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
-//		MainActivityBase activityBase = (MainActivityBase) getActivity();
-//		activityBase.showFragment(new StateFragment(), false);
+		localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+		db.executeTransactionAsync(realm -> {
+			localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			localPhotos.deleteFromRealm();
+		});
+
 		IntentUtils.openMainActivity(getContext());
 		getActivity().onBackPressed();
 	}
@@ -186,12 +203,14 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onRemovePhotoClicked(RemovePhotoEvent e) {
-		List<Photo> photos = e.photos;
 		String photoPath = e.photoPath;
 		// TODO: ZKONTORLOVAT FUNKČNOST
-		for (Photo photo : photos) {
-			if (photo.getLocalPath().equalsIgnoreCase(photoPath)) {
-				e.photos.remove(photo);
+		for (Photo photo : localPhotos.getLocalPhotos()) {
+			if (photo.getPath().equalsIgnoreCase(photoPath)) {
+				db.executeTransaction(realm ->
+						localPhotos.getLocalPhotos().remove(photo)
+				);
+				setContent();
 				return;
 			}
 		}
@@ -200,7 +219,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onPhotoUploadedEvent(PhotoUploadedEvent e) {
 		uploadedPhotos++;
-		if (uploadedPhotos < order.getPhotos().size()) {
+		if (uploadedPhotos < localPhotos.getLocalPhotos().size()) {
 			uploadPhotos();
 		} else {
 			uploadFinishedSendOrder();
@@ -247,31 +266,19 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			List<Uri> mSelected = Matisse.obtainResult(data);
 			Log.d("Matisse", "mSelected: " + mSelected);
 
-			// TODO: Rozdělit dle requestCode == REQUEST_CODE_CHOOSE_DOCS
-//			List<String> paths = new ArrayList<>();
-//			for(Photo photo : order.getPhotos()){
-//				paths.add(photo.getLocalPath());
-//			}
-
-//			for (Uri uri : mSelected) {
-//				if (db == null) {
-//					db = RealmHelper.getDb();
-//				}
-//				db.executeTransaction(realm -> paths.add(BitmapUtil.getRealPathFromUri(getContext(), uri)));
-//			}
 			if (db == null && mSelected.size() > 0) {
 				db = RealmHelper.getDb();
 			}
 
 			for (Uri uri : mSelected) {
 				Photo photo = new Photo();
-				photo.setLocalPath(BitmapUtil.getRealPathFromUri(getContext(), uri));
+				photo.setPath(BitmapUtil.getRealPathFromUri(getContext(), uri));
 				if (requestCode == REQUEST_CODE_CHOOSE_DOCS) {
 					photo.setType(Photo.PHOTO_TYPE_DOCUMENT);
 				} else {
 					photo.setType(Photo.PHOTO_TYPE_PHOTO);
 				}
-				db.executeTransaction(realm -> order.getPhotos().add(photo));
+				db.executeTransaction(realm -> localPhotos.getLocalPhotos().add(photo));
 			}
 
 			setContent();
@@ -284,8 +291,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
 
-		LinearLayoutManager horizontalManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-		LinearLayoutManager horizontalManager2 = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+		LinearLayoutManager documentsLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+		LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 
 		DividerItemDecoration decor = new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL);
 		Drawable verticalDivider = ContextCompat.getDrawable(getActivity(), R.drawable.vertical_divider);
@@ -294,7 +301,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		List<Photo> photos = new ArrayList<>();
 		List<Photo> documents = new ArrayList<>();
 
-		for (Photo photo : order.getPhotos()) {
+		for (Photo photo : localPhotos.getLocalPhotos()) {
 			if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
 				photos.add(photo);
 			} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
@@ -302,26 +309,24 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 		}
 
-		PhotoPathsWithReasonAdapter documentsAdapter = null;
-		if (order.getPhotos() != null) {
-			documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+		if (localPhotos.getLocalPhotos() != null) {
+			PhotoPathsWithReasonAdapter documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(documents)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS)
-					.withReason(order.getReasonForNoPhotosDocuments())
+					.withReason(order.getReasonForNoDocuments())
 					.finish();
-			orderDocumentsView.setLayoutManager(horizontalManager);
+			orderDocumentsView.setLayoutManager(documentsLayoutManager);
 			orderDocumentsView.addItemDecoration(decor);
 			orderDocumentsView.setAdapter(documentsAdapter);
 		}
 
-		PhotoPathsWithReasonAdapter photosAdapter = null;
-		if (order.getPhotos() != null) {
-			photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+		if (localPhotos.getLocalPhotos() != null) {
+			PhotoPathsWithReasonAdapter photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(photos)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS)
-					.withReason(order.getReasonForNoPhotosPhotos())
+					.withReason(order.getReasonForNoPhotos())
 					.finish();
-			orderPhotosView.setLayoutManager(horizontalManager2);
+			orderPhotosView.setLayoutManager(photosLayoutManager);
 			orderPhotosView.addItemDecoration(decor);
 			orderPhotosView.setAdapter(photosAdapter);
 		}
@@ -356,7 +361,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	}
 
 	private void uploadPhotos() {
-		String path = order.getPhotos().get(uploadedPhotos).getLocalPath();
+		String path = localPhotos.getLocalPhotos().get(uploadedPhotos).getPath();
 		File file = new File(path);
 		PhotoFile photoFile = new PhotoFile();
 		try {
@@ -364,9 +369,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			photoFile.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
 			photoFile.setFileString(fileToBase64(file));
 //			photoFile.setFileString(fileToByteArray2(file));
-			if (order.getPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_PHOTO) {
+			if (localPhotos.getLocalPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_PHOTO) {
 				clientProvider.getEaClient().uploadPhoto(photoFile, order.getId());
-			} else if (order.getPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+			} else if (localPhotos.getLocalPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_DOCUMENT) {
 				clientProvider.getEaClient().uploadSheet(photoFile, order.getId());
 			}
 		} catch (Exception e) {

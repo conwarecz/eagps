@@ -8,6 +8,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
+import net.aineuron.eagps.activity.StateSettingsActivity_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
@@ -186,9 +187,10 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void orderFinalized(OrderFinalizedEvent e) {
 		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
-        userManager.setStateReady();
-    }
+		activity.showFragment(StateFragment.newInstance());
+		userManager.setStateReady();
+		StateSettingsActivity_.intent(getContext()).start();
+	}
 
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {

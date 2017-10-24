@@ -108,7 +108,8 @@ public class CarSettingsActivity extends AppCompatActivity {
                 .progress(true, 0)
                 .show();
 		userManager.selectCar(e.selectedCarId);
-	}
+        userManager.setSelectedStateId(e.stateId);
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {

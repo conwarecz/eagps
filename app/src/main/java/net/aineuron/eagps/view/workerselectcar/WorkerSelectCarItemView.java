@@ -55,7 +55,7 @@ public class WorkerSelectCarItemView extends BaseWorkerSelectCarItemView {
 		}
 
 		carRadioText.setOnClickListener(v -> {
-            bus.post(new WorkerCarSelectedEvent(car.getId(), isSelected));
+            bus.post(new WorkerCarSelectedEvent(car.getId(), isSelected, car.getStatusId()));
             onItemChange.onChange();
         });
 	}

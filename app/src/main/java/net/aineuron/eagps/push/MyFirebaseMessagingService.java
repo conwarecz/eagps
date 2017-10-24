@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -31,7 +32,7 @@ import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
-import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.EService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +42,13 @@ import io.realm.Realm;
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 05.09.2017.
  */
-@EBean
+
+@EService
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static final int TENDER_NEW = 1;
-    public static final int TENDER_UPDATE = 2;
-    public static final int TENDER_ACCEPTED = 3;
-    public static final int TENDER_CANCELED = 4;
+    public static final int TENDER_ORDER_UPDATE = 2;
+    public static final int TENDER_ORDER_ACCEPTED = 3;
+    public static final int TENDER_ORDER_CANCELED = 4;
     public static final int TENDER_NOT_WON = 5;
     public static final int NEW_MESSAGE = 6;
     public static final int CAR_STATUS_CHANGE = 7;
@@ -76,13 +78,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             case TENDER_NEW:
                 handleNewTender(remoteMessage);
                 break;
-            case TENDER_UPDATE:
+            case TENDER_ORDER_UPDATE:
                 handleAcceptedOrder(remoteMessage);
                 break;
-            case TENDER_ACCEPTED:
+            case TENDER_ORDER_ACCEPTED:
                 handleAcceptedOrder(remoteMessage);
                 break;
-            case TENDER_CANCELED:
+            case TENDER_ORDER_CANCELED:
                 handleAcceptedOrder(remoteMessage);
                 break;
             case TENDER_NOT_WON:
@@ -92,7 +94,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleMessage(remoteMessage);
                 break;
             case CAR_STATUS_CHANGE:
-//                handleCarStatusChange(remoteMessage);
+                handleCarStatusChange(remoteMessage);
                 break;
         }
     }
@@ -168,15 +170,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void handleCarStatusChange(RemoteMessage remoteMessage) {
-        final Message message = Tender.getMessageFromJson(remoteMessage.getData().get("message"));
-        int id = message.getNewStatus();
-        currentNotificationID = -1;
-        Realm realm = RealmHelper.getDb();
-        realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(message));
-//        Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
-//        notificationIntent.putExtra("messageId", id);
-
-//        sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+        final Long newStatus = Tender.getNewStatusFromJson(remoteMessage.getData().get("message"));
+        if (!userManager.getSelectedStateId().equals(newStatus)) {
+            if (!userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+                userManager.setSelectedStateId(newStatus);
+                sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+            }
+        }
     }
 
     /**
@@ -199,8 +199,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 R.mipmap.ic_launcher);
         NotificationCompat.Builder notificationBuilder = null;
 
-        if (type == TENDER_NEW) {
-
+        if (type == TENDER_NEW && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_TENDER)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
@@ -216,12 +215,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentText(messageBody);
         }
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationBuilder.setContentIntent(contentIntent);
+        if (notificationIntent != null) {
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            notificationBuilder.setContentIntent(contentIntent);
+        } else {
+            // Only close notification after clicking
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
+            notificationBuilder.setContentIntent(contentIntent);
+        }
 
         Notification notification = notificationBuilder.build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notification.defaults |= Notification.DEFAULT_SOUND;
+
 
 //        currentNotificationID++;
         int notificationId = currentNotificationID;

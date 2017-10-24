@@ -104,8 +104,8 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 
         for (int i = 0; i < photos.size(); i++) {
             items.add(new PhotoPathsWithReasonViewModel(TYPE_PHOTO, photos)
-                    .withPhotoPath(i, photos.get(i).getLocalPath())
-                    .withReason(reason));
+					.withPhotoPath(i, photos.get(i).getPath())
+					.withReason(reason));
         }
         items.add(new PhotoPathsWithReasonViewModel(TYPE_ADD_MORE_PHOTOS, photos)
                 .withAddPhotoTargetId(addPhotoTarget)

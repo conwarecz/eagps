@@ -6,4 +6,9 @@ package net.aineuron.eagps.event.network.car;
  */
 
 public class StateSelectedEvent {
+    public final Long state;
+
+    public StateSelectedEvent(Long state) {
+        this.state = state;
+    }
 }

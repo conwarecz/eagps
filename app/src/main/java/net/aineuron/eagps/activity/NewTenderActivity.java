@@ -294,8 +294,7 @@ public class NewTenderActivity extends AppCompatActivity {
 
     private void finishTenderActivity() {
         hideProgress();
-        if
-                (!appl.wasInBackground()) {
+        if (!appl.wasInBackground()) {
             IntentUtils.openMainActivity(this);
         }
         finish();

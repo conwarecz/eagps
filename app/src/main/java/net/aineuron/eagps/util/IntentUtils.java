@@ -21,6 +21,10 @@ import java.util.List;
 
 public class IntentUtils {
 	public static void openMainActivity(Context context) {
+        MainActivity_.intent(context).start();
+    }
+
+    public static void openNewMainActivity(Context context) {
         MainActivity_.intent(context).flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK).start();
     }
 

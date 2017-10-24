@@ -57,7 +57,7 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
         View holder = this.getRootView();
         holder.setOnClickListener(view -> {
             carRZ.setChecked(!carRZ.isChecked());
-            EventBus.getDefault().post(new WorkerCarSelectedEvent(car.getId(), carRZ.isChecked()));
+            EventBus.getDefault().post(new WorkerCarSelectedEvent(car.getId(), carRZ.isChecked(), car.getStatusId()));
         });
 
         switch (car.getStatusId().intValue()) {

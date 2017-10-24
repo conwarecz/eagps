@@ -95,7 +95,7 @@ public class OrderDetailHeader extends ConstraintLayout {
             name = order.getClientFirstName();
         }
         if (order.getClientLastName() != null) {
-            name = name + " " + order.getClientFirstName();
+            name = name + " " + order.getClientLastName();
         }
         this.clientName.setText(name);
         if (order.getClientPhone() != null) {

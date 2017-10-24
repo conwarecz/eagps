@@ -3,7 +3,6 @@ package net.aineuron.eagps.activity;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
 
@@ -20,8 +20,14 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.res.ColorRes;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 
 /**
  * Created by Vit Veres on 30-May-17
@@ -51,6 +57,7 @@ public class AppBarActivity extends MainActivityBase {
 	private TextView profileName;
 	private ImageView stateIcon;
 	private TextView licencePlate;
+    private ActionBar actionBar;
 
 	private int currentNotificationID = 0;
 
@@ -85,46 +92,47 @@ public class AppBarActivity extends MainActivityBase {
 	}
 
 	private void setUpActionBar() {
-		ActionBar actionBar = getSupportActionBar();
+        actionBar = getSupportActionBar();
 
 		if (actionBar == null) {
 			return;
 		}
-
-		menuState.setVisible(true);
+        if (menuState != null) {
+            menuState.setVisible(true);
+        }
 
 		Long i = userManager.getSelectedStateId();
 		if (i == null) {
-			setActionBarColor(actionBar, primary);
+            setActionBarColor(primary);
 
 		} else if (i.equals(UserManager.STATE_ID_READY)) {
-			setActionBarColor(actionBar, ready);
-			stateIcon.setImageResource(R.drawable.icon_ready);
+            setActionBarColor(ready);
+            stateIcon.setImageResource(R.drawable.icon_ready);
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
-			setActionBarColor(actionBar, busy);
-			stateIcon.setImageResource(R.drawable.icon_busy);
+            setActionBarColor(busy);
+            stateIcon.setImageResource(R.drawable.icon_busy);
 
 		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
-			setActionBarColor(actionBar, unavailable);
-			stateIcon.setImageResource(R.drawable.icon_unavailable);
+            setActionBarColor(unavailable);
+            stateIcon.setImageResource(R.drawable.icon_unavailable);
 
 		} else if (i.equals(UserManager.STATE_ID_NO_CAR)) {
 			menuState.setVisible(false);
-			setActionBarColor(actionBar, primary);
+            setActionBarColor(primary);
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
-			setActionBarColor(actionBar, busy);
-			stateIcon.setImageResource(R.drawable.icon_busy);
+            setActionBarColor(busy);
+            stateIcon.setImageResource(R.drawable.icon_busy);
 
 		} else {
-			setActionBarColor(actionBar, primary);
-		}
+            setActionBarColor(primary);
+        }
 
         if (userManager.getUser().getUserRole() == null || userManager.getUser().getUserRole() == DISPATCHER_ID) {
             stateIcon.setVisibility(View.GONE);
             licencePlate.setVisibility(View.GONE);
-            setActionBarColor(actionBar, primary);
+            setActionBarColor(primary);
         } else {
             stateIcon.setVisibility(View.VISIBLE);
             licencePlate.setVisibility(View.VISIBLE);
@@ -141,8 +149,25 @@ public class AppBarActivity extends MainActivityBase {
 		}
 	}
 
-	private void setActionBarColor(@NonNull ActionBar actionBar, int color) {
-		ColorDrawable colorDrawable = new ColorDrawable(color);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stateChangedEvent(StateSelectedEvent e) {
+        if (e.state.equals(STATE_ID_BUSY) || e.state.equals(STATE_ID_BUSY_ORDER)) {
+            actionBar.setTitle(R.string.car_on_duty);
+            setActionBarColor(busy);
+        } else if (e.state.equals(STATE_ID_NO_CAR)) {
+            actionBar.setTitle("");
+            setActionBarColor(primary);
+        } else if (e.state.equals(STATE_ID_READY)) {
+            actionBar.setTitle(R.string.car_unavailable);
+            setActionBarColor(unavailable);
+        } else {
+            actionBar.setTitle(R.string.car_waiting);
+            setActionBarColor(ready);
+        }
+    }
+
+    private void setActionBarColor(int color) {
+        ColorDrawable colorDrawable = new ColorDrawable(color);
 		actionBar.setBackgroundDrawable(colorDrawable);
 	}
 }

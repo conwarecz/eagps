@@ -8,11 +8,15 @@ import android.widget.TextView;
 
 import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.model.database.order.LocalPhotos;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Photo;
+import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
+
+import io.realm.Realm;
 
 /**
  * Created by Vit Veres on 20-Jun-17
@@ -75,11 +79,24 @@ public class OrderItemView extends ConstraintLayout {
         boolean hasDocuments = false;
         boolean hasPhotos = false;
 
-        for (Photo photo : order.getPhotos()) {
-            if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
-                hasPhotos = true;
-            } else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
-                hasDocuments = true;
+        Realm db = RealmHelper.getDb();
+        LocalPhotos localPhotos = db.where(LocalPhotos.class).equalTo("orderId", order.getId()).findFirst();
+
+        if (localPhotos != null) {
+            for (Photo photo : localPhotos.getLocalPhotos()) {
+                if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+                    hasPhotos = true;
+                } else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+                    hasDocuments = true;
+                }
+            }
+        } else {
+            for (Photo photo : order.getPhotos()) {
+                if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+                    hasPhotos = true;
+                } else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+                    hasDocuments = true;
+                }
             }
         }
 
@@ -90,9 +107,9 @@ public class OrderItemView extends ConstraintLayout {
         }
 
         if (hasPhotos) {
-            documentsCheck.setImageResource(R.drawable.icon_check);
+            photosCheck.setImageResource(R.drawable.icon_check);
         } else {
-            documentsCheck.setImageResource(R.drawable.icon_cross);
+            photosCheck.setImageResource(R.drawable.icon_cross);
         }
 	}
 }
