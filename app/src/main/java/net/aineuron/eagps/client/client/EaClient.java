@@ -28,6 +28,7 @@ import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Entity;
 import net.aineuron.eagps.model.database.User;
+import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
@@ -141,16 +142,16 @@ public class EaClient {
 							}
 
 							// Copy all active orders to DB
-//							if(user.getCurrentOrders() != null && user.getCurrentOrders().size() > 0){
-//								userManager.setStateBusyOnOrder();
-//								Realm db = RealmHelper.getDb();
-//								db.executeTransaction(realm -> {
-//									for(Order order : user.getCurrentOrders()){
-//										realm.copyToRealmOrUpdate(order);
-//									}
-//								});
-//								db.close();
-//							}
+							if (user.getCurrentOrders() != null && user.getCurrentOrders().size() > 0) {
+								userManager.setStateBusyOnOrder();
+								Realm db = RealmHelper.getDb();
+								db.executeTransaction(realm -> {
+									for (Order order : user.getCurrentOrders()) {
+										realm.copyToRealmOrUpdate(order);
+									}
+								});
+								db.close();
+							}
 							eventBus.post(new UserDataGotEvent());
 						},
 						this::sendError

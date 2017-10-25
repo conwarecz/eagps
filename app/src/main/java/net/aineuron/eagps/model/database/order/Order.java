@@ -44,6 +44,7 @@ public class Order extends RealmObject {
     private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
 	private RealmList<Photo> photos = new RealmList<>();
+	private Date estimatedDepartureTime;
 
 	private String workshopName;
 	private int destinationType;
@@ -232,6 +233,14 @@ public class Order extends RealmObject {
 
 	public void setReasonForNoPhotos(String reasonForNoPhotos) {
 		this.reasonForNoPhotos = reasonForNoPhotos;
+	}
+
+	public Date getEstimatedDepartureTime() {
+		return estimatedDepartureTime;
+	}
+
+	public void setEstimatedDepartureTime(Date estimatedDepartureTime) {
+		this.estimatedDepartureTime = estimatedDepartureTime;
 	}
 }
 

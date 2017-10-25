@@ -162,6 +162,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 		}
 
+		// TODO: dodělat odesílání reasonForNoPhotos
 		if (!hasPhotos || !hasDocuments) {
 			new MaterialDialog.Builder(getContext())
 					.title("Chyba")
@@ -183,10 +184,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
 		localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-		db.executeTransactionAsync(realm -> {
-			localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-			localPhotos.deleteFromRealm();
-		});
+		db.executeTransactionAsync(realm ->
+				localPhotos.deleteFromRealm()
+		);
 
 		IntentUtils.openMainActivity(getContext());
 		getActivity().onBackPressed();
@@ -204,7 +204,6 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onRemovePhotoClicked(RemovePhotoEvent e) {
 		String photoPath = e.photoPath;
-		// TODO: ZKONTORLOVAT FUNKČNOST
 		for (Photo photo : localPhotos.getLocalPhotos()) {
 			if (photo.getPath().equalsIgnoreCase(photoPath)) {
 				db.executeTransaction(realm ->

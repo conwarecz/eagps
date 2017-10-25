@@ -39,6 +39,7 @@ import io.realm.RealmModel;
 import io.realm.RealmObjectChangeListener;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 /**
  * Created by Vit Veres on 19-Apr-17
@@ -189,7 +190,12 @@ public class TowFragment extends BaseFragment {
 		MainActivityBase activity = (MainActivityBase) getActivity();
 		activity.showFragment(StateFragment.newInstance());
 		userManager.setStateReady();
-		StateSettingsActivity_.intent(getContext()).start();
+		if (userManager.getUser().getRoleId() == WORKER_ID) {
+			StateSettingsActivity_.intent(getContext()).start();
+		} else {
+			// TODO: buď attachmentsFragment nebo seznam zakázek pro dispatchera
+			activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
+		}
 	}
 
 	private void setContent() {

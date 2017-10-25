@@ -39,6 +39,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -60,8 +61,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
-    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
-//    public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
+    //    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
+    public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
 
 	@RootContext
 	Context context;
@@ -149,7 +150,8 @@ public class ClientProvider {
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create());
 
-		OkHttpClient.Builder clientBuilder = new OkHttpClient().newBuilder();
+        OkHttpClient.Builder clientBuilder = new OkHttpClient()
+                .newBuilder();
 
 		if (BuildConfig.DEBUG) {
 			HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -189,6 +191,9 @@ public class ClientProvider {
             sslContext.init(null, trustManagers, null);
             OkHttpClient client = clientBuilder
                     .sslSocketFactory(sslContext.getSocketFactory())
+                    .connectTimeout(2, TimeUnit.MINUTES)
+                    .readTimeout(2, TimeUnit.MINUTES)
+                    .writeTimeout(2, TimeUnit.MINUTES)
                     .hostnameVerifier(new HostnameVerifier() {
                         @Override
                         public boolean verify(String s, SSLSession sslSession) {

@@ -39,6 +39,9 @@ import java.util.List;
 
 import io.realm.Realm;
 
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 05.09.2017.
  */
@@ -85,7 +88,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleAcceptedOrder(remoteMessage);
                 break;
             case TENDER_ORDER_CANCELED:
-                handleAcceptedOrder(remoteMessage);
+                handleCancelledOrder(remoteMessage);
                 break;
             case TENDER_NOT_WON:
                 handleNotWonTender(remoteMessage);
@@ -129,6 +132,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        } else {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
+        userManager.setStateBusyOnOrder();
 //        }
     }
 
@@ -153,7 +157,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void handleCancelledOrder(RemoteMessage remoteMessage) {
-
+        final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
+        Long id = order.getId();
+        currentNotificationID = id.intValue();
+        Realm realm = RealmHelper.getDb();
+        Order deletedOrder = realm.where(Order.class).equalTo("id", id).findFirst();
+        if (order != null) {
+            realm.executeTransaction(realm1 -> deletedOrder.deleteFromRealm());
+        }
+        Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
+        notificationIntent.putExtra("id", id);
+        notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
+//        if (wasInBackground) {
+        sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+//        } else {
+//            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            getApplicationContext().startActivity(notificationIntent);
+        userManager.setStateReady();
+//        }
     }
 
     private void handleNotWonTender(RemoteMessage remoteMessage) {
@@ -171,11 +192,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void handleCarStatusChange(RemoteMessage remoteMessage) {
         final Long newStatus = Tender.getNewStatusFromJson(remoteMessage.getData().get("message"));
-        if (!userManager.getSelectedStateId().equals(newStatus)) {
-            if (!userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
-                userManager.setSelectedStateId(newStatus);
-                sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
-            }
+        if (userManager.getSelectedStateId().equals(newStatus)) {
+            return;
+        } else if (userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER) && newStatus.equals(STATE_ID_BUSY)) {
+            return;
+        } else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+            return;
+        } else {
+            userManager.setSelectedStateId(newStatus);
+            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
         }
     }
 

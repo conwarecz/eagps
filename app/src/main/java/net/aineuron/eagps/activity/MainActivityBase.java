@@ -127,7 +127,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		messageId = intent.getLongExtra("messageId", -1L);
-		if (messageId != null && messageId != -1L) {
+		if (messageId != -1L) {
 			onTabSelected(MESSAGES_TAB_ID);
 			showFragment(MessageDetailFragment.newInstance(messageId));
 		} else {
