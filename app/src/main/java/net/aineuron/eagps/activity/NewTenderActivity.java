@@ -23,6 +23,7 @@ import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.RealmString;
+import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.AddressDetail;
 import net.aineuron.eagps.model.database.order.Limitation;
@@ -33,6 +34,7 @@ import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
+import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
@@ -98,6 +100,8 @@ public class NewTenderActivity extends AppCompatActivity {
 	private Order order;
     private TenderAcceptModel tenderAcceptModel;
     private TenderRejectModel tenderRejectModel;
+	private int retryCounter = 0;
+	private boolean accepting = true;
 
 	@AfterViews
 	void afterViews() {
@@ -111,13 +115,19 @@ public class NewTenderActivity extends AppCompatActivity {
 			makeRealmOrder();
 		}
 
+		User user = userManager.getUser();
+
         tenderAcceptModel = new TenderAcceptModel();
-        tenderAcceptModel.setEntityId(userManager.getUser().getEntity().getEntityId());
-        tenderAcceptModel.setUserName(userManager.getUser().getUserName());
+		if (user.getEntity() != null && user.getEntity().getEntityId() != null) {
+			tenderAcceptModel.setEntityId(user.getEntity().getEntityId());
+		}
+		tenderAcceptModel.setUserName(user.getUserName());
 
         tenderRejectModel = new TenderRejectModel();
-        tenderRejectModel.setEntityId(userManager.getUser().getEntity().getEntityId());
-        tenderRejectModel.setUserName(userManager.getUser().getUserName());
+		if (user.getEntity() != null && user.getEntity().getEntityId() != null) {
+			tenderRejectModel.setEntityId(user.getEntity().getEntityId());
+		}
+		tenderRejectModel.setUserName(user.getUserName());
 
 		setUi();
 	}
@@ -135,14 +145,18 @@ public class NewTenderActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onKnownErrorEvent(KnownErrorEvent e) {
-        Toast.makeText(getApplicationContext(), e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
-        finishTenderActivity();
-    }
+		if (retryCounter < 3) {
+			trySendAgain();
+			Toast.makeText(getApplicationContext(), "Pokus " + (retryCounter + 1) + ": " + e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
+		} else {
+			finishTenderActivity();
+		}
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOfferCanceledEvent(OrderCanceledEvent e) {
-        finishTenderActivity();
-    }
+		finishTenderActivity();
+	}
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
@@ -156,20 +170,31 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	@Click(R.id.back)
 	void acceptClicked() {
-        TimeDurationPickerDialog dialog = new TimeDurationPickerDialog(this, new TimeDurationPickerDialog.OnDurationSetListener() {
-            @Override
-            public void onDurationSet(TimeDurationPicker view, long duration) {
+		if (!NetworkUtil.isConnected(getApplicationContext())) {
+			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
+			return;
+		}
+		accepting = true;
+		TimeDurationPickerDialog dialog = new TimeDurationPickerDialog(this, new TimeDurationPickerDialog.OnDurationSetListener() {
+			@Override
+			public void onDurationSet(TimeDurationPicker view, long duration) {
                 long minutes = duration / 1000 / 60;
                 tenderAcceptModel.setDepartureDelayMinutes(minutes);
-                clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
-            }
-        }, 0L, TimeDurationPicker.HH_MM);
+				showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
+				clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
+			}
+		}, 0L, TimeDurationPicker.HH_MM);
         dialog.setTitle("Vyberte zpoždění výjezdu");
         dialog.show();
     }
 
 	@Click(R.id.decline)
 	void declineClicked() {
+		if (!NetworkUtil.isConnected(getApplicationContext())) {
+			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
+			return;
+		}
+		accepting = false;
 		// State is the same as before
 		new MaterialDialog.Builder(this)
 				.title("Důvod zrušení")
@@ -180,11 +205,10 @@ public class NewTenderActivity extends AppCompatActivity {
 						Toast.makeText(getApplicationContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
-//                    showProgress("Odesílám zamítnutí", getString(R.string.dialog_wait_content));
-
-                    tenderRejectModel.setRejectReason(Long.valueOf(which));
-                    clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
-                    return true;
+					showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
+					tenderRejectModel.setRejectReason(Long.valueOf(which));
+					clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
+					return true;
                 })
 				.positiveText("OK")
 				.show();
@@ -387,5 +411,14 @@ public class NewTenderActivity extends AppCompatActivity {
 
 		order.setId(orderSerializable.getId());
 		order.setWorkshopName(orderSerializable.getWorkshopName());
+	}
+
+	private void trySendAgain() {
+		retryCounter++;
+		if (accepting) {
+			clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
+		} else {
+			clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
+		}
 	}
 }

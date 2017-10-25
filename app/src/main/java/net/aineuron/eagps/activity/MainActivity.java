@@ -17,11 +17,11 @@ import org.androidannotations.annotations.OptionsMenu;
 public class MainActivity extends AppBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menuProfile.getActionView().setOnClickListener(v -> {
-                    v.setOnClickListener(null);
-                    ProfileActivity_.intent(this).start();
-                }
-        );
+//        menuProfile.getActionView().setOnClickListener(v -> {
+//                    v.setOnClickListener(null);
+//                    ProfileActivity_.intent(this).start();
+//                }
+//        );
         return super.onCreateOptionsMenu(menu);
     }
 }

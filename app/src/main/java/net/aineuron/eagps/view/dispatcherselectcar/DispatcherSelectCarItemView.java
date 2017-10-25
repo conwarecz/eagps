@@ -17,9 +17,10 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
 import org.greenrobot.eventbus.EventBus;
 
-import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_BUSY;
-import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_READY;
-import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_UNAVAILABLE;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
+
 
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 31.08.2017.
@@ -60,29 +61,29 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
             EventBus.getDefault().post(new WorkerCarSelectedEvent(car.getId(), carRZ.isChecked(), car.getStatusId()));
         });
 
-        switch (car.getStatusId().intValue()) {
-            case CAR_STATE_UNAVAILABLE:
-                this.getRootView().setBackgroundResource(R.color.unavailable);
-                stateIcon.setImageResource(R.drawable.icon_small_unavailable);
-                stateIcon.setVisibility(VISIBLE);
-                carState.setText(R.string.car_unavailable);
-                break;
-            case CAR_STATE_BUSY:
-                this.getRootView().setBackgroundResource(R.color.busy);
-                stateIcon.setImageResource(R.drawable.icon_small_busy);
-                stateIcon.setVisibility(VISIBLE);
-                carState.setText(R.string.car_on_duty);
-                break;
-            case CAR_STATE_READY:
-                this.getRootView().setBackgroundResource(R.color.ready);
-                stateIcon.setVisibility(INVISIBLE);
-                carState.setText(R.string.car_waiting);
-                break;
-            default:
-                this.getRootView().setBackgroundResource(R.color.ready);
-                stateIcon.setVisibility(INVISIBLE);
-                carState.setText(R.string.car_waiting);
-                break;
+        int i = car.getStatusId().intValue();
+        if (i == STATE_ID_UNAVAILABLE) {
+            this.getRootView().setBackgroundResource(R.color.unavailable);
+            stateIcon.setImageResource(R.drawable.icon_small_unavailable);
+            stateIcon.setVisibility(VISIBLE);
+            carState.setText(R.string.car_unavailable);
+
+        } else if (i == STATE_ID_BUSY) {
+            this.getRootView().setBackgroundResource(R.color.busy);
+            stateIcon.setImageResource(R.drawable.icon_small_busy);
+            stateIcon.setVisibility(VISIBLE);
+            carState.setText(R.string.car_on_duty);
+
+        } else if (i == STATE_ID_READY) {
+            this.getRootView().setBackgroundResource(R.color.ready);
+            stateIcon.setVisibility(INVISIBLE);
+            carState.setText(R.string.car_waiting);
+
+        } else {
+            this.getRootView().setBackgroundResource(R.color.ready);
+            stateIcon.setVisibility(INVISIBLE);
+            carState.setText(R.string.car_waiting);
+
         }
     }
 

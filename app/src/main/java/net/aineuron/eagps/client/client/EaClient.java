@@ -351,6 +351,11 @@ public class EaClient {
 						voidResponse ->
 						{
 							if (voidResponse.isSuccessful()) {
+//								Realm db = RealmHelper.getDb();
+//								db.executeTransaction(realm -> {
+//									realm.where(Order.class).equalTo("id", orderId).findFirst().deleteFromRealm();
+//								});
+//								db.close();
 								eventBus.post(new OrderCanceledEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);
@@ -372,7 +377,7 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
-								userManager.setSelectedStateId(UserManager.STATE_ID_READY);
+								userManager.setStateReady();
 								eventBus.post(new OrderFinalizedEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);

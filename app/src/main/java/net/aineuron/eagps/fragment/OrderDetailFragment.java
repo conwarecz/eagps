@@ -249,17 +249,19 @@ public class OrderDetailFragment extends BaseFragment {
 
 	private void setOrderListener() {
 		order = ordersManager.getOrderById(orderId);
-		objectListener = new RealmObjectChangeListener() {
-			@Override
-			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
-				db = RealmHelper.getDb();
-				order = ordersManager.getOrderById(orderId);
-				if (header != null) {
-					setUi();
-					hideProgress();
+		if (order != null) {
+			objectListener = new RealmObjectChangeListener() {
+				@Override
+				public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
+					db = RealmHelper.getDb();
+					order = ordersManager.getOrderById(orderId);
+					if (header != null && order != null) {
+						setUi();
+						hideProgress();
+					}
 				}
-			}
-		};
-		order.addChangeListener(objectListener);
+			};
+			order.addChangeListener(objectListener);
+		}
 	}
 }

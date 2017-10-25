@@ -18,6 +18,8 @@ import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.order.Order;
@@ -33,6 +35,7 @@ import net.aineuron.eagps.util.RealmHelper;
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,6 +116,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
+            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             getApplicationContext().startActivity(notificationIntent);
         }
@@ -161,9 +165,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Long id = order.getId();
         currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
-        Order deletedOrder = realm.where(Order.class).equalTo("id", id).findFirst();
-        if (order != null) {
-            realm.executeTransaction(realm1 -> deletedOrder.deleteFromRealm());
+        Order canceledOrder = realm.where(Order.class).equalTo("id", id).findFirst();
+        if (canceledOrder != null) {
+            realm.executeTransaction(realm1 ->
+                    canceledOrder.deleteFromRealm()
+            );
         }
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);
@@ -174,6 +180,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
         userManager.setStateReady();
+        EventBus.getDefault().post(new OrderCanceledEvent(id));
 //        }
     }
 
@@ -182,7 +189,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Long id = order.getId();
         currentNotificationID = id.intValue();
 
-        // TODO: doděat až bude rozseknuto jak to má vůbec vypadat a chovat se
+        // TODO: dodělat až bude rozseknuto jak to má vůbec vypadat a chovat se
         if (wasInBackground) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
         } else {
@@ -200,6 +207,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             return;
         } else {
             userManager.setSelectedStateId(newStatus);
+            EventBus.getDefault().post(new StateSelectedEvent(newStatus));
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
         }
     }

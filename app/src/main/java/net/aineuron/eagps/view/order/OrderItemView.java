@@ -77,7 +77,13 @@ public class OrderItemView extends ConstraintLayout {
 		}
 
         boolean hasDocuments = false;
+        if (order.getOrderSheetProvided() != null) {
+            hasDocuments = order.getOrderSheetProvided();
+        }
         boolean hasPhotos = false;
+        if (order.getPhotosProvided() != null) {
+            hasPhotos = order.getPhotosProvided();
+        }
 
         Realm db = RealmHelper.getDb();
         LocalPhotos localPhotos = db.where(LocalPhotos.class).equalTo("orderId", order.getId()).findFirst();

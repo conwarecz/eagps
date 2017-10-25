@@ -36,9 +36,9 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_BUSY;
-import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_READY;
-import static net.aineuron.eagps.adapter.DispatcherSelectCarAdapter.CAR_STATE_UNAVAILABLE;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 31.08.2017.
@@ -67,7 +67,7 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     private List<Car> cars = new ArrayList<>();
     private LinearLayoutManager layoutManager;
     private List<Car> selectedCars = new ArrayList<>();
-    private int carsNewState = CAR_STATE_READY;
+    private long carsNewState = STATE_ID_READY;
 
     public static DispatcherSelectCarFragment newInstance() {
         return DispatcherSelectCarFragment_.builder().build();
@@ -75,19 +75,19 @@ public class DispatcherSelectCarFragment extends BaseFragment {
 
     @Click(R.id.carsReady)
     void readyClicked() {
-        carsNewState = CAR_STATE_READY;
+        carsNewState = STATE_ID_READY;
         setCarsState();
     }
 
     @Click(R.id.carsBusy)
     void busyClicked() {
-        carsNewState = CAR_STATE_BUSY;
+        carsNewState = STATE_ID_BUSY;
         setCarsState();
     }
 
     @Click(R.id.carsUnavailable)
     void unavailableClicked() {
-        carsNewState = CAR_STATE_UNAVAILABLE;
+        carsNewState = STATE_ID_UNAVAILABLE;
         setCarsState();
     }
 
@@ -125,6 +125,7 @@ public class DispatcherSelectCarFragment extends BaseFragment {
             AppCompatCheckBox checkBox = layoutManager.getChildAt(i).findViewById(R.id.carCheckRZ);
             checkBox.setChecked(false);
         }
+        carAdapter.notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -181,6 +182,6 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     }
 
     private void changeCarState(Car car) {
-        clientProvider.getEaClient().setCarState(Long.valueOf(carsNewState), car.getId());
+        clientProvider.getEaClient().setCarState(carsNewState, car.getId());
     }
 }

@@ -20,6 +20,8 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
@@ -42,17 +44,15 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
-import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity
 public class MainActivityBase extends BackStackActivity implements BottomNavigationBar.OnTabSelectedListener {
 
+	public static final int MAIN_TAB_ID = 0;
+	public static final int ORDERS_TAB_ID = 1;
+	public static final int MESSAGES_TAB_ID = 2;
 	private static final String STATE_CURRENT_TAB_ID = "current_tab_id";
-	private static final int MAIN_TAB_ID = 0;
-	private static final int ORDERS_TAB_ID = 1;
-	private static final int MESSAGES_TAB_ID = 2;
-
 	@ViewById(R.id.bottomNavigationBar)
 	BottomNavigationBar bottomNavigation;
 
@@ -108,12 +108,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (userManager.haveActiveOrder()) {
-			userManager.setStateBusyOnOrder();
-			userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
-		}
+		userManager.haveActiveOrder();
 	}
-
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
@@ -328,6 +324,21 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			shapeBadgeItem.show();
 		} else {
 			shapeBadgeItem.hide();
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onStateChangedEvent(StateSelectedEvent e) {
+		if (currentFragment instanceof StateFragment) {
+			replaceFragment(StateFragment.newInstance());
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onOrderCancelled(OrderCanceledEvent e) {
+		if (!userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID && currentTabId == MAIN_TAB_ID) {
+			bottomNavigation.selectTab(MAIN_TAB_ID, false);
+			showFragment(rootTabFragment(MAIN_TAB_ID));
 		}
 	}
 }

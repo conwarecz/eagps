@@ -26,8 +26,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
-import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
 /**
  * Created by Vit Veres on 30-May-17
@@ -70,8 +70,8 @@ public class AppBarActivity extends MainActivityBase {
 		licencePlate = menuState.getActionView().findViewById(R.id.licensePlate);
 
 		menuProfile.getActionView().setOnClickListener(v ->
-				ProfileActivity_.intent(this).start()
-		);
+                ProfileActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP).start()
+        );
 		menuState.getActionView().setOnClickListener(v -> {
 			if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_BUSY_ORDER) || userManager.haveActiveOrder()) {
 				Toast.makeText(this, "Při aktivní zakázce nelze měnit vůz!", Toast.LENGTH_LONG).show();
@@ -88,8 +88,12 @@ public class AppBarActivity extends MainActivityBase {
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		setUpActionBar();
-	}
+        try {
+            setUpActionBar();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	private void setUpActionBar() {
         actionBar = getSupportActionBar();
@@ -124,7 +128,6 @@ public class AppBarActivity extends MainActivityBase {
 		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
             setActionBarColor(busy);
             stateIcon.setImageResource(R.drawable.icon_busy);
-
 		} else {
             setActionBarColor(primary);
         }
@@ -151,19 +154,25 @@ public class AppBarActivity extends MainActivityBase {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stateChangedEvent(StateSelectedEvent e) {
+        int visibility = View.VISIBLE;
         if (e.state.equals(STATE_ID_BUSY) || e.state.equals(STATE_ID_BUSY_ORDER)) {
             actionBar.setTitle(R.string.car_on_duty);
             setActionBarColor(busy);
-        } else if (e.state.equals(STATE_ID_NO_CAR)) {
-            actionBar.setTitle("");
-            setActionBarColor(primary);
+            stateIcon.setImageResource(R.drawable.icon_busy);
         } else if (e.state.equals(STATE_ID_READY)) {
-            actionBar.setTitle(R.string.car_unavailable);
-            setActionBarColor(unavailable);
-        } else {
             actionBar.setTitle(R.string.car_waiting);
             setActionBarColor(ready);
+            stateIcon.setImageResource(R.drawable.icon_ready);
+        } else if (e.state.equals(STATE_ID_UNAVAILABLE)) {
+            actionBar.setTitle(R.string.car_unavailable);
+            setActionBarColor(unavailable);
+            stateIcon.setImageResource(R.drawable.icon_unavailable);
+        } else {
+            actionBar.setTitle("");
+            setActionBarColor(primary);
+            visibility = View.GONE;
         }
+        stateIcon.setVisibility(visibility);
     }
 
     private void setActionBarColor(int color) {

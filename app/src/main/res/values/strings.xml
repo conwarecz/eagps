@@ -13,4 +13,7 @@
     <string name="dispatcher_unavailable">Nedostupna</string>
     <string name="dispatcher_busy">Na zásahu</string>
     <string name="dispatcher_ready">Připravena</string>
+    <string name="tender_sending_progress_title">Odesílám požadavek</string>
+    <string name="tender_sending_progress_content">Prosím o strpení</string>
+    <string name="connectivity_not_connected">Zkontrolujete, prosím, své připojení</string>
 </resources>

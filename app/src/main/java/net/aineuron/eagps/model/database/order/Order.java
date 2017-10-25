@@ -53,6 +53,8 @@ public class Order extends RealmObject {
 
 	private String reasonForNoDocuments;
 	private String reasonForNoPhotos;
+    private Boolean photosProvided;
+    private Boolean orderSheetProvided;
 
 	private boolean isSent;
 
@@ -242,5 +244,21 @@ public class Order extends RealmObject {
 	public void setEstimatedDepartureTime(Date estimatedDepartureTime) {
 		this.estimatedDepartureTime = estimatedDepartureTime;
 	}
+
+    public Boolean getPhotosProvided() {
+        return photosProvided;
+    }
+
+    public void setPhotosProvided(Boolean photosProvided) {
+        this.photosProvided = photosProvided;
+    }
+
+    public Boolean getOrderSheetProvided() {
+        return orderSheetProvided;
+    }
+
+    public void setOrderSheetProvided(Boolean orderSheetProvided) {
+        this.orderSheetProvided = orderSheetProvided;
+    }
 }
 

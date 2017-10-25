@@ -8,6 +8,7 @@ import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.AddressDetail;
 import net.aineuron.eagps.model.database.order.DestinationAddress;
 import net.aineuron.eagps.model.database.order.Limitation;
+import net.aineuron.eagps.model.database.order.LocalPhotos;
 import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.RealmHelper;
@@ -115,12 +116,22 @@ public class OrdersManager {
         db.executeTransaction(realm -> {
             realm.where(Order.class).findAll().deleteAllFromRealm();
             realm.where(Message.class).findAll().deleteAllFromRealm();
+            realm.where(LocalPhotos.class).findAll().deleteAllFromRealm();
         });
+        db.close();
     }
 
 	public void sendOrder(Long orderId) {
 		clientProvider.getEaClient().sendOrder(orderId);
 	}
+
+    public void deleteOrderFromRealm(Long orderId) {
+        Realm db = RealmHelper.getDb();
+        db.executeTransaction(realm -> {
+            realm.where(Order.class).equalTo("id", orderId).findFirst().deleteFromRealm();
+        });
+        db.close();
+    }
 
 	@Nullable
 	public Order getFirstActiveOrder() {

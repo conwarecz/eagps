@@ -38,6 +38,7 @@ import io.realm.Realm;
 import io.realm.RealmModel;
 import io.realm.RealmObjectChangeListener;
 
+import static net.aineuron.eagps.activity.MainActivityBase.MAIN_TAB_ID;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
@@ -169,7 +170,6 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
-		userManager.setSelectedStateId(UserManager.STATE_ID_READY);
 		IntentUtils.openMainActivity(getContext());
 	}
 
@@ -188,11 +188,10 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void orderFinalized(OrderFinalizedEvent e) {
 		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(StateFragment.newInstance());
-		userManager.setStateReady();
-		if (userManager.getUser().getRoleId() == WORKER_ID) {
-			StateSettingsActivity_.intent(getContext()).start();
-		} else {
+        activity.onTabSelected(MAIN_TAB_ID);
+        if (userManager.getUser().getRoleId() == WORKER_ID) {
+            StateSettingsActivity_.intent(getContext()).start();
+        } else {
 			// TODO: buď attachmentsFragment nebo seznam zakázek pro dispatchera
 			activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
 		}
@@ -225,10 +224,10 @@ public class TowFragment extends BaseFragment {
 			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
 				db = RealmHelper.getDb();
 				order = ordersManager.getOrderById(orderId);
-				if (orderDetailHeader != null) {
-					setContent();
-				}
-				hideProgress();
+                if (orderDetailHeader != null && order != null) {
+                    setContent();
+                }
+                hideProgress();
 			}
 		};
 		order.removeAllChangeListeners();

@@ -162,6 +162,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 		}
 
+
 		// TODO: dodělat odesílání reasonForNoPhotos
 		if (!hasPhotos || !hasDocuments) {
 			new MaterialDialog.Builder(getContext())
@@ -184,12 +185,12 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
 		localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-		db.executeTransactionAsync(realm ->
+		db.executeTransaction(realm ->
 				localPhotos.deleteFromRealm()
 		);
 
-		IntentUtils.openMainActivity(getContext());
 		getActivity().onBackPressed();
+		IntentUtils.openMainActivity(getContext());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

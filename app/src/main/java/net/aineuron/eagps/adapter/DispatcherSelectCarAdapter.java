@@ -25,9 +25,6 @@ import java.util.List;
 
 @EBean
 public class DispatcherSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSelectCarViewModel, DispatcherSelectCarItemView> {
-    public static final int CAR_STATE_UNAVAILABLE = 1;
-    public static final int CAR_STATE_READY = 2;
-    public static final int CAR_STATE_BUSY = 3;
     private static int width = 0;
     @RootContext
     Context context;
