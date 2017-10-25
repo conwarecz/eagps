@@ -25,7 +25,9 @@ import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
+import net.aineuron.eagps.fragment.MessagesFragment_;
 import net.aineuron.eagps.fragment.NoCarStateFragment;
+import net.aineuron.eagps.fragment.NoCarStateFragment_;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.OrdersFragment_;
 import net.aineuron.eagps.fragment.StateFragment;
@@ -69,9 +71,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Extra
 	Long messageId;
 
-    @Nullable
-    @Extra
-    boolean cancelTender;
+	@Nullable
+	@Extra
+	boolean cancelTender;
 
 	@EventBusGreenRobot
 	EventBus eventBus;
@@ -154,6 +156,19 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Override
 	public void onBackPressed() {
+		if (userManager.getUser().getUserRole() == DISPATCHER_ID && currentFragment instanceof OrdersFragment_) {
+			// Dispatcher has Orders as default tab - We want to exit app
+			super.onBackPressed();
+		} else if (currentFragment instanceof TowFragment_ || currentFragment instanceof NoCarStateFragment_ || currentFragment instanceof NoCarStateFragment_) {
+			// Default fragment for worker - We want to exit app
+			super.onBackPressed();
+		} else if (currentFragment instanceof OrdersFragment_ || currentFragment instanceof MessagesFragment_) {
+			// In these cases we want to get to the default Tab and its first fragment
+			backToDefaultFragment();
+			return;
+		}
+
+		// All other fragments needs to pop from backstack to previous
 		Pair<Integer, Fragment> pair = popFragmentFromBackStack();
 		if (pair != null) {
 			backTo(pair.first, pair.second);
@@ -214,39 +229,39 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private void initBottomNavigation() {
 		bottomNavigation.setTabSelectedListener(this);
 
-        BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
-        messagesItem.setBadgeItem(shapeBadgeItem);
-        shapeBadgeItem = new ShapeBadgeItem()
-                .setShape(ShapeBadgeItem.SHAPE_OVAL)
-                .setSizeInDp(this, 10, 10)
-                .setShapeColor(Color.RED)
-                .hide();
-        if (messagesManager.checkUnreadMessage()) {
-            shapeBadgeItem.show();
-        }
+		BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
+		messagesItem.setBadgeItem(shapeBadgeItem);
+		shapeBadgeItem = new ShapeBadgeItem()
+				.setShape(ShapeBadgeItem.SHAPE_OVAL)
+				.setSizeInDp(this, 10, 10)
+				.setShapeColor(Color.RED)
+				.hide();
+		if (messagesManager.checkUnreadMessage()) {
+			shapeBadgeItem.show();
+		}
 
-        bottomNavigation
-                .setActiveColor(R.color.colorPrimary)
-                .setInActiveColor(R.color.grayText)
-                .setBarBackgroundColor(R.color.backgroundWhite);
-        if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+		bottomNavigation
+				.setActiveColor(R.color.colorPrimary)
+				.setInActiveColor(R.color.grayText)
+				.setBarBackgroundColor(R.color.backgroundWhite);
+		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
 
 			bottomNavigation
-                    .addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
-                    .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
+					.addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
+					.addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
 					.addItem(messagesItem)
 					.setFirstSelectedPosition(0)
 					.initialise();
-            // Dispatcher mode
-        } else {
-            bottomNavigation
-                    .addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
-                    .addItem(new BottomNavigationItem(R.drawable.icon_detail_car, "Správa vozidel"))
-                    .addItem(messagesItem)
-                    .setFirstSelectedPosition(0)
-                    .initialise();
-        }
-    }
+			// Dispatcher mode
+		} else {
+			bottomNavigation
+					.addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
+					.addItem(new BottomNavigationItem(R.drawable.icon_detail_car, "Správa vozidel"))
+					.addItem(messagesItem)
+					.setFirstSelectedPosition(0)
+					.initialise();
+		}
+	}
 
 	private void backTo(int tabId, @NonNull Fragment fragment) {
 		if (tabId != currentTabId) {
@@ -269,6 +284,20 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		}
 	}
 
+	private void backToDefaultFragment() {
+		currentTabId = MAIN_TAB_ID;
+		bottomNavigation.selectTab(currentTabId, false);
+
+		// Manual cleaning of all stacks - maybe not necessary on others than MAIN_TAB_ID
+		resetBackStackToRoot(0);
+		resetBackStackToRoot(1);
+		resetBackStackToRoot(2);
+		resetBackStackToRoot(3);
+
+		Fragment defaultFragment = rootTabFragment(MAIN_TAB_ID);
+		showFragment(defaultFragment);
+	}
+
 	private boolean isRootTabFragment(@NonNull Fragment fragment, int tabId) {
 		return fragment.getClass() == rootTabFragment(tabId).getClass();
 	}
@@ -286,37 +315,37 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@NonNull
 	private Fragment rootTabFragment(int tabId) {
 		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
-            // Driver mode
-            switch (tabId) {
-                case 0:
+			// Driver mode
+			switch (tabId) {
+				case 0:
 					if (userManager.haveActiveOrder()) {
 						return TowFragment.newInstance(null);
 					} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
-                        return NoCarStateFragment.newInstance();
-                    } else {
-                        return StateFragment.newInstance();
-                    }
-                case 1:
-                    return OrdersFragment.newInstance();
-                case 2:
-                    return MessagesFragment.newInstance();
-                default:
-                    return StateFragment.newInstance();
-            }
-        } else {
-            // Dispatcher mode
-            switch (tabId) {
-                case 0:
-                    return OrdersFragment.newInstance();
-                case 1:
-                    return DispatcherSelectCarFragment.newInstance();
-                case 2:
-                    return MessagesFragment.newInstance();
-                default:
-                    return OrdersFragment.newInstance();
-            }
-        }
-    }
+						return NoCarStateFragment.newInstance();
+					} else {
+						return StateFragment.newInstance();
+					}
+				case 1:
+					return OrdersFragment.newInstance();
+				case 2:
+					return MessagesFragment.newInstance();
+				default:
+					return StateFragment.newInstance();
+			}
+		} else {
+			// Dispatcher mode
+			switch (tabId) {
+				case 0:
+					return OrdersFragment.newInstance();
+				case 1:
+					return DispatcherSelectCarFragment.newInstance();
+				case 2:
+					return MessagesFragment.newInstance();
+				default:
+					return OrdersFragment.newInstance();
+			}
+		}
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void messageStatusChanged(MessageStatusChangedEvent e) {
