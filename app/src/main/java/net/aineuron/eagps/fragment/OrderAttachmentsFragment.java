@@ -34,6 +34,7 @@ import net.aineuron.eagps.event.ui.AddPhotoEvent;
 import net.aineuron.eagps.event.ui.RemovePhotoEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.order.LocalPhotos;
+import net.aineuron.eagps.model.database.order.LocalReasons;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoFile;
@@ -94,11 +95,21 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Bean
 	ClientProvider clientProvider;
 
+	@Bean
+	PhotoPathsWithReasonAdapter documentsAdapter;
+
+	@Bean
+	PhotoPathsWithReasonAdapter photosAdapter;
+
 	private Order order;
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
 	private int uploadedPhotos = 0;
 	private LocalPhotos localPhotos;
+	private LocalReasons localReasons;
+
+	private boolean hasPhotos = false;
+	private boolean hasDocuments = false;
 
 	public static OrderAttachmentsFragment newInstance(Long orderId) {
 		return OrderAttachmentsFragment_.builder().orderId(orderId).build();
@@ -125,12 +136,15 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			setContent();
 		} else {
 			localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
+
 			if (localPhotos == null) {
 				localPhotos = new LocalPhotos();
 				localPhotos.setOrderId(orderId);
 				db.executeTransaction(realm -> realm.copyToRealmOrUpdate(localPhotos));
 				localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
 			}
+
 			order = ordersManager.getOrderById(orderId);
 			if (order != null) {
 				setContent();
@@ -145,25 +159,41 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Click(R.id.closeOrder)
 	public void closeOrder() {
+		checkReasons();
+
+		boolean saveToDb = false;
+		LocalReasons reasons = new LocalReasons();
+		reasons.setOrderId(orderId);
+		String string = order.getReasonForNoDocuments();
+		if (string != null && !string.isEmpty()) {
+			reasons.setReasonForNoDocuments(string);
+			saveToDb = true;
+		}
+		string = order.getReasonForNoPhotos();
+		if (string != null && !string.isEmpty()) {
+			reasons.setReasonForNoPhotos(string);
+			saveToDb = true;
+		}
+		if (saveToDb) {
+			db.executeTransaction(realm -> realm.copyToRealmOrUpdate(reasons));
+		}
 		((MainActivityBase) getActivity()).showFragment(new OrdersFragment_());
 	}
 
 	@Click(R.id.sendOrder)
 	public void sendOrder() {
+		checkReasons();
 
-		boolean hasPhotos = false;
-		boolean hasDocuments = false;
-
-		for (Photo photo : localPhotos.getLocalPhotos()) {
-			if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
-				hasPhotos = true;
-			} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
-				hasDocuments = true;
+		if (!hasPhotos || !hasDocuments) {
+			for (Photo photo : localPhotos.getLocalPhotos()) {
+				if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+					hasPhotos = true;
+				} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+					hasDocuments = true;
+				}
 			}
 		}
 
-
-		// TODO: dodělat odesílání reasonForNoPhotos
 		if (!hasPhotos || !hasDocuments) {
 			new MaterialDialog.Builder(getContext())
 					.title("Chyba")
@@ -187,6 +217,10 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
 		db.executeTransaction(realm ->
 				localPhotos.deleteFromRealm()
+		);
+		localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
+		db.executeTransaction(realm ->
+				localReasons.deleteFromRealm()
 		);
 
 		getActivity().onBackPressed();
@@ -309,11 +343,20 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 		}
 
+		String photoReason = order.getReasonForNoDocuments();
+		if (localReasons != null && (photoReason == null || photoReason.isEmpty())) {
+			photoReason = localReasons.getReasonForNoPhotos();
+		}
+		String docsReason = order.getReasonForNoDocuments();
+		if (localReasons != null && (docsReason == null || docsReason.isEmpty())) {
+			docsReason = localReasons.getReasonForNoDocuments();
+		}
+
 		if (localPhotos.getLocalPhotos() != null) {
-			PhotoPathsWithReasonAdapter documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+			documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(documents)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS)
-					.withReason(order.getReasonForNoDocuments())
+					.withReason(photoReason)
 					.finish();
 			orderDocumentsView.setLayoutManager(documentsLayoutManager);
 			orderDocumentsView.addItemDecoration(decor);
@@ -321,10 +364,10 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 
 		if (localPhotos.getLocalPhotos() != null) {
-			PhotoPathsWithReasonAdapter photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+			photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(photos)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS)
-					.withReason(order.getReasonForNoPhotos())
+					.withReason(docsReason)
 					.finish();
 			orderPhotosView.setLayoutManager(photosLayoutManager);
 			orderPhotosView.addItemDecoration(decor);
@@ -382,5 +425,20 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	private void uploadFinishedSendOrder() {
 		ordersManager.sendOrder(order.getId());
+	}
+
+	private void checkReasons() {
+		String noPhotosReason = photosAdapter.getReason();
+		String noDocumentsReason = documentsAdapter.getReason();
+
+		if (noPhotosReason != null && !noPhotosReason.isEmpty()) {
+			db.executeTransaction(realm -> order.setReasonForNoPhotos(noPhotosReason));
+			hasPhotos = true;
+		}
+
+		if (noDocumentsReason != null && !noDocumentsReason.isEmpty()) {
+			db.executeTransaction(realm -> order.setReasonForNoDocuments(noDocumentsReason));
+			hasDocuments = true;
+		}
 	}
 }

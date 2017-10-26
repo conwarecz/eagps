@@ -12,6 +12,7 @@ import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.ui.MessageClickedEvent;
 import net.aineuron.eagps.model.database.Message;
+import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
@@ -63,5 +64,7 @@ public class MessageItemView extends ConstraintLayout {
         this.message.setText(message.getText());
 
 		this.setOnClickListener(v -> bus.post(new MessageClickedEvent(message.getId())));
+
+		this.setOnLongClickListener(view -> IntentUtils.shareText(super.getContext(), message.getText()));
 	}
 }

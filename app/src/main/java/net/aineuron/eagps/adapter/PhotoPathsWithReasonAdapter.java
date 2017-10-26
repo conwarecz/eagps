@@ -98,7 +98,7 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
                     .withAddPhotoTargetId(addPhotoTarget)
                     .withReason(reason));
 
-            items.add(new PhotoPathsWithReasonViewModel(TYPE_REASON, photos));
+            items.add(new PhotoPathsWithReasonViewModel(TYPE_REASON, photos).withReason(reason));
             return;
 		}
 
@@ -113,4 +113,13 @@ public class PhotoPathsWithReasonAdapter extends BaseRecyclerViewAdapter<PhotoPa
 
 		notifyDataSetChanged();
 	}
+
+    public String getReason() {
+        for (PhotoPathsWithReasonViewModel model : items) {
+            if (model.itemType == TYPE_REASON) {
+                this.reason = model.reason;
+            }
+        }
+        return reason;
+    }
 }

@@ -16,4 +16,6 @@
     <string name="tender_sending_progress_title">Odesílám požadavek</string>
     <string name="tender_sending_progress_content">Prosím o strpení</string>
     <string name="connectivity_not_connected">Zkontrolujete, prosím, své připojení</string>
+    <string name="share_text">Sdílet pomocí:</string>
+    <string name="share_copy">Text zprávy byl zkopírován do schránky</string>
 </resources>
