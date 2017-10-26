@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dny"
+        android:textColor="@android:color/black"
+        app:layout_constraintBottom_toTopOf="@id/widget_duration_days"
+        app:layout_constraintLeft_toLeftOf="@id/widget_duration_days"
+        app:layout_constraintRight_toRightOf="@id/widget_duration_days" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hodiny"
+        android:textColor="@android:color/black"
+        app:layout_constraintBottom_toTopOf="@id/widget_duration_hours"
+        app:layout_constraintLeft_toLeftOf="@id/widget_duration_hours"
+        app:layout_constraintRight_toRightOf="@id/widget_duration_hours" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minuty"
+        android:textColor="@android:color/black"
+        app:layout_constraintBottom_toTopOf="@id/widget_duration_minutes"
+        app:layout_constraintLeft_toLeftOf="@id/widget_duration_minutes"
+        app:layout_constraintRight_toRightOf="@id/widget_duration_minutes" />
+
+    <NumberPicker
+        android:id="@+id/widget_duration_days"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/widget_duration_hours"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <NumberPicker
+        android:id="@+id/widget_duration_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintLeft_toRightOf="@id/widget_duration_days"
+        app:layout_constraintRight_toLeftOf="@id/widget_duration_minutes"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <NumberPicker
+        android:id="@+id/widget_duration_minutes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintLeft_toRightOf="@id/widget_duration_hours"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/widget_duration_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@color/colorPrimary"
+        android:text="OK"
+        android:textColor="@color/backgroundWhite"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/widget_duration_minutes" />
+
+</android.support.constraint.ConstraintLayout>

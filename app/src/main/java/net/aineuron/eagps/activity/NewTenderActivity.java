@@ -1,11 +1,14 @@
 package net.aineuron.eagps.activity;
 
+import android.app.Dialog;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -49,11 +52,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import io.realm.RealmList;
-import mobi.upod.timedurationpicker.TimeDurationPicker;
-import mobi.upod.timedurationpicker.TimeDurationPickerDialog;
 
 @EActivity(R.layout.activity_offer)
-public class NewTenderActivity extends AppCompatActivity {
+public class NewTenderActivity extends AppCompatActivity implements NumberPicker.OnValueChangeListener {
 
 	@ViewById(R.id.back)
 	Button accept;
@@ -102,6 +103,13 @@ public class NewTenderActivity extends AppCompatActivity {
     private TenderRejectModel tenderRejectModel;
 	private int retryCounter = 0;
 	private boolean accepting = true;
+	private int days = 0;
+	private int hours = 0;
+	private int minutes = 0;
+	private Long duration = 0L;
+	private NumberPicker dayPicker;
+	private NumberPicker hourPicker;
+	private NumberPicker minutePicker;
 
 	@AfterViews
 	void afterViews() {
@@ -175,18 +183,8 @@ public class NewTenderActivity extends AppCompatActivity {
 			return;
 		}
 		accepting = true;
-		TimeDurationPickerDialog dialog = new TimeDurationPickerDialog(this, new TimeDurationPickerDialog.OnDurationSetListener() {
-			@Override
-			public void onDurationSet(TimeDurationPicker view, long duration) {
-                long minutes = duration / 1000 / 60;
-                tenderAcceptModel.setDepartureDelayMinutes(minutes);
-				showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
-				clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
-			}
-		}, 0L, TimeDurationPicker.HH_MM);
-        dialog.setTitle("Vyberte zpoždění výjezdu");
-        dialog.show();
-    }
+		showDurationDialog();
+	}
 
 	@Click(R.id.decline)
 	void declineClicked() {
@@ -420,5 +418,50 @@ public class NewTenderActivity extends AppCompatActivity {
 		} else {
 			clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
 		}
+	}
+
+
+	public void showDurationDialog() {
+		final Dialog d = new Dialog(NewTenderActivity.this);
+		d.setTitle("Vyberte zpoždění výjezdu");
+		d.setContentView(R.layout.widget_delay_picker);
+		Button confirmationButton = (AppCompatButton) d.findViewById(R.id.widget_duration_confirm);
+		dayPicker = (NumberPicker) d.findViewById(R.id.widget_duration_days);
+		dayPicker.setMaxValue(99);
+		dayPicker.setMinValue(0);
+		dayPicker.setWrapSelectorWheel(false);
+		dayPicker.setOnValueChangedListener(this);
+
+		hourPicker = (NumberPicker) d.findViewById(R.id.widget_duration_hours);
+		hourPicker.setMaxValue(23);
+		hourPicker.setMinValue(0);
+		hourPicker.setWrapSelectorWheel(false);
+		hourPicker.setOnValueChangedListener(this);
+
+		minutePicker = (NumberPicker) d.findViewById(R.id.widget_duration_minutes);
+		minutePicker.setMaxValue(11);
+		minutePicker.setMinValue(0);
+		minutePicker.setDisplayedValues(new String[]{"0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"});
+		minutePicker.setWrapSelectorWheel(false);
+		minutePicker.setOnValueChangedListener(this);
+		confirmationButton.setOnClickListener(v -> {
+			d.dismiss();
+			tenderAcceptModel.setDepartureDelayMinutes(duration);
+			showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
+			clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
+		});
+		d.show();
+	}
+
+	@Override
+	public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+		if (numberPicker == dayPicker) {
+			days = newValue;
+		} else if (numberPicker == hourPicker) {
+			hours = newValue;
+		} else if (numberPicker == minutePicker) {
+			minutes = newValue * 5;
+		}
+		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
 	}
 }

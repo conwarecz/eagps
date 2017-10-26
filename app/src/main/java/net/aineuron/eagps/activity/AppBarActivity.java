@@ -154,6 +154,10 @@ public class AppBarActivity extends MainActivityBase {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stateChangedEvent(StateSelectedEvent e) {
+		if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
+			return;
+		}
+
         int visibility = View.VISIBLE;
         if (e.state.equals(STATE_ID_BUSY) || e.state.equals(STATE_ID_BUSY_ORDER)) {
             actionBar.setTitle(R.string.car_on_duty);

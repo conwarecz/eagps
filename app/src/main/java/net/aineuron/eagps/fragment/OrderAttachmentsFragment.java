@@ -116,10 +116,39 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		hideProgress();
-	}
+    public void onPause() {
+        hideProgress();
+
+        checkReasons();
+
+        boolean saveToDb = false;
+        LocalReasons reasons = new LocalReasons();
+        reasons.setOrderId(orderId);
+        String string = order.getReasonForNoDocuments();
+        if (string != null && !string.isEmpty()) {
+            reasons.setReasonForNoDocuments(string);
+            saveToDb = true;
+        }
+        string = order.getReasonForNoPhotos();
+        if (string != null && !string.isEmpty()) {
+            reasons.setReasonForNoPhotos(string);
+            saveToDb = true;
+        }
+        if (saveToDb) {
+            db.executeTransaction(realm -> realm.copyToRealmOrUpdate(reasons));
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
+        if (localReasons != null) {
+            setContent();
+        }
+    }
 
 	@AfterViews
 	void afterViews() {
@@ -160,23 +189,6 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Click(R.id.closeOrder)
 	public void closeOrder() {
 		checkReasons();
-
-		boolean saveToDb = false;
-		LocalReasons reasons = new LocalReasons();
-		reasons.setOrderId(orderId);
-		String string = order.getReasonForNoDocuments();
-		if (string != null && !string.isEmpty()) {
-			reasons.setReasonForNoDocuments(string);
-			saveToDb = true;
-		}
-		string = order.getReasonForNoPhotos();
-		if (string != null && !string.isEmpty()) {
-			reasons.setReasonForNoPhotos(string);
-			saveToDb = true;
-		}
-		if (saveToDb) {
-			db.executeTransaction(realm -> realm.copyToRealmOrUpdate(reasons));
-		}
 		((MainActivityBase) getActivity()).showFragment(new OrdersFragment_());
 	}
 

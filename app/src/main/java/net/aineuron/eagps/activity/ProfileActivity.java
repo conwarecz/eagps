@@ -1,6 +1,7 @@
 package net.aineuron.eagps.activity;
 
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,8 +41,10 @@ public class ProfileActivity extends AppBarActivity {
 	@AfterViews
 	public void afterViews() {
 		user = userManager.getUser();
-		if (user == null) {
-			Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
+
+
+        if (user == null) {
+            Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
 			return;
 		}
 
@@ -65,6 +68,14 @@ public class ProfileActivity extends AppBarActivity {
 
 		return true;
 	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Uživatel");
+    }
 
 	@Click(R.id.logoutButton)
 	public void logoutClicked() {

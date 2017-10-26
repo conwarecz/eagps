@@ -42,6 +42,7 @@ import java.util.List;
 
 import io.realm.Realm;
 
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 
@@ -208,7 +209,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             userManager.setSelectedStateId(newStatus);
             EventBus.getDefault().post(new StateSelectedEvent(newStatus));
-            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+            if (userManager.getUser().getRoleId() != DISPATCHER_ID) {
+                sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+            }
         }
     }
 

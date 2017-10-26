@@ -25,10 +25,13 @@ import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment_;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
+import net.aineuron.eagps.fragment.MessageDetailFragment_;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.MessagesFragment_;
 import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.NoCarStateFragment_;
+import net.aineuron.eagps.fragment.OrderAttachmentsFragment_;
+import net.aineuron.eagps.fragment.OrderDetailFragment_;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.OrdersFragment_;
 import net.aineuron.eagps.fragment.StateFragment;
@@ -183,9 +186,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Override
 	public void onTabSelected(int position) {
-		if (currentFragment != null) {
-			pushFragmentToBackStack(currentTabId, currentFragment);
-		}
+        if (currentFragment != null && !(currentFragment instanceof MessageDetailFragment_ || currentFragment instanceof OrderDetailFragment_ || currentFragment instanceof OrderAttachmentsFragment_)) {
+            pushFragmentToBackStack(currentTabId, currentFragment);
+        }
 		currentTabId = position;
 		Fragment fragment = popFragmentFromBackStack(currentTabId);
 		if (fragment == null) {

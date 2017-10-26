@@ -113,6 +113,7 @@ public class TowFragment extends BaseFragment {
 
 	@Click(R.id.finishOrder)
 	void finishClicked() {
+		showProgress("Dokončuji zakázku", getString(R.string.dialog_wait_content));
 		clientProvider.getEaClient().finalizeOrder(order.getId());
 	}
 
@@ -187,6 +188,7 @@ public class TowFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void orderFinalized(OrderFinalizedEvent e) {
+		hideProgress();
 		MainActivityBase activity = (MainActivityBase) getActivity();
         activity.onTabSelected(MAIN_TAB_ID);
         if (userManager.getUser().getRoleId() == WORKER_ID) {

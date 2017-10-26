@@ -16,6 +16,9 @@ public class Car {
 	private Long userId;
 	private String licencePlate;
 	private String model;
+	private String name;
+	private String userName;
+
 	private boolean isSent = false;
 
 	public Long getId() {
@@ -64,5 +67,21 @@ public class Car {
 
 	public void setSent(boolean sent) {
 		isSent = sent;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }
