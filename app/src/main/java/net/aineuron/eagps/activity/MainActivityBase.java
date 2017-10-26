@@ -23,6 +23,7 @@ import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
+import net.aineuron.eagps.fragment.DispatcherSelectCarFragment_;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.MessagesFragment_;
@@ -31,6 +32,7 @@ import net.aineuron.eagps.fragment.NoCarStateFragment_;
 import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.OrdersFragment_;
 import net.aineuron.eagps.fragment.StateFragment;
+import net.aineuron.eagps.fragment.StateFragment_;
 import net.aineuron.eagps.fragment.TowFragment;
 import net.aineuron.eagps.fragment.TowFragment_;
 import net.aineuron.eagps.model.MessagesManager;
@@ -159,10 +161,12 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		if (userManager.getUser().getUserRole() == DISPATCHER_ID && currentFragment instanceof OrdersFragment_) {
 			// Dispatcher has Orders as default tab - We want to exit app
 			super.onBackPressed();
-		} else if (currentFragment instanceof TowFragment_ || currentFragment instanceof NoCarStateFragment_ || currentFragment instanceof NoCarStateFragment_) {
+			return;
+		} else if (currentFragment instanceof TowFragment_ || currentFragment instanceof NoCarStateFragment_ || currentFragment instanceof StateFragment_) {
 			// Default fragment for worker - We want to exit app
 			super.onBackPressed();
-		} else if (currentFragment instanceof OrdersFragment_ || currentFragment instanceof MessagesFragment_) {
+			return;
+		} else if (currentFragment instanceof OrdersFragment_ || currentFragment instanceof MessagesFragment_ || currentFragment instanceof DispatcherSelectCarFragment_) {
 			// In these cases we want to get to the default Tab and its first fragment
 			backToDefaultFragment();
 			return;
