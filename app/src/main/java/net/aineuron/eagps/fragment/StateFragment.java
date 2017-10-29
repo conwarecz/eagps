@@ -5,7 +5,9 @@ import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -33,6 +35,9 @@ public class StateFragment extends BaseFragment {
 	@Bean
 	UserManager userManager;
 
+	@Bean
+	OrdersManager ordersManager;
+
 	public static StateFragment newInstance() {
 		return StateFragment_.builder().build();
 	}
@@ -57,6 +62,10 @@ public class StateFragment extends BaseFragment {
 			setReadyContent();
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
+			setBusyContent();
+			IntentUtils.openMainActivity(getContext());
+
+		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
 			setBusyContent();
 
 		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {

@@ -25,6 +25,7 @@ import net.aineuron.eagps.event.network.order.TenderAcceptSuccessEvent;
 import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Address;
@@ -53,7 +54,10 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import io.realm.RealmList;
 
-@EActivity(R.layout.activity_offer)
+import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.WORKER_ID;
+
+@EActivity(R.layout.activity_new_tender)
 public class NewTenderActivity extends AppCompatActivity implements NumberPicker.OnValueChangeListener {
 
 	@ViewById(R.id.back)
@@ -83,6 +87,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	@Extra
 	Long tenderId;
 
+	@Extra
+	Car car;
+
 	@App
 	Appl appl;
 
@@ -94,6 +101,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	IcoLabelTextView destinationAddress;
 	@ViewById(R.id.eventDescription)
 	IcoLabelTextView eventDescription;
+	@ViewById(R.id.assignedDriver)
+	IcoLabelTextView assignedDriver;
 	@ViewById(R.id.showOnMap)
 	ConstraintLayout map;
 
@@ -126,16 +135,22 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		User user = userManager.getUser();
 
         tenderAcceptModel = new TenderAcceptModel();
-		if (user.getEntity() != null && user.getEntity().getEntityId() != null) {
+		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
 			tenderAcceptModel.setEntityId(user.getEntity().getEntityId());
+		} else if (user.getRoleId() == DISPATCHER_ID && car != null && car.getId() != null) {
+			tenderAcceptModel.setEntityId(car.getId());
 		}
 		tenderAcceptModel.setUserName(user.getUserName());
 
+
         tenderRejectModel = new TenderRejectModel();
-		if (user.getEntity() != null && user.getEntity().getEntityId() != null) {
+		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
 			tenderRejectModel.setEntityId(user.getEntity().getEntityId());
+		} else if (user.getRoleId() == DISPATCHER_ID && car != null && car.getId() != null) {
+			tenderRejectModel.setEntityId(car.getId());
 		}
 		tenderRejectModel.setUserName(user.getUserName());
+
 
 		setUi();
 	}
@@ -256,6 +271,20 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 		if (order.getEventDescription() != null) {
 			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		}
+
+		if (car != null) {
+			String string = "";
+			if (car.getName() != null) {
+				string = string + car.getName();
+			}
+			if (car.getUserUsername() != null) {
+				if (!string.isEmpty()) {
+					string = string + ", ";
+				}
+				string = string + car.getUserUsername();
+			}
+			this.assignedDriver.setText(string);
 		}
 	}
 

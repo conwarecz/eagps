@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.RealmString;
 
@@ -22,6 +23,7 @@ public class Tender implements Serializable {
     private Message Message;
     private Long NewStatus;
     private Long TenderId;
+    private Car Entity;
     private boolean isMessage = false;
 
     public static Order getOrderFromJson(String json) {
@@ -101,5 +103,13 @@ public class Tender implements Serializable {
 
     public void setNewStatus(Long newStatus) {
         NewStatus = newStatus;
+    }
+
+    public Car getEntity() {
+        return Entity;
+    }
+
+    public void setEntity(Car entity) {
+        Entity = entity;
     }
 }

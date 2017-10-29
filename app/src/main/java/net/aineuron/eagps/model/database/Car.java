@@ -2,12 +2,14 @@ package net.aineuron.eagps.model.database;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by Vit Veres on 26-Apr-17
  * as a part of Android-EAGPS project.
  */
 
-public class Car {
+public class Car implements Serializable {
 
 	private Long id;
 	@SerializedName("Status")
@@ -17,7 +19,7 @@ public class Car {
 	private String licencePlate;
 	private String model;
 	private String name;
-	private String userName;
+    private String userUsername;
 
 	private boolean isSent = false;
 
@@ -77,11 +79,11 @@ public class Car {
 		this.name = name;
 	}
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserUsername() {
+        return userUsername;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public void setUserUsername(String userUsername) {
+        this.userUsername = userUsername;
+    }
 }

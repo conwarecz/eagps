@@ -160,8 +160,8 @@ public class AppBarActivity extends MainActivityBase {
 
         int visibility = View.VISIBLE;
         if (e.state.equals(STATE_ID_BUSY) || e.state.equals(STATE_ID_BUSY_ORDER)) {
-            actionBar.setTitle(R.string.car_on_duty);
-            setActionBarColor(busy);
+			actionBar.setTitle(R.string.car_on_duty);
+			setActionBarColor(busy);
             stateIcon.setImageResource(R.drawable.icon_busy);
         } else if (e.state.equals(STATE_ID_READY)) {
             actionBar.setTitle(R.string.car_waiting);

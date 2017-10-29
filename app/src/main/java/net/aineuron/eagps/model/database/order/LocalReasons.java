@@ -10,8 +10,7 @@ import io.realm.annotations.PrimaryKey;
 public class LocalReasons extends RealmObject {
     @PrimaryKey
     private Long orderId;
-    private String reasonForNoDocuments;
-    private String reasonForNoPhotos;
+    private Reasons reasons;
 
     public Long getOrderId() {
         return orderId;
@@ -21,19 +20,11 @@ public class LocalReasons extends RealmObject {
         this.orderId = orderId;
     }
 
-    public String getReasonForNoDocuments() {
-        return reasonForNoDocuments;
+    public Reasons getReasons() {
+        return reasons;
     }
 
-    public void setReasonForNoDocuments(String reasonForNoDocuments) {
-        this.reasonForNoDocuments = reasonForNoDocuments;
-    }
-
-    public String getReasonForNoPhotos() {
-        return reasonForNoPhotos;
-    }
-
-    public void setReasonForNoPhotos(String reasonForNoPhotos) {
-        this.reasonForNoPhotos = reasonForNoPhotos;
+    public void setReasons(Reasons reasons) {
+        this.reasons = reasons;
     }
 }

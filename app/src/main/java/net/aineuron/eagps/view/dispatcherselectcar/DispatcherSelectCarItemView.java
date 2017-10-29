@@ -38,6 +38,9 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
     @ViewById(R.id.carCheckState)
     TextView carState;
 
+    @ViewById(R.id.carUser)
+    TextView carUser;
+
     @ColorRes(R.color.busy)
     int busy;
 
@@ -52,7 +55,7 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
     }
 
     public void bind(Car car) {
-        carRZ.setText(car.getLicencePlate());
+        carRZ.setText(car.getName());
         carRZ.setClickable(false);
 
         View holder = this.getRootView();
@@ -60,6 +63,13 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
             carRZ.setChecked(!carRZ.isChecked());
             EventBus.getDefault().post(new WorkerCarSelectedEvent(car.getId(), carRZ.isChecked(), car.getStatusId()));
         });
+
+        if (car.getUserUsername() != null && !car.getUserUsername().isEmpty()) {
+            carUser.setText(car.getUserUsername());
+            carUser.setVisibility(VISIBLE);
+        } else {
+            carUser.setVisibility(GONE);
+        }
 
         int i = car.getStatusId().intValue();
         if (i == STATE_ID_UNAVAILABLE) {

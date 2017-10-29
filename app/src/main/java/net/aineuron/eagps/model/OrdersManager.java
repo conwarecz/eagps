@@ -11,6 +11,7 @@ import net.aineuron.eagps.model.database.order.Limitation;
 import net.aineuron.eagps.model.database.order.LocalPhotos;
 import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.database.order.Reasons;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
@@ -42,8 +43,8 @@ public class OrdersManager {
 	@Bean
 	ClientProvider clientProvider;
 
-	public Order getCurrentOrder() {
-		if (order != null) {
+    public Order gedDefaultOrder() {
+        if (order != null) {
 			return order;
 		}
 		order = new Order();
@@ -121,9 +122,9 @@ public class OrdersManager {
         db.close();
     }
 
-	public void sendOrder(Long orderId) {
-		clientProvider.getEaClient().sendOrder(orderId);
-	}
+    public void sendOrder(Long orderId, Reasons reasons) {
+        clientProvider.getEaClient().sendOrder(orderId, reasons);
+    }
 
     public void deleteOrderFromRealm(Long orderId) {
         Realm db = RealmHelper.getDb();

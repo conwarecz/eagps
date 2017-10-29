@@ -10,6 +10,8 @@ public class Entity implements Serializable {
     private Long entityId;
     private Long entityStatus;
     private String licencePlate;
+    private String name;
+    private String userName;
 
     public Long getEntityId() {
         return entityId;
@@ -33,5 +35,21 @@ public class Entity implements Serializable {
 
     public void setLicencePlate(String licencePlate) {
         this.licencePlate = licencePlate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

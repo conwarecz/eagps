@@ -165,7 +165,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			// Dispatcher has Orders as default tab - We want to exit app
 			super.onBackPressed();
 			return;
-		} else if (currentFragment instanceof TowFragment_ || currentFragment instanceof NoCarStateFragment_ || currentFragment instanceof StateFragment_) {
+		} else if ((currentFragment instanceof TowFragment_ && userManager.getUser().getRoleId() == WORKER_ID) || currentFragment instanceof NoCarStateFragment_ || currentFragment instanceof StateFragment_) {
 			// Default fragment for worker - We want to exit app
 			super.onBackPressed();
 			return;
@@ -263,7 +263,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		} else {
 			bottomNavigation
 					.addItem(new BottomNavigationItem(R.drawable.icon_orders, "Zakázky"))
-					.addItem(new BottomNavigationItem(R.drawable.icon_detail_car, "Správa vozidel"))
+					.addItem(new BottomNavigationItem(R.drawable.icon_big_notselected_50, "Správa vozidel"))
 					.addItem(messagesItem)
 					.setFirstSelectedPosition(0)
 					.initialise();

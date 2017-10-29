@@ -110,6 +110,7 @@ public class OrdersFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStopRefreshing(StopRefreshingEvent e) {
+		ordersView.getLayoutManager().scrollToPosition(0);
 		swipeRefreshLayout.setRefreshing(false);
 	}
 }

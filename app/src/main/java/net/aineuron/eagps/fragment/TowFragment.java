@@ -88,12 +88,14 @@ public class TowFragment extends BaseFragment {
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(userManager.getUser().getUserRole() == DISPATCHER_ID);
-		setAppbarTitle("Na zásahu");
+		setAppbarTitle(getString(R.string.car_on_duty));
 
 		if (orderId == null) {
 			order = ordersManager.getFirstActiveOrder();
 			if (order != null) {
 				orderId = order.getId();
+			} else {
+				IntentUtils.openMainActivity(getContext());
 			}
 		} else {
 			if (order == null || !order.getId().equals(orderId)) {
@@ -192,7 +194,8 @@ public class TowFragment extends BaseFragment {
 		MainActivityBase activity = (MainActivityBase) getActivity();
         activity.onTabSelected(MAIN_TAB_ID);
         if (userManager.getUser().getRoleId() == WORKER_ID) {
-            StateSettingsActivity_.intent(getContext()).start();
+			userManager.setStateReady();
+			StateSettingsActivity_.intent(getContext()).start();
         } else {
 			// TODO: buď attachmentsFragment nebo seznam zakázek pro dispatchera
 			activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));

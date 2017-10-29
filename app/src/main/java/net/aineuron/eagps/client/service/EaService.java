@@ -5,6 +5,7 @@ import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
+import net.aineuron.eagps.model.database.order.ReasonsRequestBody;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
@@ -71,7 +72,7 @@ public interface EaService {
     Maybe<Response<Void>> finalizeOrder(@Path("orderId") Long orderId);
 
     @POST("orders/{orderId}/send")
-    Maybe<Response<Void>> sendOrder(@Path("orderId") Long orderId);
+    Maybe<Response<Void>> sendOrder(@Path("orderId") Long orderId, @Body ReasonsRequestBody reasons);
 
     // Photos
     @POST("orders/{orderId}/photos")

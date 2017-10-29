@@ -93,6 +93,17 @@
 				app:ilt_labelText="Událost"
 				app:ilt_text="Test"/>
 
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/assignedDriver"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/icon_big_notselected_74"
+				app:ilt_labelText="Požadované vozidlo"
+				app:ilt_text="Test" />
+
 		</LinearLayout>
 
 		<android.support.constraint.ConstraintLayout

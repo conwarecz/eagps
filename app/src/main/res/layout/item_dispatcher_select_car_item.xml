@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
+        app:layout_constraintGuide_percent="0.65" />
 
     <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/carCheckRZ"
@@ -22,10 +22,27 @@
         android:layout_marginTop="@dimen/padding_elements_half"
         android:padding="8dp"
         android:textColor="@color/backgroundWhite"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/carUser"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="1AB 2325" />
+
+    <TextView
+        android:id="@+id/carUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/padding_elements_half"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="@dimen/padding_elements_half"
+        android:textColor="@color/backgroundWhite"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/carCheckRZ"
+        tools:text="název vozidla" />
 
     <TextView
         android:id="@+id/carCheckState"

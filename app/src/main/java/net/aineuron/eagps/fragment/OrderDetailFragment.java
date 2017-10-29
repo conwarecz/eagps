@@ -93,8 +93,10 @@ public class OrderDetailFragment extends BaseFragment {
 		}
 
 		if (orderId == null) {
-			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
-			this.order = ordersManager.getCurrentOrder();
+//			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
+//			this.order = ordersManager.gedDefaultOrder();
+			Toast.makeText(getContext(), "Nastala chyba, prosím zkuste znovu", Toast.LENGTH_LONG).show();
+			onBackClicked();
 		} else {
 			setOrderListener();
 			if (NetworkUtil.isConnected(getContext())) {

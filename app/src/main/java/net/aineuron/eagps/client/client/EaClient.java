@@ -30,6 +30,8 @@ import net.aineuron.eagps.model.database.Entity;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
+import net.aineuron.eagps.model.database.order.Reasons;
+import net.aineuron.eagps.model.database.order.ReasonsRequestBody;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.Paging;
@@ -387,13 +389,17 @@ public class EaClient {
 				);
 	}
 
-	public void sendOrder(Long orderId) {
+	public void sendOrder(Long orderId, Reasons reasons) {
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
 		}
 
-		eaService.sendOrder(orderId)
+		ReasonsRequestBody body = new ReasonsRequestBody();
+		body.setReasonForNoDocuments(reasons.getReasonForNoDocuments());
+		body.setReasonForNoPhotos(reasons.getReasonForNoPhotos());
+
+		eaService.sendOrder(orderId, body)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
