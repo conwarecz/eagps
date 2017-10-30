@@ -60,39 +60,29 @@ import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 @EActivity(R.layout.activity_new_tender)
 public class NewTenderActivity extends AppCompatActivity implements NumberPicker.OnValueChangeListener {
 
+	public static boolean isVisible = false;
 	@ViewById(R.id.back)
 	Button accept;
-
 	@ViewById(R.id.decline)
 	Button decline;
-
 	@Bean
 	UserManager userManager;
-
 	@Bean
 	OrdersManager ordersManager;
-
 	@EventBusGreenRobot
 	EventBus bus;
-
 	@Bean
 	ClientProvider clientProvider;
-
 	@Extra
 	OrderSerializable orderSerializable;
-
 	@Extra
 	String title;
-
 	@Extra
 	Long tenderId;
-
 	@Extra
 	Car car;
-
 	@App
 	Appl appl;
-
 	@ViewById(R.id.clientCar)
 	IcoLabelTextView clientCar;
 	@ViewById(R.id.clientAddress)
@@ -105,7 +95,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	IcoLabelTextView assignedDriver;
 	@ViewById(R.id.showOnMap)
 	ConstraintLayout map;
-
 	private MaterialDialog progressDialog;
 	private Order order;
     private TenderAcceptModel tenderAcceptModel;
@@ -142,7 +131,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		}
 		tenderAcceptModel.setUserName(user.getUserName());
 
-
         tenderRejectModel = new TenderRejectModel();
 		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
 			tenderRejectModel.setEntityId(user.getEntity().getEntityId());
@@ -153,6 +141,18 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 
 		setUi();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		isVisible = true;
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		isVisible = false;
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -278,11 +278,11 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			if (car.getName() != null) {
 				string = string + car.getName();
 			}
-			if (car.getUserUsername() != null) {
+			if (car.getAssignedUser() != null) {
 				if (!string.isEmpty()) {
 					string = string + ", ";
 				}
-				string = string + car.getUserUsername();
+				string = string + car.getAssignedUser();
 			}
 			this.assignedDriver.setText(string);
 		}

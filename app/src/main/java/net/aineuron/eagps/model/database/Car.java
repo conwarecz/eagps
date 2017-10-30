@@ -20,6 +20,7 @@ public class Car implements Serializable {
 	private String model;
 	private String name;
     private String userUsername;
+    private String assignedUser;
 
 	private boolean isSent = false;
 
@@ -85,5 +86,13 @@ public class Car implements Serializable {
 
     public void setUserUsername(String userUsername) {
         this.userUsername = userUsername;
+    }
+
+    public String getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(String assignedUser) {
+        this.assignedUser = assignedUser;
     }
 }

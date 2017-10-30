@@ -52,6 +52,7 @@ public class Appl extends MultiDexApplication implements
     private static String TAG = Appl.class.getName();
     @EventBusGreenRobot
 	EventBus bus;
+    private Activity activeActivity;
 
 	@Override
 	public void onCreate() {
@@ -133,12 +134,14 @@ public class Appl extends MultiDexApplication implements
     public void onActivityResumed(Activity activity) {
         stateOfLifeCycle = "Resume";
         wasInBackground = false;
+        activeActivity = activity;
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
         stateOfLifeCycle = "Pause";
         wasInBackground = true;
+        activeActivity = null;
     }
 
     @Override
@@ -166,5 +169,9 @@ public class Appl extends MultiDexApplication implements
 
     public boolean wasInBackground() {
         return wasInBackground;
+    }
+
+    public Activity getActiveActivity() {
+        return activeActivity;
     }
 }

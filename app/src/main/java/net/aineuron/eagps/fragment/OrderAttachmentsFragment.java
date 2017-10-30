@@ -40,7 +40,6 @@ import net.aineuron.eagps.model.database.order.Photo;
 import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.database.order.Reasons;
 import net.aineuron.eagps.util.BitmapUtil;
-import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
@@ -132,8 +131,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
         super.onResume();
 
         localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
-        if (localReasons != null) {
-            setContent();
+		if (localReasons != null && localReasons.isValid()) {
+			setContent();
         }
     }
 
@@ -215,17 +214,20 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderSentEvent(OrderSentEvent e) {
 		hideProgress();
-		localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-		db.executeTransaction(realm ->
-				localPhotos.deleteFromRealm()
-		);
-		localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
-		db.executeTransaction(realm ->
-				localReasons.deleteFromRealm()
-		);
-
+		db.executeTransaction(realm -> {
+			LocalPhotos photos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			if (photos.isValid()) {
+				photos.deleteFromRealm();
+			}
+		});
+		db.executeTransaction(realm -> {
+			LocalReasons reasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
+			if (reasons.isValid()) {
+				reasons.deleteFromRealm();
+			}
+		});
+		ordersManager.updateOrder(orderId);
 		getActivity().onBackPressed();
-		IntentUtils.openMainActivity(getContext());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -336,11 +338,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		List<Photo> photos = new ArrayList<>();
 		List<Photo> documents = new ArrayList<>();
 
-		for (Photo photo : localPhotos.getLocalPhotos()) {
-			if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
-				photos.add(photo);
-			} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
-				documents.add(photo);
+		if (localPhotos != null && localPhotos.isValid() && localPhotos.getLocalPhotos() != null) {
+			for (Photo photo : localPhotos.getLocalPhotos()) {
+				if (photo.getType() == Photo.PHOTO_TYPE_PHOTO) {
+					photos.add(photo);
+				} else if (photo.getType() == Photo.PHOTO_TYPE_DOCUMENT) {
+					documents.add(photo);
+				}
 			}
 		}
 

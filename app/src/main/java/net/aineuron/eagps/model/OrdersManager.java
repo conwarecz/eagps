@@ -108,19 +108,31 @@ public class OrdersManager {
         return order;
     }
 
+	public void updateOrder(Long orderId) {
+		clientProvider.getEaClient().getOrderDetail(orderId);
+	}
+
 	public void cancelOrder(Long orderId, Long reason) {
 		clientProvider.getEaClient().cancelOrder(orderId, reason);
 	}
 
-    public void clearDatabase() {
-        Realm db = RealmHelper.getDb();
-        db.executeTransaction(realm -> {
-            realm.where(Order.class).findAll().deleteAllFromRealm();
-            realm.where(Message.class).findAll().deleteAllFromRealm();
-            realm.where(LocalPhotos.class).findAll().deleteAllFromRealm();
-        });
-        db.close();
-    }
+	public void clearDatabase() {
+		Realm db = RealmHelper.getDb();
+		db.executeTransaction(realm -> {
+			realm.where(Order.class).findAll().deleteAllFromRealm();
+			realm.where(Message.class).findAll().deleteAllFromRealm();
+			realm.where(LocalPhotos.class).findAll().deleteAllFromRealm();
+		});
+		db.close();
+	}
+
+	public void deleteOrders() {
+		Realm db = RealmHelper.getDb();
+		db.executeTransaction(realm -> {
+			realm.where(Order.class).findAll().deleteAllFromRealm();
+		});
+		db.close();
+	}
 
     public void sendOrder(Long orderId, Reasons reasons) {
         clientProvider.getEaClient().sendOrder(orderId, reasons);
@@ -128,9 +140,12 @@ public class OrdersManager {
 
     public void deleteOrderFromRealm(Long orderId) {
         Realm db = RealmHelper.getDb();
-        db.executeTransaction(realm -> {
-            realm.where(Order.class).equalTo("id", orderId).findFirst().deleteFromRealm();
-        });
+		db.executeTransactionAsync(realm -> {
+			Order order = realm.where(Order.class).equalTo("id", orderId).findFirst();
+			if (order != null && order.isValid()) {
+				order.deleteFromRealm();
+			}
+		});
         db.close();
     }
 

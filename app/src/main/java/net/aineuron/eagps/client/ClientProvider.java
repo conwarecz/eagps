@@ -61,7 +61,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
-    //        public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
+    //    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
     public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
 
 	@RootContext

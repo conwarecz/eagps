@@ -16,6 +16,7 @@ import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.user.FirebaseTokenRefreshedEvent;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
@@ -119,8 +120,15 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onLoginFailed(ApiErrorEvent e) {
-		dismissDialog();
+    public void onLoginFailed(ApiErrorEvent e) {
+        dismissDialog();
+        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_SHORT).show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onKnownError(KnownErrorEvent e) {
+        pref.clear();
+        dismissDialog();
         Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_SHORT).show();
     }
 

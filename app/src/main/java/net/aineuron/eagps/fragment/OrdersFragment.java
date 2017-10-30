@@ -12,6 +12,7 @@ import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.OrdersAdapter;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.transfer.Paging;
 import net.aineuron.eagps.util.RealmHelper;
@@ -45,6 +46,9 @@ public class OrdersFragment extends BaseFragment {
 	@Bean
 	ClientProvider clientProvider;
 
+	@Bean
+	OrdersManager ordersManager;
+
 	private Realm db;
 	private RealmResults<Order> ordersRealmQuery;
 	private OrdersAdapter adapter;
@@ -65,6 +69,7 @@ public class OrdersFragment extends BaseFragment {
 			@Override
 			public void onRefresh() {
 				paging = new Paging();
+				ordersManager.deleteOrders();
 				clientProvider.getEaClient().updateOrders(paging);
 			}
 		});
@@ -110,7 +115,9 @@ public class OrdersFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStopRefreshing(StopRefreshingEvent e) {
-		ordersView.getLayoutManager().scrollToPosition(0);
+		if (paging.getSkip() == 0 && adapter.getItemCount() <= 10) {
+			ordersView.getLayoutManager().scrollToPosition(0);
+		}
 		swipeRefreshLayout.setRefreshing(false);
 	}
 }

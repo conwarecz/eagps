@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -42,6 +44,7 @@ import java.util.List;
 
 import io.realm.Realm;
 
+import static net.aineuron.eagps.Appl.NOTIFFICATIONS_CHANNEL_DEFAULT;
 import static net.aineuron.eagps.Appl.NOTIFFICATIONS_CHANNEL_TENDER;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
@@ -115,12 +118,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
         notificationIntent.putExtra("tenderId", tender.getTenderId());
         notificationIntent.putExtra("car", tender.getEntity());
-        if (wasInBackground) {
+
+        if (wasInBackground || app.getActiveActivity() instanceof NewTenderActivity_) {
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
-            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             getApplicationContext().startActivity(notificationIntent);
+            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         }
     }
 
@@ -167,12 +171,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Long id = order.getId();
 //        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
-        Order canceledOrder = realm.where(Order.class).equalTo("id", id).findFirst();
-        if (canceledOrder != null) {
-            realm.executeTransaction(realm1 ->
-                    canceledOrder.deleteFromRealm()
-            );
-        }
+        realm.executeTransactionAsync(realm1 -> {
+            Order canceledOrder = realm.where(Order.class).equalTo("id", id).findFirst();
+            canceledOrder.deleteFromRealm();
+        });
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
@@ -238,16 +240,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 R.mipmap.ic_launcher);
         NotificationCompat.Builder notificationBuilder = null;
 
-        if (type == TENDER_NEW && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (type == TENDER_NEW) {
+            Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
             notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_TENDER)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
                     .setContentTitle(title)
                     .setGroup(String.valueOf(type))
-                    .setCategory(Notification.CATEGORY_CALL)
+                    .setSound(sound, AudioManager.STREAM_RING)
                     .setContentText(messageBody);
         } else {
-            notificationBuilder = new NotificationCompat.Builder(this, Appl.NOTIFFICATIONS_CHANNEL_DEFAULT)
+            notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
                     .setContentTitle(title)
@@ -268,6 +271,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notification.defaults |= Notification.DEFAULT_SOUND;
 
+        // Ring repeatedly
+        if (type == TENDER_NEW && wasInBackground) {
+            notification.flags |= Notification.FLAG_INSISTENT;
+        }
 
         currentNotificationID++;
         int notificationId = currentNotificationID;
