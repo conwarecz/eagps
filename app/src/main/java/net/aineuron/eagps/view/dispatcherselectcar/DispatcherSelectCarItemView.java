@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
@@ -31,9 +30,6 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
 
     @ViewById(R.id.carCheckRZ)
     AppCompatCheckBox carRZ;
-
-    @ViewById(R.id.carCheckStateIcon)
-    ImageView stateIcon;
 
     @ViewById(R.id.carCheckState)
     TextView carState;
@@ -74,24 +70,18 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
         int i = car.getStatusId().intValue();
         if (i == STATE_ID_UNAVAILABLE) {
             this.getRootView().setBackgroundResource(R.color.unavailable);
-            stateIcon.setImageResource(R.drawable.icon_small_unavailable);
-            stateIcon.setVisibility(VISIBLE);
             carState.setText(R.string.car_unavailable);
 
         } else if (i == STATE_ID_BUSY) {
             this.getRootView().setBackgroundResource(R.color.busy);
-            stateIcon.setImageResource(R.drawable.icon_small_busy);
-            stateIcon.setVisibility(VISIBLE);
             carState.setText(R.string.car_on_duty);
 
         } else if (i == STATE_ID_READY) {
             this.getRootView().setBackgroundResource(R.color.ready);
-            stateIcon.setVisibility(INVISIBLE);
             carState.setText(R.string.car_waiting);
 
         } else {
             this.getRootView().setBackgroundResource(R.color.ready);
-            stateIcon.setVisibility(INVISIBLE);
             carState.setText(R.string.car_waiting);
 
         }

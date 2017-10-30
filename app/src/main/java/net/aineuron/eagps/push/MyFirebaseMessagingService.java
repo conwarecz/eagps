@@ -17,6 +17,7 @@ import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
+import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.UserManager;
@@ -66,7 +67,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //    Pref_ pref;
     @App
     Appl app;
-    private int currentNotificationID = 0;
+    private int currentNotificationID = 1;
     private boolean wasInBackground = false;
     private int type = -1;
 
@@ -211,6 +212,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             EventBus.getDefault().post(new StateSelectedEvent(newStatus));
             if (userManager.getUser().getRoleId() != DISPATCHER_ID) {
                 sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+            } else {
+                EventBus.getDefault().post(new DispatcherRefreshCarsEvent());
             }
         }
     }
@@ -269,7 +272,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         currentNotificationID++;
         int notificationId = currentNotificationID;
         if (notificationId == Integer.MAX_VALUE - 1)
+            notificationId = 1;
+
+        // Showing only one state change push
+        if (type == CAR_STATUS_CHANGE) {
             notificationId = 0;
+        }
 
         notificationManager.notify(notificationId, notification);
     }

@@ -16,6 +16,7 @@ import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.CarStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
+import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
@@ -166,6 +167,12 @@ public class DispatcherSelectCarFragment extends BaseFragment {
             }
         }
         selectedCars = new ArrayList<>();
+        clientProvider.getEaClient().getCars();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshCars(DispatcherRefreshCarsEvent e) {
+        carsRefresh.setRefreshing(true);
         clientProvider.getEaClient().getCars();
     }
 

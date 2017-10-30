@@ -63,10 +63,10 @@ public class StateFragment extends BaseFragment {
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
 			setBusyContent();
-			IntentUtils.openMainActivity(getContext());
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
 			setBusyContent();
+			IntentUtils.openNewMainActivity(getContext());
 
 		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
 			setUnavailableContent();

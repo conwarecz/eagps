@@ -173,7 +173,8 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
-		IntentUtils.openMainActivity(getContext());
+        userManager.setStateReady();
+        IntentUtils.openMainActivity(getContext());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
