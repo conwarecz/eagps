@@ -8,6 +8,7 @@ import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.RetrofitException;
 import net.aineuron.eagps.client.service.EaService;
+import net.aineuron.eagps.event.network.car.CarReleasedEvent;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
@@ -56,7 +57,6 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
-import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
 /**
  * Created by Vit Veres on 31.3.2016
@@ -189,7 +189,7 @@ public class EaClient {
 				);
 	}
 
-	public void releaseCar() {
+	public void releaseCar(Long selectedCarId) {
 		User user = userManager.getUser();
 		if (user == null || user.getUserId() == null || user.getEntity() == null || user.getEntity().getEntityId() == null) {
 			return;
@@ -204,9 +204,10 @@ public class EaClient {
 
 							user.setCarId(null);
 							user.setCar(null);
+							user.setEntity(null);
 							userManager.setUser(user);
 							userManager.setSelectedStateId(null);
-							eventBus.post(new CarSelectedEvent());
+							eventBus.post(new CarReleasedEvent(selectedCarId));
 						},
 						this::sendError
 				);
@@ -240,8 +241,6 @@ public class EaClient {
 
 		if (stateId == STATE_ID_BUSY_ORDER) {
 			serverState = STATE_ID_BUSY;
-		} else if (stateId == STATE_ID_NO_CAR) {
-			serverState = STATE_ID_UNAVAILABLE;
 		}
 
 		eaService.setStatus(user.getEntity().getEntityId(), serverState)

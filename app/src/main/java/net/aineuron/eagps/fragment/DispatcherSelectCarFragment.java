@@ -116,6 +116,13 @@ public class DispatcherSelectCarFragment extends BaseFragment {
         clientProvider.getEaClient().getCars();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        carsRefresh.setRefreshing(true);
+        clientProvider.getEaClient().getCars();
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarsDownloaded(CarsDownloadedEvent e) {
         hideProgress();

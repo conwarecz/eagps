@@ -185,8 +185,8 @@ public class TowFragment extends BaseFragment {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void knownErrorEvent(KnownErrorEvent e) {
-		Toast.makeText(getContext(), "Zadaný požadavek se nepovedlo zpracovat, zkontrolujte připojení", Toast.LENGTH_LONG);
+    public void onKnownErrorEvent(KnownErrorEvent e) {
+        Toast.makeText(getContext(), "Zadaný požadavek se nepovedlo zpracovat, zkontrolujte připojení", Toast.LENGTH_LONG);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

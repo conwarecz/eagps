@@ -3,6 +3,7 @@ package net.aineuron.eagps.activity;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +43,6 @@ public class ProfileActivity extends AppBarActivity {
 	public void afterViews() {
 		user = userManager.getUser();
 
-
         if (user == null) {
             Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
 			return;
@@ -70,11 +70,23 @@ public class ProfileActivity extends AppBarActivity {
 	}
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle("Uživatel");
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
 	@Click(R.id.logoutButton)

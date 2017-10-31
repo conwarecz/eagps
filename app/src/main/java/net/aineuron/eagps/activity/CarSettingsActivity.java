@@ -14,6 +14,7 @@ import net.aineuron.eagps.adapter.WorkerSelectCarAdapter;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
+import net.aineuron.eagps.event.network.car.CarReleasedEvent;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
@@ -34,6 +35,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 
 @EActivity(R.layout.activity_car_settings)
 public class CarSettingsActivity extends AppCompatActivity {
@@ -100,6 +103,16 @@ public class CarSettingsActivity extends AppCompatActivity {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onCarReleasedEvent(CarReleasedEvent e) {
+		if (e.selectedCarId == null) {
+			progressDialog.dismiss();
+			finishSettings();
+		} else {
+			userManager.selectCar(e.selectedCarId);
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Vybírám auto")
@@ -107,14 +120,20 @@ public class CarSettingsActivity extends AppCompatActivity {
                 .cancelable(false)
                 .progress(true, 0)
                 .show();
-		userManager.selectCar(e.selectedCarId);
-        userManager.setSelectedStateId(e.stateId);
-    }
+		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+			userManager.releaseCar(e.selectedCarId);
+		} else {
+			userManager.setSelectedStateId(e.stateId);
+			userManager.selectCar(e.selectedCarId);
+		}
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {
-		progressDialog.dismiss();
-		finishSettings();
+		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+			progressDialog.dismiss();
+			selectState();
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -140,6 +159,16 @@ public class CarSettingsActivity extends AppCompatActivity {
 	public void onCarSelectError(KnownErrorEvent e) {
 		progressDialog.dismiss();
 		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
+	}
+
+	private void selectState() {
+		if (!userManager.haveActiveOrder()) {
+			userManager.setStateReady();
+			StateSettingsActivity_.intent(this).start();
+		} else {
+			IntentUtils.openMainActivity(this);
+		}
+		finish();
 	}
 
 	private void finishSettings() {

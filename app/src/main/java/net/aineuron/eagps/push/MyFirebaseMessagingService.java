@@ -1,15 +1,15 @@
 package net.aineuron.eagps.push;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -17,6 +17,7 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.activity.NewTenderActivity;
 import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
 import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
@@ -120,11 +121,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationIntent.putExtra("car", tender.getEntity());
 
         if (wasInBackground || app.getActiveActivity() instanceof NewTenderActivity_) {
+            if (app.getActiveActivity() instanceof NewTenderActivity_ && ((NewTenderActivity) app.getActiveActivity()).isButtonClicked()) {
+                return;
+            }
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             getApplicationContext().startActivity(notificationIntent);
-            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
         }
     }
 
@@ -203,6 +207,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void handleCarStatusChange(RemoteMessage remoteMessage) {
         final Long newStatus = Tender.getNewStatusFromJson(remoteMessage.getData().get("message"));
+        if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
+            EventBus.getDefault().post(new DispatcherRefreshCarsEvent());
+            return;
+        }
         if (userManager.getSelectedStateId().equals(newStatus)) {
             return;
         } else if (userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER) && newStatus.equals(STATE_ID_BUSY)) {
@@ -212,11 +220,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             userManager.setSelectedStateId(newStatus);
             EventBus.getDefault().post(new StateSelectedEvent(newStatus));
-            if (userManager.getUser().getRoleId() != DISPATCHER_ID) {
-                sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
-            } else {
-                EventBus.getDefault().post(new DispatcherRefreshCarsEvent());
-            }
+            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
         }
     }
 
@@ -227,8 +231,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String title, String messageBody, Intent notificationIntent) {
-        NotificationManagerCompat notificationManager =
-                (NotificationManagerCompat) NotificationManagerCompat.from(getApplicationContext());
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Tries to remove cancelled tender from notifications
         if (type == TENDER_NOT_WON) {
@@ -239,7 +243,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
                 R.mipmap.ic_launcher);
         NotificationCompat.Builder notificationBuilder = null;
-
+        Notification notification = null;
         if (type == TENDER_NEW) {
             Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
             notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_TENDER)
@@ -247,8 +251,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setLargeIcon(icon)
                     .setContentTitle(title)
                     .setGroup(String.valueOf(type))
-                    .setSound(sound, AudioManager.STREAM_RING)
+                    .setSound(sound)
                     .setContentText(messageBody);
+
+            notification = notificationBuilder.build();
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
         } else {
             notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setSmallIcon(R.mipmap.ic_launcher)
@@ -256,6 +263,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentTitle(title)
                     .setGroup(String.valueOf(type))
                     .setContentText(messageBody);
+
+            notification = notificationBuilder.build();
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+            notification.defaults |= Notification.DEFAULT_SOUND;
         }
 
         if (notificationIntent != null) {
@@ -266,10 +277,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
             notificationBuilder.setContentIntent(contentIntent);
         }
-
-        Notification notification = notificationBuilder.build();
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notification.defaults |= Notification.DEFAULT_SOUND;
 
         // Ring repeatedly
         if (type == TENDER_NEW && wasInBackground) {
@@ -284,6 +291,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Showing only one state change push
         if (type == CAR_STATUS_CHANGE) {
             notificationId = 0;
+            notificationManager.cancel(notificationId);
         }
 
         notificationManager.notify(notificationId, notification);

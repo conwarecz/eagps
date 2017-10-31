@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.transfer.LoginInfo;
@@ -15,6 +16,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -123,14 +125,15 @@ public class UserManager {
 
 	public void setStateNoCar() {
 		if (!getSelectedStateId().equals(STATE_ID_NO_CAR)) {
-			releaseCar();
-		}
-		selectState(STATE_ID_NO_CAR);
-	}
+            releaseCar(null);
+        }
+        setSelectedStateId(STATE_ID_NO_CAR);
+        EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
+    }
 
-	public void releaseCar() {
-		clientProvider.getEaClient().releaseCar();
-	}
+    public void releaseCar(Long selectedCarId) {
+        clientProvider.getEaClient().releaseCar(selectedCarId);
+    }
 
 	public Long getSelectedStateId() {
 		Long value = pref.selectedState().get();

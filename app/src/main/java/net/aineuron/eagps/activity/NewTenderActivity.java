@@ -9,6 +9,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -95,6 +96,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	IcoLabelTextView assignedDriver;
 	@ViewById(R.id.showOnMap)
 	ConstraintLayout map;
+	@ViewById(R.id.header)
+	TextView header;
 	private MaterialDialog progressDialog;
 	private Order order;
     private TenderAcceptModel tenderAcceptModel;
@@ -108,6 +111,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	private NumberPicker dayPicker;
 	private NumberPicker hourPicker;
 	private NumberPicker minutePicker;
+	private boolean buttonClicked = false;
 
 	@AfterViews
 	void afterViews() {
@@ -115,6 +119,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		if (actionBar != null && title != null) {
 			actionBar.setTitle(title);
 			actionBar.setDefaultDisplayHomeAsUpEnabled(false);
+			header.setText(title);
 		}
 
 		if (orderSerializable != null) {
@@ -197,6 +202,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
 		}
+		buttonClicked = true;
 		accepting = true;
 		showDurationDialog();
 	}
@@ -207,6 +213,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
 		}
+		buttonClicked = true;
 		accepting = false;
 		// State is the same as before
 		new MaterialDialog.Builder(this)
@@ -492,5 +499,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			minutes = newValue * 5;
 		}
 		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
+	}
+
+	public boolean isButtonClicked() {
+		return buttonClicked;
 	}
 }

@@ -27,6 +27,10 @@ public class IntentUtils {
         MainActivity_.intent(context).start();
     }
 
+    public static void openMainActivityWithStateSelect(Context context) {
+        MainActivity_.intent(context).extra("stateSelect", true).start();
+    }
+
     public static void openNewMainActivity(Context context) {
         MainActivity_.intent(context).flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK).start();
     }

@@ -4,9 +4,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.model.MessagesManager;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.util.IntentUtils;
@@ -18,6 +22,9 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import io.realm.Realm;
 
@@ -28,6 +35,9 @@ import io.realm.Realm;
 
 @EFragment(R.layout.fragment_message_detail)
 public class MessageDetailFragment extends BaseFragment {
+
+	@EventBusGreenRobot
+	EventBus eventBus;
 
 	@Bean
 	MessagesManager messagesManager;
@@ -105,5 +115,10 @@ public class MessageDetailFragment extends BaseFragment {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onCarSelectError(KnownErrorEvent e) {
+		Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 }
