@@ -1,8 +1,12 @@
 package net.aineuron.eagps.model;
 
+import android.app.NotificationManager;
+import android.content.Context;
+
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
+import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
@@ -12,6 +16,7 @@ import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
@@ -46,6 +51,8 @@ public class UserManager {
 	public static final Long STATE_ID_NO_CAR = 90L;
 	@Pref
 	Pref_ pref;
+	@App
+	Appl app;
 	@Bean
 	ClientProvider clientProvider;
     @Bean
@@ -168,6 +175,13 @@ public class UserManager {
 
 	@Background
 	public void logout(User user) {
+		deleteUser();
+		if (user != null) {
+			clientProvider.getEaClient().logout(user);
+		}
+	}
+
+	public void deleteUser() {
 		final String token = FirebaseInstanceId.getInstance().getToken();
 		try {
 			FirebaseInstanceId.getInstance().deleteToken(token, token);
@@ -181,7 +195,13 @@ public class UserManager {
 		}
 		pref.clear();
 		ordersManager.clearDatabase();
-		clientProvider.getEaClient().logout(user);
+		try {
+			NotificationManager notificationManager =
+					(NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.cancelAll();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean haveActiveOrder() {

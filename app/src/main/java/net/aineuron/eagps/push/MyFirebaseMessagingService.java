@@ -119,16 +119,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
         notificationIntent.putExtra("tenderId", tender.getTenderId());
         notificationIntent.putExtra("car", tender.getEntity());
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         if (wasInBackground || app.getActiveActivity() instanceof NewTenderActivity_) {
-            if (app.getActiveActivity() instanceof NewTenderActivity_ && ((NewTenderActivity) app.getActiveActivity()).isButtonClicked()) {
+            if (app.getActiveActivity() instanceof NewTenderActivity_ && ((NewTenderActivity) app.getActiveActivity()).isAccepting()) {
                 return;
             }
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
         } else {
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            getApplicationContext().startActivity(notificationIntent);
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+            notificationIntent.putExtra("pushId", currentNotificationID);
+            getApplicationContext().startActivity(notificationIntent);
         }
     }
 
@@ -234,10 +235,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        // TODO: předělat na frontu tenderů
         // Tries to remove cancelled tender from notifications
         if (type == TENDER_NOT_WON) {
             notificationManager.cancel(currentNotificationID);
             return;
+        }
+
+        currentNotificationID++;
+
+        if (notificationIntent != null) {
+            if (type == TENDER_NEW) {
+                notificationIntent.putExtra("pushId", currentNotificationID);
+            }
         }
 
         Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
@@ -252,38 +262,42 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentTitle(title)
                     .setGroup(String.valueOf(type))
                     .setSound(sound)
+                    .setAutoCancel(true)
                     .setContentText(messageBody);
 
             notification = notificationBuilder.build();
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
         } else {
             notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
                     .setContentTitle(title)
+                    .setAutoCancel(true)
                     .setGroup(String.valueOf(type))
                     .setContentText(messageBody);
 
             notification = notificationBuilder.build();
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
             notification.defaults |= Notification.DEFAULT_SOUND;
         }
 
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        notification.defaults |= Notification.DEFAULT_VIBRATE;
+
+        PendingIntent contentIntent = null;
         if (notificationIntent != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
-            notificationBuilder.setContentIntent(contentIntent);
+            contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
         } else {
             // Only close notification after clicking
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
-            notificationBuilder.setContentIntent(contentIntent);
+            contentIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
         }
 
-        // Ring repeatedly
-        if (type == TENDER_NEW && wasInBackground) {
+        notificationBuilder.setContentIntent(contentIntent);
+        notification = notificationBuilder.build();
+
+//         Ring repeatedly
+        if (type == TENDER_NEW && !(app.getActiveActivity() instanceof NewTenderActivity_)) {
             notification.flags |= Notification.FLAG_INSISTENT;
         }
 
-        currentNotificationID++;
         int notificationId = currentNotificationID;
         if (notificationId == Integer.MAX_VALUE - 1)
             notificationId = 1;

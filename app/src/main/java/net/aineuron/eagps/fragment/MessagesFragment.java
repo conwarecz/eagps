@@ -111,7 +111,7 @@ public class MessagesFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onMessageClickedEvent(MessageClickedEvent e) {
 		MainActivityBase activity = (MainActivityBase) getActivity();
-		activity.showFragment(MessageDetailFragment.newInstance(e.messageId));
+		activity.showFragment(MessageDetailFragment_.newInstance(e.messageId));
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

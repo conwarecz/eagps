@@ -1,7 +1,10 @@
 package net.aineuron.eagps.activity;
 
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -82,6 +85,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	Long tenderId;
 	@Extra
 	Car car;
+	@Nullable
+	@Extra
+	int pushId;
 	@App
 	Appl appl;
 	@ViewById(R.id.clientCar)
@@ -103,7 +109,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
     private TenderAcceptModel tenderAcceptModel;
     private TenderRejectModel tenderRejectModel;
 	private int retryCounter = 0;
-	private boolean accepting = true;
+	private boolean accepting = false;
 	private int days = 0;
 	private int hours = 0;
 	private int minutes = 0;
@@ -127,6 +133,10 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		}
 
 		User user = userManager.getUser();
+		if (user == null) {
+			clientProvider.postUnauthorisedError();
+			finish();
+		}
 
         tenderAcceptModel = new TenderAcceptModel();
 		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
@@ -198,6 +208,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Click(R.id.back)
 	void acceptClicked() {
+		try {
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			notificationManager.cancel(pushId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		if (!NetworkUtil.isConnected(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
@@ -209,6 +225,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Click(R.id.decline)
 	void declineClicked() {
+		try {
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			notificationManager.cancel(pushId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		if (!NetworkUtil.isConnected(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
@@ -480,6 +502,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		minutePicker.setDisplayedValues(new String[]{"0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"});
 		minutePicker.setWrapSelectorWheel(false);
 		minutePicker.setOnValueChangedListener(this);
+		d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialogInterface) {
+				accepting = false;
+			}
+		});
 		confirmationButton.setOnClickListener(v -> {
 			d.dismiss();
 			tenderAcceptModel.setDepartureDelayMinutes(duration);
@@ -501,7 +529,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
 	}
 
-	public boolean isButtonClicked() {
-		return buttonClicked;
+	public boolean isAccepting() {
+		return accepting;
 	}
 }

@@ -100,12 +100,13 @@ public class Appl extends MultiDexApplication implements
         channel.setLightColor(Color.GREEN);
         channel.enableVibration(true);
         channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+
         NotificationChannel tenderChannel = new NotificationChannel(NOTIFFICATIONS_CHANNEL_TENDER,
                 "EA GPS",
                 NotificationManager.IMPORTANCE_HIGH);
         tenderChannel.setDescription("Notifikace o nových soutěžích");
         tenderChannel.enableLights(true);
-        tenderChannel.setLightColor(Color.GREEN);
+        tenderChannel.setLightColor(Color.RED);
         tenderChannel.enableVibration(true);
         tenderChannel.setBypassDnd(true);
         tenderChannel.setLockscreenVisibility(VISIBILITY_PUBLIC);

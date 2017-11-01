@@ -173,8 +173,12 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
-        userManager.setStateReady();
-        IntentUtils.openMainActivity(getContext());
+		if (userManager.haveActiveOrder()) {
+			IntentUtils.openNewMainActivity(getContext());
+		} else {
+			userManager.setStateReady();
+			IntentUtils.openMainActivity(getContext());
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -195,9 +199,13 @@ public class TowFragment extends BaseFragment {
 		MainActivityBase activity = (MainActivityBase) getActivity();
         activity.onTabSelected(MAIN_TAB_ID);
         if (userManager.getUser().getRoleId() == WORKER_ID) {
-			userManager.setStateReady();
-			StateSettingsActivity_.intent(getContext()).start();
-        } else {
+			if (userManager.haveActiveOrder()) {
+				IntentUtils.openNewMainActivity(getContext());
+			} else {
+				userManager.setStateReady();
+				StateSettingsActivity_.intent(getContext()).start();
+			}
+		} else {
 			// TODO: buď attachmentsFragment nebo seznam zakázek pro dispatchera
 			activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
 		}

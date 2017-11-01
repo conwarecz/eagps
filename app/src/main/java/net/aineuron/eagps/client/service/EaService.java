@@ -45,7 +45,7 @@ public interface EaService {
 	@PUT("users/{userId}/entity/{entityId}")
 	Maybe<Car> setCarToUser(@Path("userId") Long userId, @Path("entityId") long entityId);
 
-    @DELETE("users/{userId}/car/{entityId}")
+    @DELETE("users/{userId}/entity/{entityId}")
     Maybe<Response<Void>> releaseCarFromUser(@Path("userId") Long userId, @Path("entityId") long entityId);
 
     @PUT("users/{userId}/token")
