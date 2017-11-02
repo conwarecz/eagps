@@ -173,10 +173,12 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
-		if (userManager.haveActiveOrder()) {
+		if (userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID) {
 			IntentUtils.openNewMainActivity(getContext());
 		} else {
-			userManager.setStateReady();
+			if (userManager.getUser().getRoleId() == WORKER_ID) {
+				userManager.setStateReady();
+			}
 			IntentUtils.openMainActivity(getContext());
 		}
 	}

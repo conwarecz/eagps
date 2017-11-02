@@ -53,8 +53,8 @@ public class IntentUtils {
 			context.startActivity(i);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Please install a web browser", Toast.LENGTH_SHORT).show();
-		}
+            Toast.makeText(context, R.string.intent_browser, Toast.LENGTH_SHORT).show();
+        }
 	}
 
 	public static boolean shareText(Context context, String text) {
@@ -65,8 +65,8 @@ public class IntentUtils {
 			context.startActivity(Intent.createChooser(sharingIntent, context.getString(R.string.share_text)));
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Please install a text sharing application", Toast.LENGTH_LONG).show();
-		}
+            Toast.makeText(context, R.string.intent_text, Toast.LENGTH_LONG).show();
+        }
 		return false;
 	}
 
@@ -88,8 +88,8 @@ public class IntentUtils {
 			context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Please install a Telephone application", Toast.LENGTH_LONG).show();
-		}
+            Toast.makeText(context, R.string.intent_dialer, Toast.LENGTH_LONG).show();
+        }
 	}
 
 	public static void openCamera(Context context) {
@@ -98,8 +98,8 @@ public class IntentUtils {
 			context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Please install a Camera application", Toast.LENGTH_LONG).show();
-		}
+            Toast.makeText(context, R.string.intent_camera, Toast.LENGTH_LONG).show();
+        }
 	}
 
 	public static void openMapLocation(Context context, Location location, String label) {
@@ -115,8 +115,8 @@ public class IntentUtils {
 			context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Please install Google Maps application", Toast.LENGTH_LONG).show();
-		}
+            Toast.makeText(context, R.string.intent_gmaps, Toast.LENGTH_LONG).show();
+        }
 	}
 
 	public static void openRoute(Context context, @NonNull Location destination, @NonNull Location waypoint) {
@@ -154,7 +154,7 @@ public class IntentUtils {
 			context.startActivity(i);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Please install Google Maps application", Toast.LENGTH_LONG).show();
-		}
+            Toast.makeText(context, R.string.intent_gmaps, Toast.LENGTH_LONG).show();
+        }
 	}
 }

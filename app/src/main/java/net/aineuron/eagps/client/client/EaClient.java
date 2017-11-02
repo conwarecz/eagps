@@ -138,6 +138,8 @@ public class EaClient {
 							// Dispatcher doesn't have Entity
 							if (user.getEntity() != null && user.getEntity().getEntityStatus() != null) {
 								userManager.setSelectedStateId(user.getEntity().getEntityStatus());
+							} else {
+								userManager.setSelectedStateId(STATE_ID_NO_CAR);
 							}
 							if (user.getEntity() != null && user.getEntity().getEntityId() != null) {
 								userManager.setSelectedCarId(user.getEntity().getEntityId());

@@ -18,4 +18,10 @@
     <string name="connectivity_not_connected">Zkontrolujete, prosím, své připojení</string>
     <string name="share_text">Sdílet pomocí:</string>
     <string name="share_copy">Text zprávy byl zkopírován do schránky</string>
+    <string name="intent_gmaps">Prosím nainstalujte aplikaci Google Maps</string>
+    <string name="intent_camera">Nemáte žádnou aplikaci pro fotoaparát</string>
+    <string name="intent_dialer">Nemáte žádnou aplikaci pro uskutečňování hovorů</string>
+    <string name="intent_text">Nemáte žádnou aplikaci sdílení textu</string>
+    <string name="intent_browser">Nemáte žádný webový prohlížeč</string>
+    <string name="widget_delay_title">Vyberte zpoždění výjezdu</string>
 </resources>

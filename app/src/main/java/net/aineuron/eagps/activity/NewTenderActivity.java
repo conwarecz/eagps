@@ -1,6 +1,5 @@
 package net.aineuron.eagps.activity;
 
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
@@ -208,12 +207,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Click(R.id.back)
 	void acceptClicked() {
-		try {
-			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			notificationManager.cancel(pushId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		cancelNotification();
 		if (!NetworkUtil.isConnected(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
@@ -225,12 +219,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Click(R.id.decline)
 	void declineClicked() {
-		try {
-			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			notificationManager.cancel(pushId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		cancelNotification();
 		if (!NetworkUtil.isConnected(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
@@ -480,9 +469,10 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 
 	public void showDurationDialog() {
-		final Dialog d = new Dialog(NewTenderActivity.this);
-		d.setTitle("Vyberte zpoždění výjezdu");
-		d.setContentView(R.layout.widget_delay_picker);
+		final MaterialDialog.Builder builder = new MaterialDialog.Builder(NewTenderActivity.this);
+		builder.customView(R.layout.widget_delay_picker, false);
+		builder.title(R.string.widget_delay_title);
+		final MaterialDialog d = builder.build();
 		Button confirmationButton = (AppCompatButton) d.findViewById(R.id.widget_duration_confirm);
 		dayPicker = (NumberPicker) d.findViewById(R.id.widget_duration_days);
 		dayPicker.setMaxValue(99);
@@ -531,5 +521,14 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	public boolean isAccepting() {
 		return accepting;
+	}
+
+	private void cancelNotification() {
+		try {
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			notificationManager.cancel(pushId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

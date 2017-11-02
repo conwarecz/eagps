@@ -17,6 +17,7 @@ import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.CarReleasedEvent;
 import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
@@ -93,13 +94,13 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.skipLayout)
 	public void onSkip() {
-		userManager.setStateNoCar();
 		progressDialog = new MaterialDialog.Builder(this)
-                .title(R.string.dialog_changing_settings)
-                .content(getString(R.string.dialog_wait_content))
-                .cancelable(false)
-                .progress(true, 0)
-                .show();
+				.title(R.string.dialog_changing_settings)
+				.content(getString(R.string.dialog_wait_content))
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
+		userManager.setStateNoCar();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -133,6 +134,14 @@ public class CarSettingsActivity extends AppCompatActivity {
 		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
 			progressDialog.dismiss();
 			selectState();
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onNetworkCarSelectedEvent(StateSelectedEvent e) {
+		if (userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+			progressDialog.dismiss();
+			finishSettings();
 		}
 	}
 

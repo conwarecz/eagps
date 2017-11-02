@@ -69,6 +69,7 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
+
 		validator = new Validator(this);
 
 		if (userManager.getUser() != null) {

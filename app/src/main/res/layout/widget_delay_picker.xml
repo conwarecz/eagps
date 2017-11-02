@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerHorizontal="false"
+    android:layout_centerInParent="false"
+    android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Dny"
         android:textColor="@android:color/black"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/widget_duration_days"
         app:layout_constraintLeft_toLeftOf="@id/widget_duration_days"
         app:layout_constraintRight_toRightOf="@id/widget_duration_days" />
@@ -19,6 +22,7 @@
         android:layout_height="wrap_content"
         android:text="Hodiny"
         android:textColor="@android:color/black"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/widget_duration_hours"
         app:layout_constraintLeft_toLeftOf="@id/widget_duration_hours"
         app:layout_constraintRight_toRightOf="@id/widget_duration_hours" />
@@ -28,6 +32,7 @@
         android:layout_height="wrap_content"
         android:text="Minuty"
         android:textColor="@android:color/black"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/widget_duration_minutes"
         app:layout_constraintLeft_toLeftOf="@id/widget_duration_minutes"
         app:layout_constraintRight_toRightOf="@id/widget_duration_minutes" />
