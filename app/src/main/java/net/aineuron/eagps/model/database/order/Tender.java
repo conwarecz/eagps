@@ -24,7 +24,6 @@ public class Tender implements Serializable {
     private Long NewStatus;
     private Long TenderId;
     private Car Entity;
-    private boolean isMessage = false;
 
     public static Order getOrderFromJson(String json) {
         Gson gson = new GsonBuilder()

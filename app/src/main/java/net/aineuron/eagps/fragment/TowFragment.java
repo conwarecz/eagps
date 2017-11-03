@@ -186,14 +186,14 @@ public class TowFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void apiFailedEvent(ApiErrorEvent e) {
 		e.throwable.printStackTrace();
-		Toast.makeText(getContext(), "Nepovedlo se stáhnout detail: " + e.throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-		hideProgress();
+        Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
+        hideProgress();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
     public void onKnownErrorEvent(KnownErrorEvent e) {
-        Toast.makeText(getContext(), "Zadaný požadavek se nepovedlo zpracovat, zkontrolujte připojení", Toast.LENGTH_LONG);
-	}
+        Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_LONG);
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void orderFinalized(OrderFinalizedEvent e) {

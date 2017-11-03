@@ -68,13 +68,9 @@ public class Appl extends MultiDexApplication implements
 	public void onApiErrorEvent(ApiErrorEvent e) {
 		Throwable throwable = e.throwable;
 		Log.e("EA GPS APP", "API Error: ", throwable);
-		String message = "Unknown network error";
-		if (throwable.getMessage() != null) {
-			message = throwable.getMessage();
-		}
 
-		Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-	}
+        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+    }
 
 	private void initRealm() {
 		Realm.init(this);

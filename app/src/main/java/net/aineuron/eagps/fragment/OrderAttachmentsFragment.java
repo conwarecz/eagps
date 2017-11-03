@@ -271,8 +271,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
 		hideProgress();
-		Toast.makeText(getContext(), e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-	}
+        Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {

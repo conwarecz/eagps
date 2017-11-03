@@ -250,11 +250,15 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse -> {
-							userManager.setSelectedStateId(stateId);
-							eventBus.post(new StateSelectedEvent(stateId));
-							if (stateId.equals(STATE_ID_NO_CAR)) {
-								eventBus.post(new CarSelectedEvent());
-							}
+                            if (voidResponse.isSuccessful()) {
+                                userManager.setSelectedStateId(stateId);
+                                eventBus.post(new StateSelectedEvent(stateId));
+                                if (stateId.equals(STATE_ID_NO_CAR)) {
+                                    eventBus.post(new CarSelectedEvent());
+                                }
+                            } else {
+                                sendKnownError(voidResponse);
+                            }
 						},
 						this::sendError
 				);
@@ -428,8 +432,9 @@ public class EaClient {
 		eaService.setRead(messageId, isRead)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(voidResponse -> {
-							if (voidResponse.isSuccessful()) {
+                .subscribe(
+                        voidResponse -> {
+                            if (voidResponse.isSuccessful()) {
 								Log.d("MessageSetRead", "Message Set Read success");
 							} else {
 								sendKnownError(voidResponse);
@@ -497,16 +502,20 @@ public class EaClient {
 
 			if (error.getKind() == RetrofitException.Kind.HTTP) {
 				KnownError knownError = error.getErrorBodyAs(KnownError.class);
-				ClientProvider.postKnownError(knownError);
+                Log.d("KnownError", knownError.getCode() + knownError.getMessage());
+                knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+                ClientProvider.postKnownError(knownError);
 			} else if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
 				clientProvider.postUnauthorisedError();
 			} else {
-				ClientProvider.postNetworkError(errorThrowable);
-			}
+                Log.d("NetworkError", errorThrowable.getMessage());
+                ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+            }
 		} catch (IOException e) {
 			e.printStackTrace();
-			ClientProvider.postNetworkError(errorThrowable);
-		}
+            Log.d("NetworkError", errorThrowable.getMessage());
+            ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+        }
 		eventBus.post(new StopRefreshingEvent());
 	}
 
@@ -516,12 +525,13 @@ public class EaClient {
 			return;
 		}
 		try {
-			KnownError knownError = new KnownError();
+            Log.d("KnownError", voidResponse.code() + voidResponse.errorBody().toString());
+            KnownError knownError = new KnownError();
 			knownError.setCode(voidResponse.code());
-			knownError.setMessage(voidResponse.errorBody().string());
-			ClientProvider.postKnownError(knownError);
-		} catch (IOException e) {
-			e.printStackTrace();
+            knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+            ClientProvider.postKnownError(knownError);
+        } catch (Exception e) {
+            e.printStackTrace();
 		}
 		eventBus.post(new StopRefreshingEvent());
 	}

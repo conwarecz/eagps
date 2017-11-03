@@ -61,8 +61,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
-    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
-//    public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
+    //    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
+    public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
 
 	@RootContext
 	Context context;
@@ -77,9 +77,9 @@ public class ClientProvider {
 	private EaClient eaClient;
 	private Gson gson;
 
-	public static void postNetworkError(Throwable errorThrowable) {
-		EventBus.getDefault().post(new ApiErrorEvent(errorThrowable));
-	}
+    public static void postNetworkError(Throwable errorThrowable, String message) {
+        EventBus.getDefault().post(new ApiErrorEvent(errorThrowable, message));
+    }
 
 	public static void postKnownError(KnownError error) {
 		EventBus.getDefault().post(new KnownErrorEvent(error));
@@ -90,7 +90,7 @@ public class ClientProvider {
         Intent intent = new Intent(context, LoginActivity_.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
-        Toast.makeText(context, "Přihlaste se znovu, prosím", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, R.string.login_relogin, Toast.LENGTH_LONG).show();
     }
 
 	@AfterInject

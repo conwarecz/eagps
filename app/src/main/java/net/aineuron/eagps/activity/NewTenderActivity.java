@@ -176,8 +176,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
-		Toast.makeText(getApplicationContext(), e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-        finishTenderActivity();
+		Toast.makeText(getApplicationContext(), e.message, Toast.LENGTH_SHORT).show();
+		finishTenderActivity();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -71,13 +71,12 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		getSupportActionBar().hide();
 
 		validator = new Validator(this);
+		validator.setValidationListener(this);
 
 		if (userManager.getUser() != null) {
 			// User logged in
 			showProgress();
 			setFirebaseToken();
-		} else {
-			validator.setValidationListener(this);
 		}
 	}
 

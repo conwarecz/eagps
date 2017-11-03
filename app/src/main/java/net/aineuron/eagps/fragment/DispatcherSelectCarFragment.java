@@ -140,7 +140,7 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
         carsRefresh.setRefreshing(false);
         carAdapter.notifyDataChanged();
-        Toast.makeText(getContext(), e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

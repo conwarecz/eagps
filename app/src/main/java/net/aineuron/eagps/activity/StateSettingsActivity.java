@@ -69,8 +69,8 @@ public class StateSettingsActivity extends AppCompatActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
 		progressDialog.dismiss();
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-	}
+        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+    }
 
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)

@@ -161,8 +161,8 @@ public class CarSettingsActivity extends AppCompatActivity {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-	}
+        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {

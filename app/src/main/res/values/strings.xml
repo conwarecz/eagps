@@ -24,4 +24,5 @@
     <string name="intent_text">Nemáte žádnou aplikaci sdílení textu</string>
     <string name="intent_browser">Nemáte žádný webový prohlížeč</string>
     <string name="widget_delay_title">Vyberte zpoždění výjezdu</string>
+    <string name="login_relogin">Přihlaste se znovu, prosím</string>
 </resources>

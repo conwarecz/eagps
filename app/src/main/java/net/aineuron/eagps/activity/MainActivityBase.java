@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
@@ -19,6 +20,9 @@ import com.jetradar.multibackstack.BackStackActivity;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
@@ -70,6 +74,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	UserManager userManager;
 
 	@Bean
+	ClientProvider clientProvider;
+
+	@Bean
 	MessagesManager messagesManager;
 
 	@Nullable
@@ -91,6 +98,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@AfterViews
 	public void afterViewsLocal() {
 		initBottomNavigation();
+
+		if (userManager.getUser() == null) {
+			clientProvider.postUnauthorisedError();
+		}
 
 		if (messageId != null) {
 			bottomNavigation.selectTab(MAIN_TAB_ID, false);
@@ -376,5 +387,15 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			bottomNavigation.selectTab(MAIN_TAB_ID, false);
 			showFragment(rootTabFragment(MAIN_TAB_ID));
 		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onErrorApiEvent(ApiErrorEvent e) {
+		Toast.makeText(this, e.message, Toast.LENGTH_LONG).show();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownError(KnownErrorEvent e) {
+		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_LONG).show();
 	}
 }

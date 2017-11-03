@@ -104,8 +104,8 @@ public class ProfileActivity extends AppBarActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoginFailed(ApiErrorEvent e) {
 		dismissDialog();
-		Toast.makeText(this, e.throwable.getMessage(), Toast.LENGTH_SHORT).show();
-	}
+        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+    }
 
 	private void showLogin() {
 		LoginActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK).start();

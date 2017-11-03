@@ -6,8 +6,10 @@ package net.aineuron.eagps.event.network;
  */
 public class ApiErrorEvent {
 	public final Throwable throwable;
+    public final String message;
 
-	public ApiErrorEvent(Throwable throwable) {
-		this.throwable = throwable;
-	}
+    public ApiErrorEvent(Throwable throwable, String message) {
+        this.throwable = throwable;
+        this.message = message;
+    }
 }

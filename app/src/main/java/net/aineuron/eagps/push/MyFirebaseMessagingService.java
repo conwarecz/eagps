@@ -207,6 +207,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void handleCarStatusChange(RemoteMessage remoteMessage) {
+        if (userManager.getUser() == null) {
+            return;
+        }
         final Long newStatus = Tender.getNewStatusFromJson(remoteMessage.getData().get("message"));
         if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
             EventBus.getDefault().post(new DispatcherRefreshCarsEvent());
