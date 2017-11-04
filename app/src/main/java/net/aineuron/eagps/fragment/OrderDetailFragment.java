@@ -192,9 +192,9 @@ public class OrderDetailFragment extends BaseFragment {
 	@NonNull
 	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
 		String addressResult = "";
-		if (order.getDestinationAddress() != null) {
-			if (order.getWorkshopName() != null) {
-				addressResult += order.getWorkshopName();
+		if (destinationAddress != null) {
+			if (workshopName != null) {
+				addressResult += workshopName;
 			}
 			if (destinationAddress.getAddress().getStreet() != null) {
 				if (addressResult.length() > 0) {

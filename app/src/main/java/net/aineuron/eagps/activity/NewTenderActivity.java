@@ -232,12 +232,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
-					if (which < 0) {
+					if (which <= 0) {
 						Toast.makeText(getApplicationContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
 					showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
-					tenderRejectModel.setRejectReason(Long.valueOf(which));
+					tenderRejectModel.setRejectReason(Long.valueOf(which + 1));
 					clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
 					return true;
                 })

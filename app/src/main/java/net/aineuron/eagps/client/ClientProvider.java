@@ -138,8 +138,8 @@ public class ClientProvider {
 		String token = pref.token().get();
 
 		gson = new GsonBuilder()
-				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
 						}.getType(),
 						RealmStringListTypeAdapter.INSTANCE)

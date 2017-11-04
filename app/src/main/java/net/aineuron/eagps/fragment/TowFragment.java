@@ -129,7 +129,7 @@ public class TowFragment extends BaseFragment {
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
 					if (which >= 0) {
 						showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
-						ordersManager.cancelOrder(order.getId(), Long.valueOf(which));
+						ordersManager.cancelOrder(order.getId(), Long.valueOf(which + 1));
 					}
 					return true;
 				})
@@ -225,7 +225,7 @@ public class TowFragment extends BaseFragment {
 		} else {
 			this.clientAddress.setVisibility(View.GONE);
 		}
-		if (order.getWorkshopName() != null && order.getDestinationAddress() != null) {
+		if (order.getDestinationAddress() != null) {
 			this.destinationAddress.setVisibility(View.VISIBLE);
 			this.destinationAddress.setText(formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));
 		} else {
@@ -254,9 +254,9 @@ public class TowFragment extends BaseFragment {
 	@NonNull
 	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
 		String addressResult = "";
-		if (order.getDestinationAddress() != null) {
-			if (order.getWorkshopName() != null) {
-				addressResult += order.getWorkshopName();
+		if (destinationAddress != null) {
+			if (workshopName != null) {
+				addressResult += workshopName;
 			}
 			if (destinationAddress.getAddress().getStreet() != null) {
 				if (addressResult.length() > 0) {

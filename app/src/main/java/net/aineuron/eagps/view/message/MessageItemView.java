@@ -26,6 +26,7 @@ import org.greenrobot.eventbus.EventBus;
 @EViewGroup(R.layout.item_messages_message)
 public class MessageItemView extends ConstraintLayout {
 
+
 	@ViewById(R.id.date)
 	TextView date;
 
@@ -58,8 +59,9 @@ public class MessageItemView extends ConstraintLayout {
 		}
 
         if (message.getTime() != null) {
-            this.date.setText(Appl.dateFormat.format(message.getTime()));
-            this.time.setText(Appl.timeFormat.format(message.getTime()));
+
+			this.date.setText(Appl.dateFormat.format(message.getTime()));
+			this.time.setText(Appl.timeFormat.format(message.getTime()));
         }
         this.message.setText(message.getText());
 

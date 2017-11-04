@@ -1,5 +1,6 @@
 package net.aineuron.eagps.fragment;
 
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -72,7 +73,9 @@ public class NoCarStateFragment extends BaseFragment {
 	}
 
 	private void setErrorState() {
-		stateText.setText("Neznámý stav");
-		stateIcon.setImageResource(R.drawable.icon_big_busy);
-	}
+        userManager.logout(userManager.getUser());
+        Log.e("State", "UNKNOWN");
+//		stateText.setText("Neznámý stav");
+//		stateIcon.setImageResource(R.drawable.icon_big_busy);
+    }
 }

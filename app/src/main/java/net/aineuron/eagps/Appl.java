@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -47,8 +48,8 @@ public class Appl extends MultiDexApplication implements
     public static String stateOfLifeCycle = "";
     public static boolean wasInBackground = true;
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-	public static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm");
-	public static RealmConfiguration dbConfig;
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    public static RealmConfiguration dbConfig;
     private static String TAG = Appl.class.getName();
     @EventBusGreenRobot
 	EventBus bus;
@@ -57,6 +58,9 @@ public class Appl extends MultiDexApplication implements
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+        dateFormat.setTimeZone(TimeZone.getDefault());
+        timeFormat.setTimeZone(TimeZone.getDefault());
 
         registerActivityLifecycleCallbacks(this);
         initRealm();

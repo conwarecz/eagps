@@ -28,6 +28,7 @@ import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Entity;
+import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
@@ -46,6 +47,10 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -316,6 +321,10 @@ public class EaClient {
 								return;
 							}
 
+							for (Order order : orders) {
+								setOrderDatesProperTimeZone(order);
+							}
+
 							Realm db = RealmHelper.getDb();
 							db.executeTransaction(realm ->
 									realm.copyToRealmOrUpdate(orders)
@@ -338,6 +347,8 @@ public class EaClient {
 							db.executeTransaction(realm ->
 									realm.copyToRealmOrUpdate(order)
 							);
+
+							setOrderDatesProperTimeZone(order);
 
 							db.close();
 							eventBus.post(new StopRefreshingEvent());
@@ -451,6 +462,22 @@ public class EaClient {
 				.subscribe(
 						messages -> {
 							Realm db = RealmHelper.getDb();
+
+							for (Message message : messages) {
+								if (message.getTime() != null) {
+									try {
+										SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+										simpleDateFormat.setTimeZone(TimeZone.getDefault());
+										String string = simpleDateFormat.format(message.getTime());
+
+										simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+										Date newDate = simpleDateFormat.parse(string);
+										message.setTime(newDate);
+									} catch (ParseException e) {
+										e.printStackTrace();
+									}
+								}
+							}
 
 							db.executeTransaction(realm -> realm.copyToRealmOrUpdate(messages));
 
@@ -568,5 +595,31 @@ public class EaClient {
 						,
 						this::sendError
 				);
+	}
+
+	private void setOrderDatesProperTimeZone(Order order) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		if (order.getEstimatedDepartureTime() != null) {
+			try {
+				simpleDateFormat.setTimeZone(TimeZone.getDefault());
+				String string = simpleDateFormat.format(order.getEstimatedDepartureTime());
+				simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+				Date newDate = simpleDateFormat.parse(string);
+				order.setEstimatedDepartureTime(newDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		if (order.getTimeCreated() != null) {
+			try {
+				simpleDateFormat.setTimeZone(TimeZone.getDefault());
+				String string = simpleDateFormat.format(order.getTimeCreated());
+				simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+				Date newDate = simpleDateFormat.parse(string);
+				order.setTimeCreated(newDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
