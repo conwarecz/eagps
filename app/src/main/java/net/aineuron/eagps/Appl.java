@@ -50,6 +50,7 @@ public class Appl extends MultiDexApplication implements
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static RealmConfiguration dbConfig;
+    public static RealmConfiguration tenderDbConfig;
     private static String TAG = Appl.class.getName();
     @EventBusGreenRobot
 	EventBus bus;
@@ -78,12 +79,18 @@ public class Appl extends MultiDexApplication implements
 
 	private void initRealm() {
 		Realm.init(this);
-		dbConfig = new RealmConfiguration.Builder()
-				.schemaVersion(1)
-				.name("db.realm")
-				.deleteRealmIfMigrationNeeded()
-				.build();
-	}
+        dbConfig = new RealmConfiguration.Builder()
+                .schemaVersion(1)
+                .name("db.realm")
+                .deleteRealmIfMigrationNeeded()
+                .build();
+
+        tenderDbConfig = new RealmConfiguration.Builder()
+                .schemaVersion(1)
+                .name("tenders.realm")
+                .deleteRealmIfMigrationNeeded()
+                .build();
+    }
 
 	public void initChannels() {
 		if (Build.VERSION.SDK_INT < 26) {

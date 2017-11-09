@@ -23,6 +23,7 @@ import net.aineuron.eagps.activity.OrderConfirmationActivity_;
 import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.order.Order;
@@ -41,6 +42,7 @@ import org.androidannotations.annotations.EService;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
@@ -67,11 +69,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FCM Service";
     @Bean
     UserManager userManager;
+    @Bean
+    TendersManager tendersManager;
     //    @Pref
 //    Pref_ pref;
     @App
     Appl app;
     private int currentNotificationID = 1;
+    private int tenderId = 0;
     private boolean wasInBackground = false;
     private int type = -1;
 
@@ -113,16 +118,27 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleNewTender(RemoteMessage remoteMessage) {
         Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
         Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
-        OrderSerializable orderSerializable = makeSerializableOrder(tender.getOrder());
+        if (tenderId == Integer.MAX_VALUE - 1) {
+            tenderId = 0;
+        }
+        tender.setPushId(tenderId++);
+        tender.setIncomeTime(Calendar.getInstance().getTime());
+//        OrderSerializable orderSerializable = makeSerializableOrder(tender.getOrder());
 //        currentNotificationID = orderSerializable.getId().intValue();
-        notificationIntent.putExtra("orderSerializable", orderSerializable);
+//        notificationIntent.putExtra("orderSerializable", orderSerializable);
+//        notificationIntent.putExtra("car", tender.getEntity());
+//        notificationIntent.putExtra("incomeDate", Calendar.getInstance().getTime());
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
         notificationIntent.putExtra("tenderId", tender.getTenderId());
-        notificationIntent.putExtra("car", tender.getEntity());
+
+        boolean hasSameTender = tendersManager.isNextTender(tender.getTenderId());
+
+        tendersManager.addTender(tender);
+
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         if (wasInBackground || app.getActiveActivity() instanceof NewTenderActivity_) {
-            if (app.getActiveActivity() instanceof NewTenderActivity_ && ((NewTenderActivity) app.getActiveActivity()).isAccepting()) {
+            if ((app.getActiveActivity() instanceof NewTenderActivity_ && ((NewTenderActivity) app.getActiveActivity()).getTenderId().equals(tender.getTenderId())) || hasSameTender) {
                 return;
             }
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
@@ -194,16 +210,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void handleNotWonTender(RemoteMessage remoteMessage) {
+        Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
         final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
         Long id = order.getId();
 //        currentNotificationID = id.intValue();
+        Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
+        notificationIntent.putExtra("id", id);
+        notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 
-        // TODO: dodělat až bude rozseknuto jak to má vůbec vypadat a chovat se
-        if (wasInBackground) {
-            sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
-        } else {
-            Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
-        }
+        tendersManager.deleteAllOtherTenders(tender.getTenderId());
+        sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
     }
 
     private void handleCarStatusChange(RemoteMessage remoteMessage) {

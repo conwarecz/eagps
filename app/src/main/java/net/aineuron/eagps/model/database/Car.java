@@ -4,12 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
+import io.realm.RealmObject;
+
 /**
  * Created by Vit Veres on 26-Apr-17
  * as a part of Android-EAGPS project.
  */
 
-public class Car implements Serializable {
+public class Car extends RealmObject implements Serializable {
 
 	private Long id;
 	@SerializedName("Status")

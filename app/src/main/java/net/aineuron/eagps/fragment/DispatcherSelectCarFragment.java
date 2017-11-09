@@ -54,6 +54,9 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     @ViewById(R.id.carsRefresh)
     SwipeRefreshLayout carsRefresh;
 
+    @ViewById(R.id.carsAllChecker)
+    AppCompatCheckBox allchecker;
+
     @Bean
     ClientProvider clientProvider;
 
@@ -77,19 +80,33 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     @Click(R.id.carsReady)
     void readyClicked() {
         carsNewState = STATE_ID_READY;
+        allchecker.setChecked(false);
         setCarsState();
     }
 
     @Click(R.id.carsBusy)
     void busyClicked() {
         carsNewState = STATE_ID_BUSY;
+        allchecker.setChecked(false);
         setCarsState();
     }
 
     @Click(R.id.carsUnavailable)
     void unavailableClicked() {
         carsNewState = STATE_ID_UNAVAILABLE;
+        allchecker.setChecked(false);
         setCarsState();
+    }
+
+    @Click(R.id.carsAllChecker)
+    void allCheckClicked() {
+        if (allchecker.isChecked()) {
+            carAdapter.checkAll();
+            selectedCars.addAll(cars);
+        } else {
+            carAdapter.uncheckAll();
+            selectedCars.removeAll(cars);
+        }
     }
 
     @AfterViews
@@ -105,7 +122,10 @@ public class DispatcherSelectCarFragment extends BaseFragment {
         layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         carsView.setLayoutManager(layoutManager);
         carsView.setAdapter(carAdapter);
-        carsRefresh.setOnRefreshListener(() -> clientProvider.getEaClient().getCars());
+        carsRefresh.setOnRefreshListener(() -> {
+            allchecker.setChecked(false);
+            clientProvider.getEaClient().getCars();
+        });
 
         DividerItemDecoration decor = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         Drawable horizontalDivider = ContextCompat.getDrawable(getActivity(), R.drawable.horizontal_divider_gray);
@@ -120,6 +140,7 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         carsRefresh.setRefreshing(true);
+        allchecker.setChecked(false);
         clientProvider.getEaClient().getCars();
     }
 

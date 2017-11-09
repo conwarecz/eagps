@@ -50,7 +50,9 @@ public class DispatcherSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSe
 
     @Override
     protected DispatcherSelectCarItemView onCreateItemView(ViewGroup parent, int viewType) {
-        return DispatcherSelectCarItemView_.build(context);
+        DispatcherSelectCarItemView view = DispatcherSelectCarItemView_.build(context);
+//        views.add(view);
+        return view;
     }
 
     @Override
@@ -80,6 +82,24 @@ public class DispatcherSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSe
         }
 
         notifyDataSetChanged();
+    }
+
+    public void checkAll() {
+        for (WorkerSelectCarViewModel model : items) {
+            model.isSelected(true);
+        }
+        for (DispatcherSelectCarItemView view : views) {
+            view.setChecked(true);
+        }
+    }
+
+    public void uncheckAll() {
+        for (WorkerSelectCarViewModel model : items) {
+            model.isSelected(false);
+        }
+        for (DispatcherSelectCarItemView view : views) {
+            view.setChecked(false);
+        }
     }
 
     public interface OnItemChange {

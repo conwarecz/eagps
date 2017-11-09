@@ -13,4 +13,8 @@ public class RealmHelper {
 	public static Realm getDb() {
 		return Realm.getInstance(Appl.dbConfig);
 	}
+
+    public static Realm getTenderDb() {
+        return Realm.getInstance(Appl.tenderDbConfig);
+    }
 }

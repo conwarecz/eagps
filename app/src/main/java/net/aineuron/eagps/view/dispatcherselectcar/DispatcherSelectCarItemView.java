@@ -87,4 +87,7 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
         }
     }
 
+    public void setChecked(boolean checked) {
+        carRZ.setChecked(checked);
+    }
 }

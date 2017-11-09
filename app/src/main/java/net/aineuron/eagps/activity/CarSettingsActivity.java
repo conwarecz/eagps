@@ -115,18 +115,21 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
-		progressDialog = new MaterialDialog.Builder(this)
-				.title("Vybírám auto")
-                .content(getString(R.string.dialog_wait_content))
-                .cancelable(false)
-                .progress(true, 0)
-                .show();
-		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
-			userManager.releaseCar(e.selectedCarId);
-		} else {
-			userManager.setSelectedStateId(e.stateId);
-			userManager.selectCar(e.selectedCarId);
-		}
+        boolean isAssigned = false;
+        for (Car car : cars) {
+            if (car.getId().equals(e.selectedCarId)) {
+                if (car.getUserUsername() == null || car.getUserUsername().isEmpty() || car.getUserUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
+                    continue;
+                } else {
+                    isAssigned = true;
+                }
+            }
+        }
+        if (isAssigned) {
+            userOverride(e);
+        } else {
+            selectCar(e);
+        }
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -184,4 +187,31 @@ public class CarSettingsActivity extends AppCompatActivity {
 		IntentUtils.openMainActivity(this);
 		finish();
 	}
+
+    private void selectCar(WorkerCarSelectedEvent e) {
+        progressDialog = new MaterialDialog.Builder(this)
+                .title("Vybírám auto")
+                .content(getString(R.string.dialog_wait_content))
+                .cancelable(false)
+                .progress(true, 0)
+                .show();
+        if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+            userManager.releaseCar(e.selectedCarId);
+        } else {
+            userManager.setSelectedStateId(e.stateId);
+            userManager.selectCar(e.selectedCarId);
+        }
+    }
+
+    private void userOverride(WorkerCarSelectedEvent e) {
+        new MaterialDialog.Builder(this)
+                .title("Přihlášený uživatel")
+                .content("Na tomto vozidle již je přihlášený jiný uživatel, opravdu jej chcete odhlásit?")
+                .cancelable(false)
+                .positiveText("Ano")
+                .negativeText("Ne")
+                .onPositive((dialog, which) -> selectCar(e))
+                .onNegative((dialog, which) -> dialog.dismiss())
+                .show();
+    }
 }

@@ -57,6 +57,8 @@ public class UserManager {
 	ClientProvider clientProvider;
     @Bean
     OrdersManager ordersManager;
+    @Bean
+    TendersManager tendersManager;
     private Map<Long, String> states = new HashMap<Long, String>() {
 		{
 			put(STATE_ID_READY, "Ready");
@@ -195,7 +197,8 @@ public class UserManager {
 		}
 		pref.clear();
 		ordersManager.clearDatabase();
-		try {
+        tendersManager.deleteAllTenders();
+        try {
 			NotificationManager notificationManager =
 					(NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancelAll();

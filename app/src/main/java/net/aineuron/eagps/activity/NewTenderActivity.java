@@ -27,16 +27,12 @@ import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.TenderAcceptSuccessEvent;
 import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
 import net.aineuron.eagps.model.OrdersManager;
+import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
-import net.aineuron.eagps.model.database.Car;
-import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Address;
-import net.aineuron.eagps.model.database.order.AddressDetail;
-import net.aineuron.eagps.model.database.order.Limitation;
-import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
-import net.aineuron.eagps.model.transfer.tender.OrderSerializable;
+import net.aineuron.eagps.model.database.order.Tender;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 import net.aineuron.eagps.util.FormatUtil;
@@ -55,8 +51,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import io.realm.RealmList;
-
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
@@ -72,18 +66,20 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	UserManager userManager;
 	@Bean
 	OrdersManager ordersManager;
+	@Bean
+	TendersManager tendersManager;
 	@EventBusGreenRobot
 	EventBus bus;
 	@Bean
 	ClientProvider clientProvider;
-	@Extra
-	OrderSerializable orderSerializable;
+	//	@Extra
+//	OrderSerializable orderSerializable;
 	@Extra
 	String title;
 	@Extra
 	Long tenderId;
-	@Extra
-	Car car;
+	//	@Extra
+//	Car car;
 	@Nullable
 	@Extra
 	int pushId;
@@ -117,6 +113,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	private NumberPicker hourPicker;
 	private NumberPicker minutePicker;
 	private boolean buttonClicked = false;
+	private Tender tender;
 
 	@AfterViews
 	void afterViews() {
@@ -127,32 +124,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			header.setText(title);
 		}
 
-		if (orderSerializable != null) {
-			makeRealmOrder();
-		}
-
-		User user = userManager.getUser();
-		if (user == null) {
-			clientProvider.postUnauthorisedError();
-			finish();
-		}
-
-        tenderAcceptModel = new TenderAcceptModel();
-		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
-			tenderAcceptModel.setEntityId(user.getEntity().getEntityId());
-		} else if (user.getRoleId() == DISPATCHER_ID && car != null && car.getId() != null) {
-			tenderAcceptModel.setEntityId(car.getId());
-		}
-		tenderAcceptModel.setUserName(user.getUserName());
-
-        tenderRejectModel = new TenderRejectModel();
-		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
-			tenderRejectModel.setEntityId(user.getEntity().getEntityId());
-		} else if (user.getRoleId() == DISPATCHER_ID && car != null && car.getId() != null) {
-			tenderRejectModel.setEntityId(car.getId());
-		}
-		tenderRejectModel.setUserName(user.getUserName());
-
+//		if (orderSerializable != null) {
+//			makeRealmOrder();
+//		}
 
 		setUi();
 	}
@@ -184,7 +158,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
     public void onKnownErrorEvent(KnownErrorEvent e) {
 		if (retryCounter < 3) {
 			trySendAgain();
-			Toast.makeText(getApplicationContext(), "Pokus " + (retryCounter + 1) + ": " + e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "Pokus " + retryCounter + ": " + e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
 		} else {
 			finishTenderActivity();
 		}
@@ -192,18 +166,27 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOfferCanceledEvent(OrderCanceledEvent e) {
+		tendersManager.deleteAllOtherTenders(tenderId);
 		finishTenderActivity();
 	}
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
-        finishTenderActivity();
-    }
+		tendersManager.deleteAllOtherTenders(tenderId);
+		finishTenderActivity();
+	}
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onTenderRejectSuccessEvent(TenderRejectSuccessEvent e) {
-        finishTenderActivity();
-    }
+		if (tendersManager.isNextTender(tenderId)) {
+			tendersManager.deleteTender(tenderId, tender.getIncomeTime());
+			hideProgress();
+			setUi();
+		} else {
+			tendersManager.deleteAllOtherTenders(tenderId);
+			finishTenderActivity();
+		}
+	}
 
 	@Click(R.id.back)
 	void acceptClicked() {
@@ -232,7 +215,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 				.items(R.array.order_cancel_choices)
 				.itemsIds(R.array.order_cancel_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
-					if (which <= 0) {
+					if (which < 0) {
 						Toast.makeText(getApplicationContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
 						return false;
 					}
@@ -261,6 +244,37 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	}
 
 	private void setUi() {
+		tender = tendersManager.getNextTender(tenderId);
+
+		if (tenderId == null || tender == null) {
+			finish();
+		}
+
+		order = tender.getOrder();
+
+		User user = userManager.getUser();
+		if (user == null) {
+			clientProvider.postUnauthorisedError();
+			finish();
+		}
+
+		tenderAcceptModel = new TenderAcceptModel();
+		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
+			tenderAcceptModel.setEntityId(user.getEntity().getEntityId());
+		} else if (user.getRoleId() == DISPATCHER_ID && tender.getEntity() != null && tender.getEntity().getId() != null) {
+			tenderAcceptModel.setEntityId(tender.getEntity().getId());
+		}
+		tenderAcceptModel.setUserName(user.getUserName());
+
+		tenderRejectModel = new TenderRejectModel();
+		if (user.getRoleId() == WORKER_ID && user.getEntity() != null && user.getEntity().getEntityId() != null) {
+			tenderRejectModel.setEntityId(user.getEntity().getEntityId());
+		} else if (user.getRoleId() == DISPATCHER_ID && tender.getEntity() != null && tender.getEntity().getId() != null) {
+			tenderRejectModel.setEntityId(tender.getEntity().getId());
+		}
+		tenderRejectModel.setUserName(user.getUserName());
+
+
 		if (order.getClientCarModel() != null && order.getClientCarWeight() != null && order.getClientCarLicencePlate() != null) {
 			this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
 		}
@@ -291,16 +305,16 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
 		}
 
-		if (car != null) {
+		if (tender.getEntity() != null) {
 			String string = "";
-			if (car.getName() != null) {
-				string = string + car.getName();
+			if (tender.getEntity().getName() != null) {
+				string = string + tender.getEntity().getName();
 			}
-			if (car.getAssignedUser() != null) {
+			if (tender.getEntity().getAssignedUser() != null) {
 				if (!string.isEmpty()) {
 					string = string + ", ";
 				}
-				string = string + car.getAssignedUser();
+				string = string + tender.getEntity().getAssignedUser();
 			}
 			this.assignedDriver.setText(string);
 		}
@@ -390,73 +404,73 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		progressDialog.dismiss();
 	}
 
-	private void makeRealmOrder() {
-		order = new Order();
-		order.setStatus(orderSerializable.getStatus());
-		order.setClaimSaxCode(orderSerializable.getClaimSaxCode());
-
-		if (orderSerializable.getClientAddress() != null) {
-			Address clientAddress = new Address();
-			if (orderSerializable.getClientAddress().getAddress() != null) {
-				AddressDetail clientAddressDetail = new AddressDetail();
-				clientAddressDetail.setCity(orderSerializable.getClientAddress().getAddress().getCity());
-				clientAddressDetail.setCountry(orderSerializable.getClientAddress().getAddress().getCountry());
-				clientAddressDetail.setStreet(orderSerializable.getClientAddress().getAddress().getStreet());
-				clientAddressDetail.setZipCode(orderSerializable.getClientAddress().getAddress().getZipCode());
-				clientAddress.setAddress(clientAddressDetail);
-			}
-
-			if (orderSerializable.getClientAddress().getLocation() != null) {
-				Location clientLocation = new Location();
-				clientLocation.setLatitude(orderSerializable.getClientAddress().getLocation().getLatitude());
-				clientLocation.setLongitude(orderSerializable.getClientAddress().getLocation().getLongitude());
-				clientAddress.setLocation(clientLocation);
-			}
-			order.setClientAddress(clientAddress);
-		}
-
-		if (orderSerializable.getDestinationAddress() != null) {
-			Address destinationAddress = new Address();
-			if (orderSerializable.getDestinationAddress().getAddress() != null) {
-				AddressDetail destinationAddressDetail = new AddressDetail();
-				destinationAddressDetail.setCity(orderSerializable.getDestinationAddress().getAddress().getCity());
-				destinationAddressDetail.setCountry(orderSerializable.getDestinationAddress().getAddress().getCountry());
-				destinationAddressDetail.setStreet(orderSerializable.getDestinationAddress().getAddress().getStreet());
-				destinationAddressDetail.setZipCode(orderSerializable.getDestinationAddress().getAddress().getZipCode());
-				destinationAddress.setAddress(destinationAddressDetail);
-			}
-
-			if (orderSerializable.getDestinationAddress().getLocation() != null) {
-				Location destinationLocation = new Location();
-				destinationLocation.setLatitude(orderSerializable.getDestinationAddress().getLocation().getLatitude());
-				destinationLocation.setLongitude(orderSerializable.getDestinationAddress().getLocation().getLongitude());
-				destinationAddress.setLocation(destinationLocation);
-			}
-			order.setClientAddress(destinationAddress);
-		}
-
-		order.setDestinationType(orderSerializable.getDestinationType());
-		order.setClientCarLicencePlate(orderSerializable.getClientCarLicencePlate());
-		order.setClientCarModel(orderSerializable.getClientCarModel());
-		order.setClientCarWeight(orderSerializable.getClientCarWeight());
-		RealmList<RealmString> eventDescription = new RealmList<>();
-		for (int i = 0; i < orderSerializable.getEventDescription().size(); i++) {
-			RealmString event = new RealmString();
-			event.setValue(orderSerializable.getEventDescription().get(i));
-			eventDescription.add(event);
-		}
-		order.setEventDescription(eventDescription);
-		order.setClientFirstName(orderSerializable.getClientFirstName());
-		order.setClientLastName(orderSerializable.getClientLastName());
-		order.setClientPhone(orderSerializable.getClientPhone());
-
-		Limitation limitation = new Limitation();
-		limitation.setLimit(orderSerializable.getLimitation().getLimit());
-		order.setLimitation(limitation);
-
-		order.setId(orderSerializable.getId());
-		order.setWorkshopName(orderSerializable.getWorkshopName());
-	}
+//	private void makeRealmOrder() {
+//		order = new Order();
+//		order.setStatus(orderSerializable.getStatus());
+//		order.setClaimSaxCode(orderSerializable.getClaimSaxCode());
+//
+//		if (orderSerializable.getClientAddress() != null) {
+//			Address clientAddress = new Address();
+//			if (orderSerializable.getClientAddress().getAddress() != null) {
+//				AddressDetail clientAddressDetail = new AddressDetail();
+//				clientAddressDetail.setCity(orderSerializable.getClientAddress().getAddress().getCity());
+//				clientAddressDetail.setCountry(orderSerializable.getClientAddress().getAddress().getCountry());
+//				clientAddressDetail.setStreet(orderSerializable.getClientAddress().getAddress().getStreet());
+//				clientAddressDetail.setZipCode(orderSerializable.getClientAddress().getAddress().getZipCode());
+//				clientAddress.setAddress(clientAddressDetail);
+//			}
+//
+//			if (orderSerializable.getClientAddress().getLocation() != null) {
+//				Location clientLocation = new Location();
+//				clientLocation.setLatitude(orderSerializable.getClientAddress().getLocation().getLatitude());
+//				clientLocation.setLongitude(orderSerializable.getClientAddress().getLocation().getLongitude());
+//				clientAddress.setLocation(clientLocation);
+//			}
+//			order.setClientAddress(clientAddress);
+//		}
+//
+//		if (orderSerializable.getDestinationAddress() != null) {
+//			Address destinationAddress = new Address();
+//			if (orderSerializable.getDestinationAddress().getAddress() != null) {
+//				AddressDetail destinationAddressDetail = new AddressDetail();
+//				destinationAddressDetail.setCity(orderSerializable.getDestinationAddress().getAddress().getCity());
+//				destinationAddressDetail.setCountry(orderSerializable.getDestinationAddress().getAddress().getCountry());
+//				destinationAddressDetail.setStreet(orderSerializable.getDestinationAddress().getAddress().getStreet());
+//				destinationAddressDetail.setZipCode(orderSerializable.getDestinationAddress().getAddress().getZipCode());
+//				destinationAddress.setAddress(destinationAddressDetail);
+//			}
+//
+//			if (orderSerializable.getDestinationAddress().getLocation() != null) {
+//				Location destinationLocation = new Location();
+//				destinationLocation.setLatitude(orderSerializable.getDestinationAddress().getLocation().getLatitude());
+//				destinationLocation.setLongitude(orderSerializable.getDestinationAddress().getLocation().getLongitude());
+//				destinationAddress.setLocation(destinationLocation);
+//			}
+//			order.setClientAddress(destinationAddress);
+//		}
+//
+//		order.setDestinationType(orderSerializable.getDestinationType());
+//		order.setClientCarLicencePlate(orderSerializable.getClientCarLicencePlate());
+//		order.setClientCarModel(orderSerializable.getClientCarModel());
+//		order.setClientCarWeight(orderSerializable.getClientCarWeight());
+//		RealmList<RealmString> eventDescription = new RealmList<>();
+//		for (int i = 0; i < orderSerializable.getEventDescription().size(); i++) {
+//			RealmString event = new RealmString();
+//			event.setValue(orderSerializable.getEventDescription().get(i));
+//			eventDescription.add(event);
+//		}
+//		order.setEventDescription(eventDescription);
+//		order.setClientFirstName(orderSerializable.getClientFirstName());
+//		order.setClientLastName(orderSerializable.getClientLastName());
+//		order.setClientPhone(orderSerializable.getClientPhone());
+//
+//		Limitation limitation = new Limitation();
+//		limitation.setLimit(orderSerializable.getLimitation().getLimit());
+//		order.setLimitation(limitation);
+//
+//		order.setId(orderSerializable.getId());
+//		order.setWorkshopName(orderSerializable.getWorkshopName());
+//	}
 
 	private void trySendAgain() {
 		retryCounter++;
@@ -530,5 +544,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Long getTenderId() {
+		return tenderId;
 	}
 }

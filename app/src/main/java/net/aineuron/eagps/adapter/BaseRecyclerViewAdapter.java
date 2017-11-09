@@ -16,6 +16,7 @@ import java.util.List;
 
 public abstract class BaseRecyclerViewAdapter<T, V extends View> extends RecyclerView.Adapter<ItemViewWrapper<V>> {
 	protected List<T> items = new ArrayList<T>();
+    protected List<V> views = new ArrayList<V>();
 
 	@Override
 	public int getItemCount() {
@@ -24,8 +25,10 @@ public abstract class BaseRecyclerViewAdapter<T, V extends View> extends Recycle
 
 	@Override
 	public final ItemViewWrapper<V> onCreateViewHolder(ViewGroup parent, int viewType) {
-		return new ItemViewWrapper<V>(onCreateItemView(parent, viewType));
-	}
+        ItemViewWrapper<V> wrapper = new ItemViewWrapper<V>(onCreateItemView(parent, viewType));
+        views.add(wrapper.getView());
+        return wrapper;
+    }
 
 	protected abstract V onCreateItemView(ViewGroup parent, int viewType);
 

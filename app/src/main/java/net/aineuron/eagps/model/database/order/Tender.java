@@ -11,19 +11,25 @@ import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.RealmString;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 20.09.2017.
  */
 
-public class Tender implements Serializable {
+public class Tender extends RealmObject implements Serializable {
+    @PrimaryKey
+    private int pushId;
     private Order Order;
     private Message Message;
     private Long NewStatus;
     private Long TenderId;
     private Car Entity;
+    private Date incomeTime;
 
     public static Order getOrderFromJson(String json) {
         Gson gson = new GsonBuilder()
@@ -110,5 +116,21 @@ public class Tender implements Serializable {
 
     public void setEntity(Car entity) {
         Entity = entity;
+    }
+
+    public Date getIncomeTime() {
+        return incomeTime;
+    }
+
+    public void setIncomeTime(Date incomeTime) {
+        this.incomeTime = incomeTime;
+    }
+
+    public int getPushId() {
+        return pushId;
+    }
+
+    public void setPushId(int pushId) {
+        this.pushId = pushId;
     }
 }

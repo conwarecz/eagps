@@ -19,6 +19,26 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.85" />
 
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/carsAllChecker"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding_elements_half"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="@dimen/padding_elements_half"
+            android:ellipsize="marquee"
+            android:padding="8dp"
+            android:text="Vše"
+            android:textColor="@color/backgroundWhite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/carGuideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="@id/carGuideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/carsCheckRZ"
             android:layout_width="wrap_content"
