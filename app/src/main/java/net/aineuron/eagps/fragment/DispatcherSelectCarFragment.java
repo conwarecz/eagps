@@ -38,6 +38,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
@@ -102,10 +103,14 @@ public class DispatcherSelectCarFragment extends BaseFragment {
     void allCheckClicked() {
         if (allchecker.isChecked()) {
             carAdapter.checkAll();
-            selectedCars.addAll(cars);
+            for (Car car : cars) {
+                if (!car.getStatusId().equals(STATE_ID_BUSY_ORDER)) {
+                    selectedCars.add(car);
+                }
+            }
         } else {
             carAdapter.uncheckAll();
-            selectedCars.removeAll(cars);
+            selectedCars = new ArrayList<>();
         }
     }
 

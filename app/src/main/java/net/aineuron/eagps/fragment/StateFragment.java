@@ -66,8 +66,8 @@ public class StateFragment extends BaseFragment {
 			setBusyContent();
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
-			setBusyContent();
-			IntentUtils.openNewMainActivity(getContext());
+            setOnOrderContent();
+            IntentUtils.openNewMainActivity(getContext());
 
 		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
 			setUnavailableContent();
@@ -90,6 +90,12 @@ public class StateFragment extends BaseFragment {
 		stateSubtext.setText("Nejste připraven na zakázku a nemůžete být poptáni pro zásahy EA");
 		stateIcon.setImageResource(R.drawable.icon_big_busy);
 	}
+
+    private void setOnOrderContent() {
+        stateText.setText("Na zakázce");
+        stateSubtext.setText("Aktuálně jste přiřazen na zakázce");
+        stateIcon.setImageResource(R.drawable.icon_big_busy);
+    }
 
 	private void setUnavailableContent() {
 		stateText.setText("Nedostupný");

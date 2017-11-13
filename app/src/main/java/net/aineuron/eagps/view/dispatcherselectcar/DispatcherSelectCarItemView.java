@@ -6,6 +6,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
@@ -17,6 +18,7 @@ import org.androidannotations.annotations.res.ColorRes;
 import org.greenrobot.eventbus.EventBus;
 
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
@@ -46,6 +48,8 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
     @ColorRes(R.color.ready)
     int ready;
 
+    private Long carStateId;
+
     public DispatcherSelectCarItemView(@NonNull Context context) {
         super(context);
     }
@@ -54,8 +58,18 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
         carRZ.setText(car.getName());
         carRZ.setClickable(false);
 
+        if (car.getStatusId().equals(STATE_ID_BUSY_ORDER)) {
+            carRZ.setEnabled(false);
+        } else {
+            carRZ.setEnabled(true);
+        }
+
         View holder = this.getRootView();
         holder.setOnClickListener(view -> {
+            if (car.getStatusId().equals(STATE_ID_BUSY_ORDER)) {
+                Toast.makeText(getContext(), "Autu na probíhající zakázce nelze měnit status", Toast.LENGTH_LONG).show();
+                return;
+            }
             carRZ.setChecked(!carRZ.isChecked());
             EventBus.getDefault().post(new WorkerCarSelectedEvent(car.getId(), carRZ.isChecked(), car.getStatusId()));
         });
@@ -67,16 +81,20 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
             carUser.setVisibility(GONE);
         }
 
-        int i = car.getStatusId().intValue();
-        if (i == STATE_ID_UNAVAILABLE) {
+        carStateId = car.getStatusId();
+        if (carStateId.equals(STATE_ID_UNAVAILABLE)) {
             this.getRootView().setBackgroundResource(R.color.unavailable);
             carState.setText(R.string.car_unavailable);
 
-        } else if (i == STATE_ID_BUSY) {
+        } else if (carStateId.equals(STATE_ID_BUSY)) {
             this.getRootView().setBackgroundResource(R.color.busy);
-            carState.setText(R.string.car_on_duty);
+            carState.setText(R.string.car_busy);
 
-        } else if (i == STATE_ID_READY) {
+        } else if (carStateId.equals(STATE_ID_BUSY_ORDER)) {
+            this.getRootView().setBackgroundResource(R.color.busy);
+            carState.setText(R.string.car_on_order);
+
+        } else if (carStateId.equals(STATE_ID_READY)) {
             this.getRootView().setBackgroundResource(R.color.ready);
             carState.setText(R.string.car_waiting);
 
@@ -89,5 +107,9 @@ public class DispatcherSelectCarItemView extends ConstraintLayout {
 
     public void setChecked(boolean checked) {
         carRZ.setChecked(checked);
+    }
+
+    public Long getCarState() {
+        return carStateId;
     }
 }

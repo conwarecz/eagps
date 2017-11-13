@@ -7,7 +7,8 @@
     <string name="dialog_wait_content">Prosím čekejte...</string>
     <string name="car_unavailable">Nedostupný</string>
     <string name="car_waiting">Čekání</string>
-    <string name="car_on_duty">Zaneprázdněn</string>
+    <string name="car_busy">Zaneprázdněn</string>
+    <string name="car_on_order">Na zakázce</string>
     <string name="dialog_changing_settings">Měním nastavení</string>
     <string name="confirmation_ok">OK</string>
     <string name="dispatcher_unavailable">Nedostupný</string>

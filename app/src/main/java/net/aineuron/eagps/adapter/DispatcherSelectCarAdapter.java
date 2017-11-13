@@ -19,6 +19,8 @@ import org.androidannotations.annotations.RootContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 31.08.2017.
  */
@@ -86,9 +88,15 @@ public class DispatcherSelectCarAdapter extends BaseRecyclerViewAdapter<WorkerSe
 
     public void checkAll() {
         for (WorkerSelectCarViewModel model : items) {
+            if (model.getCar().getStatusId().equals(STATE_ID_BUSY_ORDER)) {
+                continue;
+            }
             model.isSelected(true);
         }
         for (DispatcherSelectCarItemView view : views) {
+            if (view.getCarState().equals(STATE_ID_BUSY_ORDER)) {
+                continue;
+            }
             view.setChecked(true);
         }
     }

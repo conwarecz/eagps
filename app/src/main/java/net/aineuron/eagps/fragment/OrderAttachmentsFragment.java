@@ -203,11 +203,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			return;
 		}
 
-		showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
-		if (localPhotos.getLocalPhotos().size() > 0 && uploadedPhotos < localPhotos.getLocalPhotos().size()) {
-			uploadPhotos();
-		} else {
-			uploadFinishedSendOrder();
+		if (localPhotos.isValid()) {
+			showProgress("Odesílám zásah", getString(R.string.dialog_wait_content));
+			if (localPhotos.getLocalPhotos().size() > 0 && uploadedPhotos < localPhotos.getLocalPhotos().size()) {
+				uploadPhotos();
+			} else {
+				uploadFinishedSendOrder();
+			}
 		}
 	}
 
@@ -216,13 +218,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		hideProgress();
 		db.executeTransaction(realm -> {
 			LocalPhotos photos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-			if (photos.isValid()) {
+			if (photos != null && photos.isValid()) {
 				photos.deleteFromRealm();
 			}
 		});
 		db.executeTransaction(realm -> {
 			LocalReasons reasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
-			if (reasons.isValid()) {
+			if (reasons != null && reasons.isValid()) {
 				reasons.deleteFromRealm();
 			}
 		});

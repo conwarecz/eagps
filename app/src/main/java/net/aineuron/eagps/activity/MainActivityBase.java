@@ -55,6 +55,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity
@@ -97,11 +98,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@AfterViews
 	public void afterViewsLocal() {
-		initBottomNavigation();
-
 		if (userManager.getUser() == null) {
 			clientProvider.postUnauthorisedError();
 		}
+
+        initBottomNavigation();
 
 		if (messageId != null) {
 			bottomNavigation.selectTab(MAIN_TAB_ID, false);
@@ -235,7 +236,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			currentTabId = tabId;
 		}
 		showFragment(fragment, true);
-	}
+        if (userManager.haveActiveOrder() && !userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER)) {
+            EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+        }
+    }
 
 	public void showFragment(@NonNull Fragment fragment, boolean addToBackStack) {
 		if (currentFragment != null && addToBackStack) {

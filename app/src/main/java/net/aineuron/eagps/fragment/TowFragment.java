@@ -40,6 +40,8 @@ import io.realm.RealmObjectChangeListener;
 
 import static net.aineuron.eagps.activity.MainActivityBase.MAIN_TAB_ID;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 /**
@@ -88,7 +90,11 @@ public class TowFragment extends BaseFragment {
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(userManager.getUser().getUserRole() == DISPATCHER_ID);
-		setAppbarTitle(getString(R.string.car_on_duty));
+		if (userManager.getSelectedStateId() == STATE_ID_BUSY) {
+			setAppbarTitle(getString(R.string.car_busy));
+		} else if (userManager.getSelectedStateId() == STATE_ID_BUSY_ORDER) {
+			setAppbarTitle(getString(R.string.car_on_order));
+		}
 
 		if (orderId == null) {
 			order = ordersManager.getFirstActiveOrder();

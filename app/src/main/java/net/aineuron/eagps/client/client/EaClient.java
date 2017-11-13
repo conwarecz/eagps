@@ -62,6 +62,7 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
 
 /**
  * Created by Vit Veres on 31.3.2016
@@ -131,12 +132,16 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						user -> {
-							// Need to keep some user info stored in User afted login response
+							// Need to keep some user info stored in User after login response
 							user.setUserId(user.getId());
 							user.setToken(userManager.getUser().getToken());
 							user.setUserName(userManager.getUser().getUserName());
-							user.setRoleId(userManager.getUser().getRoleId());
-							user.setUserRole(userManager.getUser().getRoleId());
+							if (userManager.getUser().getRoleId() != null && userManager.getUser().getRoleId().intValue() > 0) {
+								user.setRoleId(userManager.getUser().getRoleId());
+								user.setUserRole(userManager.getUser().getRoleId());
+							} else if (user.getUserRole() != null && user.getUserRole().intValue() > 0) {
+								user.setRoleId(user.getUserRole());
+							}
 
 							userManager.setUser(user);
 
@@ -238,6 +243,9 @@ public class EaClient {
 	}
 
 	public void setUserState(Long stateId) {
+		if (stateId.equals(STATE_ID_BUSY_ORDER)) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null || user.getEntity() == null || user.getEntity().getEntityId() == null) {
 			return;
@@ -292,6 +300,9 @@ public class EaClient {
 	}
 
 	public void setCarState(Long stateId, Long carId) {
+		if (stateId.equals(STATE_ID_BUSY_ORDER)) {
+			return;
+		}
 		eaService.setStatus(carId, stateId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -395,6 +406,12 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
+								Realm db = RealmHelper.getDb();
+								db.executeTransaction(realm -> {
+									Order order = ordersManager.getOrderById(orderId);
+									order.setStatus(ORDER_STATE_FINISHED);
+								});
+								db.close();
 								userManager.setStateReady();
 								eventBus.post(new OrderFinalizedEvent(orderId));
 							} else {

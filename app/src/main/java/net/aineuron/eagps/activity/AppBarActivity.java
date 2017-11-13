@@ -159,12 +159,16 @@ public class AppBarActivity extends MainActivityBase {
 		}
 
         int visibility = View.VISIBLE;
-        if (e.state.equals(STATE_ID_BUSY) || e.state.equals(STATE_ID_BUSY_ORDER)) {
-			actionBar.setTitle(R.string.car_on_duty);
+		if (e.state.equals(STATE_ID_BUSY)) {
+			actionBar.setTitle(R.string.car_busy);
 			setActionBarColor(busy);
-            stateIcon.setImageResource(R.drawable.icon_busy);
-        } else if (e.state.equals(STATE_ID_READY)) {
-            actionBar.setTitle(R.string.car_waiting);
+			stateIcon.setImageResource(R.drawable.icon_busy);
+		} else if (e.state.equals(STATE_ID_BUSY_ORDER)) {
+			actionBar.setTitle(R.string.car_on_order);
+			setActionBarColor(busy);
+			stateIcon.setImageResource(R.drawable.icon_busy);
+		} else if (e.state.equals(STATE_ID_READY)) {
+			actionBar.setTitle(R.string.car_waiting);
             setActionBarColor(ready);
             stateIcon.setImageResource(R.drawable.icon_ready);
         } else if (e.state.equals(STATE_ID_UNAVAILABLE)) {
