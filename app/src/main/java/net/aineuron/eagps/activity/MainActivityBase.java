@@ -252,12 +252,15 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		bottomNavigation.setTabSelectedListener(this);
 
 		BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
-		messagesItem.setBadgeItem(shapeBadgeItem);
+
 		shapeBadgeItem = new ShapeBadgeItem()
 				.setShape(ShapeBadgeItem.SHAPE_OVAL)
 				.setSizeInDp(this, 10, 10)
 				.setShapeColor(Color.RED)
 				.hide();
+
+		messagesItem.setBadgeItem(shapeBadgeItem);
+
 		if (messagesManager.checkUnreadMessage()) {
 			shapeBadgeItem.show();
 		}
