@@ -22,6 +22,7 @@ import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
 import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
@@ -155,6 +156,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
         realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
+        realm.close();
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
@@ -163,7 +165,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        } else {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
-        userManager.setStateBusyOnOrder();
+        userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+        EventBus.getDefault().post(new OrderAcceptedEvent());
 //        }
     }
 
@@ -194,7 +197,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Realm realm = RealmHelper.getDb();
         realm.executeTransactionAsync(realm1 -> {
             Order canceledOrder = realm.where(Order.class).equalTo("id", id).findFirst();
-            canceledOrder.deleteFromRealm();
+            canceledOrder.setStatus(Order.ORDER_STATE_CANCELLED);
         });
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);

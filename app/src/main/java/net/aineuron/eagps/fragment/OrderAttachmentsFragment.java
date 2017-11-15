@@ -350,12 +350,22 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 		}
 
-		String photoReason = order.getReasonForNoPhotos();
-		if (localReasons != null && (photoReason == null || photoReason.isEmpty())) {
+        String photoReason = "";
+        try {
+            photoReason = order.getReasonForNoPhotos();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (localReasons != null && (photoReason == null || photoReason.isEmpty())) {
 			photoReason = localReasons.getReasons().getReasonForNoPhotos();
 		}
-		String docsReason = order.getReasonForNoDocuments();
-		if (localReasons != null && (docsReason == null || docsReason.isEmpty())) {
+        String docsReason = "";
+        try {
+            docsReason = order.getReasonForNoDocuments();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (localReasons != null && (docsReason == null || docsReason.isEmpty())) {
 			docsReason = localReasons.getReasons().getReasonForNoDocuments();
 		}
 

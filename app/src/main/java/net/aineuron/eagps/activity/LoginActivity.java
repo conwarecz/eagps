@@ -122,13 +122,13 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	@Subscribe(threadMode = ThreadMode.MAIN)
     public void onLoginFailed(ApiErrorEvent e) {
         dismissDialog();
-        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onKnownError(KnownErrorEvent e) {
         dismissDialog();
-        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
     }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

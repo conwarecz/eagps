@@ -37,6 +37,7 @@ import net.aineuron.eagps.model.database.order.ReasonsRequestBody;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.LoginInfo;
 import net.aineuron.eagps.model.transfer.Paging;
+import net.aineuron.eagps.model.transfer.RecognizedError;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 import net.aineuron.eagps.util.RealmHelper;
@@ -62,6 +63,7 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_CANCELLED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
 
 /**
@@ -385,6 +387,11 @@ public class EaClient {
 //									realm.where(Order.class).equalTo("id", orderId).findFirst().deleteFromRealm();
 //								});
 //								db.close();
+								Realm db = RealmHelper.getDb();
+								db.executeTransaction(realm ->
+										realm.where(Order.class).equalTo("id", orderId).findFirst().setStatus(ORDER_STATE_CANCELLED)
+								);
+								db.close();
 								eventBus.post(new OrderCanceledEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);
@@ -567,6 +574,19 @@ public class EaClient {
 		if (voidResponse.code() == 401) {
 			clientProvider.postUnauthorisedError();
 			return;
+		}
+		try {
+			if (voidResponse.code() == 400) {
+				RecognizedError error = RecognizedError.getError(voidResponse.errorBody().string());
+				Log.d("KnownError", error.getCode() + error.getMessage());
+				KnownError knownError = new KnownError();
+				knownError.setCode(error.getCode().intValue());
+				knownError.setMessage(error.getMessage());
+				ClientProvider.postKnownError(knownError);
+				return;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		try {
             Log.d("KnownError", voidResponse.code() + voidResponse.errorBody().toString());

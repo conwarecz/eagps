@@ -87,6 +87,14 @@ public class TowFragment extends BaseFragment {
 		return TowFragment_.builder().orderId(orderId).build();
 	}
 
+//	@Override
+//	public void onResume() {
+//		super.onResume();
+//		if(!userManager.haveActiveOrder()){
+//			EventBus.getDefault().post(new StateSelectedEvent(userManager.getSelectedStateId()));
+//		}
+//	}
+
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(userManager.getUser().getUserRole() == DISPATCHER_ID);
@@ -214,7 +222,6 @@ public class TowFragment extends BaseFragment {
 				StateSettingsActivity_.intent(getContext()).start();
 			}
 		} else {
-			// TODO: buď attachmentsFragment nebo seznam zakázek pro dispatchera
 			activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
 		}
 	}

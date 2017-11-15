@@ -1,20 +1,28 @@
 package net.aineuron.eagps.fragment;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
+import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
-import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_UNAVAILABLE;
 
 /**
  * Created by Vit Veres on 19-Apr-17
@@ -33,6 +41,9 @@ public class StateFragment extends BaseFragment {
 	@ViewById(R.id.stateSubtext)
 	TextView stateSubtext;
 
+	@ViewById(R.id.changeButton)
+	Button stateButton;
+
 	@Bean
 	UserManager userManager;
 
@@ -50,6 +61,14 @@ public class StateFragment extends BaseFragment {
 		setContent();
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (userManager.haveActiveOrder()) {
+			eventBus.post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+		}
+	}
+
 	@Click(R.id.changeButton)
 	void stateImageClicked() {
 		StateSettingsActivity_.intent(getContext()).start();
@@ -57,22 +76,26 @@ public class StateFragment extends BaseFragment {
 
 	private void setContent() {
 		Long i = userManager.getSelectedStateId();
+		stateButton.setVisibility(View.VISIBLE);
 		if (i == null) {
 			setErrorState();
-		} else if (i.equals(UserManager.STATE_ID_READY)) {
+		} else if (i.equals(STATE_ID_READY)) {
 			setReadyContent();
 
-		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
+		} else if (i.equals(STATE_ID_BUSY)) {
 			setBusyContent();
 
-		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
-            setOnOrderContent();
-            IntentUtils.openNewMainActivity(getContext());
+		} else if (i.equals(STATE_ID_BUSY_ORDER)) {
+			stateButton.setVisibility(View.INVISIBLE);
+			setOnOrderContent();
+			if (userManager.haveActiveOrder()) {
+				eventBus.post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+			}
 
-		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
+		} else if (i.equals(STATE_ID_UNAVAILABLE)) {
 			setUnavailableContent();
 
-		} else if (i.equals(UserManager.STATE_ID_NO_CAR)) {
+		} else if (i.equals(STATE_ID_NO_CAR)) {
 			setNoCarContent();
 
 		} else {

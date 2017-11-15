@@ -25,24 +25,20 @@ import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
-import net.aineuron.eagps.fragment.DispatcherSelectCarFragment;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment_;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessageDetailFragment_;
-import net.aineuron.eagps.fragment.MessagesFragment;
 import net.aineuron.eagps.fragment.MessagesFragment_;
-import net.aineuron.eagps.fragment.NoCarStateFragment;
 import net.aineuron.eagps.fragment.NoCarStateFragment_;
 import net.aineuron.eagps.fragment.OrderAttachmentsFragment_;
 import net.aineuron.eagps.fragment.OrderDetailFragment_;
-import net.aineuron.eagps.fragment.OrdersFragment;
 import net.aineuron.eagps.fragment.OrdersFragment_;
-import net.aineuron.eagps.fragment.StateFragment;
 import net.aineuron.eagps.fragment.StateFragment_;
-import net.aineuron.eagps.fragment.TowFragment;
 import net.aineuron.eagps.fragment.TowFragment_;
 import net.aineuron.eagps.model.MessagesManager;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
@@ -56,6 +52,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity
@@ -73,6 +70,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Bean
 	UserManager userManager;
+	@Bean
+	OrdersManager ordersManager;
 
 	@Bean
 	ClientProvider clientProvider;
@@ -234,6 +233,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			}
 			selectTab(tabId);
 			currentTabId = tabId;
+		} else if (userManager.getUser().getUserRole() == DISPATCHER_ID && fragment instanceof OrderAttachmentsFragment_) {
+			onBackPressed();
 		}
 		showFragment(fragment, true);
         if (userManager.haveActiveOrder() && !userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER)) {
@@ -269,7 +270,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 				.setActiveColor(R.color.colorPrimary)
 				.setInActiveColor(R.color.grayText)
 				.setBarBackgroundColor(R.color.backgroundWhite);
-		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+		if (userManager.getUser() != null && userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
 
 			bottomNavigation
 					.addItem(new BottomNavigationItem(R.drawable.icon_home, "Zásah"))
@@ -344,30 +345,30 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			switch (tabId) {
 				case 0:
 					if (userManager.haveActiveOrder()) {
-						return TowFragment.newInstance(null);
+						return TowFragment_.newInstance(null);
 					} else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
-						return NoCarStateFragment.newInstance();
+						return NoCarStateFragment_.newInstance();
 					} else {
-						return StateFragment.newInstance();
+						return StateFragment_.newInstance();
 					}
 				case 1:
-					return OrdersFragment.newInstance();
+					return OrdersFragment_.newInstance();
 				case 2:
-					return MessagesFragment.newInstance();
+					return MessagesFragment_.newInstance();
 				default:
-					return StateFragment.newInstance();
+					return StateFragment_.newInstance();
 			}
 		} else {
 			// Dispatcher mode
 			switch (tabId) {
 				case 0:
-					return OrdersFragment.newInstance();
+					return OrdersFragment_.newInstance();
 				case 1:
-					return DispatcherSelectCarFragment.newInstance();
+					return DispatcherSelectCarFragment_.newInstance();
 				case 2:
-					return MessagesFragment.newInstance();
+					return MessagesFragment_.newInstance();
 				default:
-					return OrdersFragment.newInstance();
+					return OrdersFragment_.newInstance();
 			}
 		}
 	}
@@ -383,16 +384,28 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStateChangedEvent(StateSelectedEvent e) {
-		if (currentFragment instanceof StateFragment) {
-			replaceFragment(StateFragment.newInstance());
+		if (currentFragment instanceof StateFragment_ && !userManager.haveActiveOrder()) {
+			showFragment(StateFragment_.newInstance(), false);
+		}
+		if (!e.state.equals(STATE_ID_BUSY_ORDER) && userManager.getUser().getRoleId() == WORKER_ID && !userManager.haveActiveOrder() && currentTabId == MAIN_TAB_ID && currentFragment instanceof TowFragment_) {
+			showFragment(StateFragment_.newInstance(), false);
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onOrderAccepted(OrderAcceptedEvent e) {
+		if (userManager.getUser().getRoleId() == WORKER_ID && currentTabId == MAIN_TAB_ID && currentFragment instanceof StateFragment_) {
+			showFragment(TowFragment_.newInstance(ordersManager.getFirstActiveOrder().getId()), false);
 		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCancelled(OrderCanceledEvent e) {
 		if (!userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID && currentTabId == MAIN_TAB_ID) {
+			userManager.setSelectedStateId(STATE_ID_READY);
 			bottomNavigation.selectTab(MAIN_TAB_ID, false);
 			showFragment(rootTabFragment(MAIN_TAB_ID));
+			userManager.setStateReady();
 		}
 	}
 
