@@ -61,6 +61,16 @@ public class AppBarActivity extends MainActivityBase {
 
 	private int currentNotificationID = 0;
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            setUpActionBar();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -84,16 +94,16 @@ public class AppBarActivity extends MainActivityBase {
 
 		return true;
 	}
-
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-        try {
-            setUpActionBar();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//
+//	@Override
+//	protected void onNewIntent(Intent intent) {
+//		super.onNewIntent(intent);
+//        try {
+//            setUpActionBar();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 	private void setUpActionBar() {
         actionBar = getSupportActionBar();

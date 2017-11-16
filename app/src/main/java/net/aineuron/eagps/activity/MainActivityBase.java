@@ -233,14 +233,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			}
 			selectTab(tabId);
 			currentTabId = tabId;
-		} else if (userManager.getUser().getUserRole() == DISPATCHER_ID && fragment instanceof OrderAttachmentsFragment_) {
+		} else if (userManager.getUser().getUserRole() == DISPATCHER_ID && fragment instanceof OrderAttachmentsFragment_ && currentFragment instanceof TowFragment_) {
 			onBackPressed();
 		}
 		showFragment(fragment, true);
-        if (userManager.haveActiveOrder() && !userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER)) {
-            EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
-        }
-    }
+//        if (userManager.haveActiveOrder() && !userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER)) {
+//            EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+//        }
+	}
 
 	public void showFragment(@NonNull Fragment fragment, boolean addToBackStack) {
 		if (currentFragment != null && addToBackStack) {
@@ -384,7 +384,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStateChangedEvent(StateSelectedEvent e) {
-		if (currentFragment instanceof StateFragment_ && !userManager.haveActiveOrder()) {
+		if (currentFragment instanceof StateFragment_ && !userManager.haveActiveOrder() && !(((StateFragment_) currentFragment).getActualState().equals(e.state))) {
 			showFragment(StateFragment_.newInstance(), false);
 		}
 		if (!e.state.equals(STATE_ID_BUSY_ORDER) && userManager.getUser().getRoleId() == WORKER_ID && !userManager.haveActiveOrder() && currentTabId == MAIN_TAB_ID && currentFragment instanceof TowFragment_) {

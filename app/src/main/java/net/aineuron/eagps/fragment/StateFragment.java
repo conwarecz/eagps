@@ -8,9 +8,9 @@ import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
-import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.util.IntentUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -50,22 +50,30 @@ public class StateFragment extends BaseFragment {
 	@Bean
 	OrdersManager ordersManager;
 
+	private Long actualState = -1L;
+
 	public static StateFragment newInstance() {
 		return StateFragment_.builder().build();
+	}
+
+	public Long getActualState() {
+		return actualState;
 	}
 
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(false);
 		setAppbarTitle("Zásah");
-		setContent();
+//		setContent();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (userManager.haveActiveOrder()) {
-			eventBus.post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+		try {
+			setContent();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -75,27 +83,29 @@ public class StateFragment extends BaseFragment {
 	}
 
 	private void setContent() {
-		Long i = userManager.getSelectedStateId();
+		actualState = userManager.getSelectedStateId();
 		stateButton.setVisibility(View.VISIBLE);
-		if (i == null) {
+		if (actualState == null) {
 			setErrorState();
-		} else if (i.equals(STATE_ID_READY)) {
+		} else if (actualState.equals(STATE_ID_READY)) {
 			setReadyContent();
 
-		} else if (i.equals(STATE_ID_BUSY)) {
+		} else if (actualState.equals(STATE_ID_BUSY)) {
 			setBusyContent();
 
-		} else if (i.equals(STATE_ID_BUSY_ORDER)) {
+		} else if (actualState.equals(STATE_ID_BUSY_ORDER)) {
 			stateButton.setVisibility(View.INVISIBLE);
-			setOnOrderContent();
 			if (userManager.haveActiveOrder()) {
-				eventBus.post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+//				((MainActivityBase) getActivity()).showFragment(TowFragment_.newInstance(ordersManager.getFirstActiveOrder().getId()), false);
+				IntentUtils.openNewMainActivity(getContext());
+			} else {
+				setOnOrderContent();
 			}
 
-		} else if (i.equals(STATE_ID_UNAVAILABLE)) {
+		} else if (actualState.equals(STATE_ID_UNAVAILABLE)) {
 			setUnavailableContent();
 
-		} else if (i.equals(STATE_ID_NO_CAR)) {
+		} else if (actualState.equals(STATE_ID_NO_CAR)) {
 			setNoCarContent();
 
 		} else {

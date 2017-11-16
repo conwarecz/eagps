@@ -42,6 +42,7 @@ import static net.aineuron.eagps.activity.MainActivityBase.MAIN_TAB_ID;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 /**
@@ -213,16 +214,18 @@ public class TowFragment extends BaseFragment {
 	public void orderFinalized(OrderFinalizedEvent e) {
 		hideProgress();
 		MainActivityBase activity = (MainActivityBase) getActivity();
-        activity.onTabSelected(MAIN_TAB_ID);
-        if (userManager.getUser().getRoleId() == WORKER_ID) {
+		activity.selectTab(MAIN_TAB_ID);
+		if (userManager.getUser().getRoleId() == WORKER_ID) {
 			if (userManager.haveActiveOrder()) {
 				IntentUtils.openNewMainActivity(getContext());
 			} else {
 				userManager.setStateReady();
+				userManager.setSelectedStateId(STATE_ID_READY);
+				activity.showFragment(StateFragment_.newInstance(), false);
 				StateSettingsActivity_.intent(getContext()).start();
 			}
 		} else {
-			activity.showFragment(OrderAttachmentsFragment.newInstance(e.orderId));
+			activity.showFragment(OrderAttachmentsFragment_.newInstance(e.orderId));
 		}
 	}
 

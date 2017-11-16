@@ -72,8 +72,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     UserManager userManager;
     @Bean
     TendersManager tendersManager;
-    //    @Pref
-//    Pref_ pref;
     @App
     Appl app;
     private int currentNotificationID = 1;
@@ -83,9 +81,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-//        if(!pref.userObjectSerialized().exists()){
-//            return;
-//        }
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         app = (Appl) getApplication();
         wasInBackground = app.wasInBackground();
@@ -124,11 +119,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
         tender.setPushId(tenderId++);
         tender.setIncomeTime(Calendar.getInstance().getTime());
-//        OrderSerializable orderSerializable = makeSerializableOrder(tender.getOrder());
-//        currentNotificationID = orderSerializable.getId().intValue();
-//        notificationIntent.putExtra("orderSerializable", orderSerializable);
-//        notificationIntent.putExtra("car", tender.getEntity());
-//        notificationIntent.putExtra("incomeDate", Calendar.getInstance().getTime());
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
         notificationIntent.putExtra("tenderId", tender.getTenderId());
 
@@ -153,7 +143,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleAcceptedOrder(RemoteMessage remoteMessage) {
         final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
         Long id = order.getId();
-//        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
         realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
         realm.close();
@@ -173,7 +162,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleMessage(RemoteMessage remoteMessage) {
         final Message message = Tender.getMessageFromJson(remoteMessage.getData().get("message"));
         Long id = message.getId();
-//        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
         realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(message));
         Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
@@ -193,12 +181,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleCancelledOrder(RemoteMessage remoteMessage) {
         final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
         Long id = order.getId();
-//        currentNotificationID = id.intValue();
         Realm realm = RealmHelper.getDb();
         realm.executeTransactionAsync(realm1 -> {
             Order canceledOrder = realm.where(Order.class).equalTo("id", id).findFirst();
             canceledOrder.setStatus(Order.ORDER_STATE_CANCELLED);
         });
+        realm.close();
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
@@ -207,7 +195,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        } else {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
-        userManager.setStateReady();
         EventBus.getDefault().post(new OrderCanceledEvent(id));
 //        }
     }
@@ -216,13 +203,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
         final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
         Long id = order.getId();
-//        currentNotificationID = id.intValue();
         Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
         notificationIntent.putExtra("id", id);
         notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 
         tendersManager.deleteAllOtherTenders(tender.getTenderId());
-        sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(currentNotificationID);
     }
 
     private void handleCarStatusChange(RemoteMessage remoteMessage) {
@@ -256,13 +245,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void sendNotification(String title, String messageBody, Intent notificationIntent) {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // TODO: předělat na frontu tenderů
-        // Tries to remove cancelled tender from notifications
-        if (type == TENDER_NOT_WON) {
-            notificationManager.cancel(currentNotificationID);
-            return;
-        }
 
         currentNotificationID++;
 

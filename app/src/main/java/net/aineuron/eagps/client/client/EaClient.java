@@ -382,11 +382,6 @@ public class EaClient {
 						voidResponse ->
 						{
 							if (voidResponse.isSuccessful()) {
-//								Realm db = RealmHelper.getDb();
-//								db.executeTransaction(realm -> {
-//									realm.where(Order.class).equalTo("id", orderId).findFirst().deleteFromRealm();
-//								});
-//								db.close();
 								Realm db = RealmHelper.getDb();
 								db.executeTransaction(realm ->
 										realm.where(Order.class).equalTo("id", orderId).findFirst().setStatus(ORDER_STATE_CANCELLED)
@@ -419,7 +414,6 @@ public class EaClient {
 									order.setStatus(ORDER_STATE_FINISHED);
 								});
 								db.close();
-								userManager.setStateReady();
 								eventBus.post(new OrderFinalizedEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);
@@ -445,11 +439,13 @@ public class EaClient {
 				.subscribe(
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
-								if (userManager.haveActiveOrder()) {
-									userManager.setSelectedStateId(UserManager.STATE_ID_BUSY_ORDER);
-								} else {
-									userManager.setSelectedStateId(UserManager.STATE_ID_READY);
-								}
+//								if (userManager.haveActiveOrder()) {
+//									userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+//									eventBus.post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
+//								} else {
+//									userManager.setSelectedStateId(STATE_ID_READY);
+//									eventBus.post(new StateSelectedEvent(STATE_ID_READY));
+//								}
 								eventBus.post(new OrderSentEvent(orderId));
 							} else {
 								sendKnownError(voidResponse);
