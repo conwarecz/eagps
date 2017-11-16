@@ -155,7 +155,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
         userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
-        EventBus.getDefault().post(new OrderAcceptedEvent());
+        EventBus.getDefault().post(new OrderAcceptedEvent(id));
 //        }
     }
 

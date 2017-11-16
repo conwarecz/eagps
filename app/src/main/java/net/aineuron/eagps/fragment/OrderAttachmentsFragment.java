@@ -27,6 +27,7 @@ import net.aineuron.eagps.adapter.PhotoPathsWithReasonAdapter_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
 import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
@@ -489,6 +490,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 		if (saveToDb) {
 			db.executeTransaction(realm -> realm.copyToRealmOrUpdate(localReasons));
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onCancelledOrder(OrderCanceledEvent e) {
+		if (e.orderId.equals(orderId)) {
+			getActivity().onBackPressed();
 		}
 	}
 }

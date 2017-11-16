@@ -11,6 +11,8 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.OrdersAdapter;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
+import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.database.order.Order;
@@ -68,9 +70,7 @@ public class OrdersFragment extends BaseFragment {
 		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				paging = new Paging();
-				ordersManager.deleteOrders();
-				clientProvider.getEaClient().updateOrders(paging);
+				refresh();
 			}
 		});
 
@@ -119,5 +119,22 @@ public class OrdersFragment extends BaseFragment {
 			ordersView.getLayoutManager().scrollToPosition(0);
 		}
 		swipeRefreshLayout.setRefreshing(false);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onCancelledOrder(OrderCanceledEvent e) {
+		refresh();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onOrderAccepted(OrderAcceptedEvent e) {
+		refresh();
+	}
+
+
+	private void refresh() {
+		paging = new Paging();
+		ordersManager.deleteOrders();
+		clientProvider.getEaClient().updateOrders(paging);
 	}
 }

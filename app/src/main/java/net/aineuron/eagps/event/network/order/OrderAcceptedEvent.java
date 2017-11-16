@@ -5,4 +5,9 @@ package net.aineuron.eagps.event.network.order;
  */
 
 public class OrderAcceptedEvent {
+    public final Long orderId;
+
+    public OrderAcceptedEvent(Long orderId) {
+        this.orderId = orderId;
+    }
 }
