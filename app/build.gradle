@@ -23,8 +23,8 @@ android {
 		applicationId "net.aineuron.eagps"
 		minSdkVersion 16
 		targetSdkVersion 26
-		versionCode 39
-		versionName "0.4.5"
+		versionCode 40
+		versionName "0.4.6"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {
