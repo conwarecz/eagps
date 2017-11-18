@@ -1,7 +1,9 @@
 package net.aineuron.eagps.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,7 +11,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -218,6 +225,24 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		backToRoot();
 	}
 
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			View v = getCurrentFocus();
+			if (v instanceof EditText) {
+				Rect outRect = new Rect();
+				v.getGlobalVisibleRect(outRect);
+				if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+					Log.d("focus", "touchevent");
+					v.clearFocus();
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+				}
+			}
+		}
+		return super.dispatchTouchEvent(event);
+	}
+
 	public void selectTab(int tabIndex) {
 		this.bottomNavigation.selectTab(tabIndex, true);
 	}
@@ -237,6 +262,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			onBackPressed();
 		}
 		showFragment(fragment, true);
+
 //        if (userManager.haveActiveOrder() && !userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER)) {
 //            EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_BUSY_ORDER));
 //        }

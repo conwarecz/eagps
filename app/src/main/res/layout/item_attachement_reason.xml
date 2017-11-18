@@ -30,6 +30,8 @@
 		android:layout_marginTop="8dp"
 		android:background="@android:color/transparent"
 		android:ems="10"
+		android:focusable="true"
+		android:focusableInTouchMode="true"
 		android:fontFamily="sans-serif"
 		android:hint="Zde zadejte důvod"
 		android:inputType="textMultiLine"

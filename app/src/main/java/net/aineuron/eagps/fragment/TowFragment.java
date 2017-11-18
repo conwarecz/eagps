@@ -88,14 +88,6 @@ public class TowFragment extends BaseFragment {
 		return TowFragment_.builder().orderId(orderId).build();
 	}
 
-//	@Override
-//	public void onResume() {
-//		super.onResume();
-//		if(!userManager.haveActiveOrder()){
-//			EventBus.getDefault().post(new StateSelectedEvent(userManager.getSelectedStateId()));
-//		}
-//	}
-
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(userManager.getUser().getUserRole() == DISPATCHER_ID);
@@ -105,27 +97,7 @@ public class TowFragment extends BaseFragment {
 			setAppbarTitle(getString(R.string.car_on_order));
 		}
 
-		if (orderId == null) {
-			order = ordersManager.getFirstActiveOrder();
-			if (order != null) {
-				orderId = order.getId();
-			} else {
-				IntentUtils.openMainActivity(getContext());
-			}
-		} else {
-			if (order == null || !order.getId().equals(orderId)) {
-				order = ordersManager.getOrderById(orderId);
-			}
-		}
-
-		if (order != null) {
-			setContent();
-			setOrderListener();
-			if (NetworkUtil.isConnected(getContext())) {
-				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
-			}
-			clientProvider.getEaClient().getOrderDetail(orderId);
-		}
+		loadOrder();
 	}
 
 	@Click(R.id.finishOrder)
@@ -157,6 +129,12 @@ public class TowFragment extends BaseFragment {
 				})
 				.positiveText("OK")
 				.show();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+//		loadOrder();
 	}
 
 	@Override
@@ -226,6 +204,30 @@ public class TowFragment extends BaseFragment {
 			}
 		} else {
 			activity.showFragment(OrderAttachmentsFragment_.newInstance(e.orderId));
+		}
+	}
+
+	private void loadOrder() {
+		if (orderId == null) {
+			order = ordersManager.getFirstActiveOrder();
+			if (order != null) {
+				orderId = order.getId();
+			} else {
+				IntentUtils.openNewMainActivity(getContext());
+			}
+		} else {
+			if (order == null || !order.getId().equals(orderId)) {
+				order = ordersManager.getOrderById(orderId);
+			}
+		}
+
+		if (order != null) {
+			setContent();
+			setOrderListener();
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
+			clientProvider.getEaClient().getOrderDetail(orderId);
 		}
 	}
 

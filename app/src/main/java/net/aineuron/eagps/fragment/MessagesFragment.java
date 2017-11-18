@@ -13,6 +13,7 @@ import net.aineuron.eagps.adapter.MessagesAdapter;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.ui.MessageClickedEvent;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
+import net.aineuron.eagps.model.MessagesManager;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.transfer.Paging;
 import net.aineuron.eagps.util.RealmHelper;
@@ -46,6 +47,9 @@ public class MessagesFragment extends BaseFragment {
 	@Bean
 	ClientProvider clientProvider;
 
+	@Bean
+	MessagesManager messagesManager;
+
 	private Realm db;
 	private RealmResults<Message> messageRealmQuery;
 	private MessagesAdapter adapter;
@@ -59,7 +63,6 @@ public class MessagesFragment extends BaseFragment {
 	void afterViews() {
 		setAppbarUpNavigation(false);
 		setAppbarTitle("Zprávy");
-
 		paging = new Paging();
 
 		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -116,6 +119,7 @@ public class MessagesFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStopRefreshing(StopRefreshingEvent e) {
+		messagesManager.checkUnreadMessage();
 		swipeRefreshLayout.setRefreshing(false);
 	}
 }
