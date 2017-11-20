@@ -167,6 +167,7 @@ public class TowFragment extends BaseFragment {
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
 		hideProgress();
 		if (userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID) {
+			// TODO: ověřit, jestli je nutno dělat New
 			IntentUtils.openNewMainActivity(getContext());
 		} else {
 			if (userManager.getUser().getRoleId() == WORKER_ID) {

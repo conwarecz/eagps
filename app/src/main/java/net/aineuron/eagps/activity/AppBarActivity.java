@@ -168,30 +168,34 @@ public class AppBarActivity extends MainActivityBase {
 			return;
 		}
 
-        int visibility = View.VISIBLE;
-		if (e.state.equals(STATE_ID_BUSY)) {
-			actionBar.setTitle(R.string.car_busy);
-			setActionBarColor(busy);
-			stateIcon.setImageResource(R.drawable.icon_busy);
-		} else if (e.state.equals(STATE_ID_BUSY_ORDER)) {
-			actionBar.setTitle(R.string.car_on_order);
-			setActionBarColor(busy);
-			stateIcon.setImageResource(R.drawable.icon_busy);
-		} else if (e.state.equals(STATE_ID_READY)) {
-			actionBar.setTitle(R.string.car_waiting);
-            setActionBarColor(ready);
-            stateIcon.setImageResource(R.drawable.icon_ready);
-        } else if (e.state.equals(STATE_ID_UNAVAILABLE)) {
-            actionBar.setTitle(R.string.car_unavailable);
-            setActionBarColor(unavailable);
-            stateIcon.setImageResource(R.drawable.icon_unavailable);
-        } else {
-            actionBar.setTitle("");
-            setActionBarColor(primary);
-            visibility = View.GONE;
-        }
-        stateIcon.setVisibility(visibility);
-    }
+		try {
+			int visibility = View.VISIBLE;
+			if (e.state.equals(STATE_ID_BUSY)) {
+				actionBar.setTitle(R.string.car_busy);
+				setActionBarColor(busy);
+				stateIcon.setImageResource(R.drawable.icon_busy);
+			} else if (e.state.equals(STATE_ID_BUSY_ORDER)) {
+				actionBar.setTitle(R.string.car_on_order);
+				setActionBarColor(busy);
+				stateIcon.setImageResource(R.drawable.icon_busy);
+			} else if (e.state.equals(STATE_ID_READY)) {
+				actionBar.setTitle(R.string.car_waiting);
+				setActionBarColor(ready);
+				stateIcon.setImageResource(R.drawable.icon_ready);
+			} else if (e.state.equals(STATE_ID_UNAVAILABLE)) {
+				actionBar.setTitle(R.string.car_unavailable);
+				setActionBarColor(unavailable);
+				stateIcon.setImageResource(R.drawable.icon_unavailable);
+			} else {
+				actionBar.setTitle("");
+				setActionBarColor(primary);
+				visibility = View.GONE;
+			}
+			stateIcon.setVisibility(visibility);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
 
     private void setActionBarColor(int color) {
         ColorDrawable colorDrawable = new ColorDrawable(color);

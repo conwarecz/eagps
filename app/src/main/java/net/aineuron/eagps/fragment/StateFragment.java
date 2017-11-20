@@ -97,7 +97,7 @@ public class StateFragment extends BaseFragment {
 			stateButton.setVisibility(View.INVISIBLE);
 			if (userManager.haveActiveOrder()) {
 //				((MainActivityBase) getActivity()).showFragment(TowFragment_.newInstance(ordersManager.getFirstActiveOrder().getId()), false);
-				IntentUtils.openNewMainActivity(getContext());
+				IntentUtils.openMainActivity(getContext());
 			} else {
 				setOnOrderContent();
 			}
