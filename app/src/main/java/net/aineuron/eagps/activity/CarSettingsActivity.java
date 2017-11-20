@@ -1,5 +1,6 @@
 package net.aineuron.eagps.activity;
 
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -63,8 +64,13 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@Extra
 	boolean resetCar;
 
+	@Nullable
+	@Extra
+	Long carStatus;
+
 	private MaterialDialog progressDialog;
 	private List<Car> cars = new ArrayList<>();
+	private Long selectedCarState = null;
 
 	@AfterViews
 	public void afterViews() {
@@ -115,7 +121,8 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectedEvent(WorkerCarSelectedEvent e) {
-        boolean isAssigned = false;
+		selectedCarState = e.stateId;
+		boolean isAssigned = false;
         for (Car car : cars) {
             if (car.getId().equals(e.selectedCarId)) {
                 if (car.getUserUsername() == null || car.getUserUsername().isEmpty() || car.getUserUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
@@ -175,8 +182,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	private void selectState() {
 		if (!userManager.haveActiveOrder()) {
-			userManager.setStateReady();
-			StateSettingsActivity_.intent(this).start();
+			StateSettingsActivity_.intent(this).extra("carStatus", selectedCarState).start();
 		} else {
 			IntentUtils.openMainActivity(this);
 		}

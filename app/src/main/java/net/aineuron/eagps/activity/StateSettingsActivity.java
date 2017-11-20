@@ -1,5 +1,6 @@
 package net.aineuron.eagps.activity;
 
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -28,6 +30,10 @@ public class StateSettingsActivity extends AppCompatActivity {
 
 	@EventBusGreenRobot
 	EventBus bus;
+
+	@Nullable
+	@Extra
+	Long carStatus;
 
 	private MaterialDialog progressDialog;
 
@@ -57,6 +63,9 @@ public class StateSettingsActivity extends AppCompatActivity {
 	@Click(R.id.skipLayout)
 	public void onSkip() {
 		// Stays same state
+		if (carStatus != null) {
+			userManager.setSelectedStateId(carStatus);
+		}
 		finishSettings();
 	}
 
