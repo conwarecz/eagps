@@ -21,6 +21,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.NewTenderActivity;
 import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
@@ -28,8 +29,10 @@ import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Message;
+import net.aineuron.eagps.model.database.UserWhoKickedMeFromCar;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Tender;
+import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.tender.AddressDetailSerializable;
 import net.aineuron.eagps.model.transfer.tender.AddressSerializable;
 import net.aineuron.eagps.model.transfer.tender.LimitationSerializable;
@@ -54,6 +57,7 @@ import static net.aineuron.eagps.Appl.NOTIFFICATIONS_CHANNEL_TENDER;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
+import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 
 /**
  * Created by Petr Kresta, AiNeuron s.r.o. on 05.09.2017.
@@ -234,7 +238,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             return;
         } else if (userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER) && newStatus.equals(STATE_ID_BUSY)) {
             return;
-        } else if (userManager.getSelectedStateId().equals(UserManager.STATE_ID_NO_CAR)) {
+        } else if (userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
             return;
         } else {
             userManager.setSelectedStateId(newStatus);
@@ -244,7 +248,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void handleUserKickedFromCar(RemoteMessage remoteMessage) {
-
+        if (userManager.getUser() == null) {
+            return;
+        }
+        final UserWhoKickedMeFromCar user = Tender.getUserWhoKickedMeFromCar(remoteMessage.getData().get("message"));
+        KnownError error = new KnownError();
+        error.setMessage("Byl jste odhlášen z vozidla uživatelem " + user.getUsername());
+        EventBus.getDefault().post(new KnownErrorEvent(error));
+        userManager.setSelectedStateId(STATE_ID_NO_CAR);
+        if (wasInBackground) {
+            sendNotification("Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
+        } else {
+            EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
+        }
+        // TODO: in background show notification
     }
 
     /**

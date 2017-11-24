@@ -204,6 +204,7 @@ public class AppBarActivity extends MainActivityBase {
 				visibility = View.GONE;
 			}
 			stateIcon.setVisibility(visibility);
+			licencePlate.setVisibility(visibility);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}

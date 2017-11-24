@@ -137,8 +137,9 @@ public class StateFragment extends BaseFragment {
 	}
 
 	private void setNoCarContent() {
-		stateText.setText("Vozidlo nevybráno");
-		stateIcon.setImageResource(R.drawable.icon_big_notselected);
+		IntentUtils.openMainActivity(getContext());
+//		stateText.setText("Vozidlo nevybráno");
+//		stateIcon.setImageResource(R.drawable.icon_big_notselected);
 	}
 
 	private void setErrorState() {

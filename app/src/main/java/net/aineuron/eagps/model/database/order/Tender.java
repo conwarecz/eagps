@@ -9,6 +9,7 @@ import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
 import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.RealmString;
+import net.aineuron.eagps.model.database.UserWhoKickedMeFromCar;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -26,9 +27,10 @@ public class Tender extends RealmObject implements Serializable {
     private int pushId;
     private Order Order;
     private Message Message;
-    private Long NewStatus;
+    private Long Status;
     private Long TenderId;
     private Car Entity;
+    private UserWhoKickedMeFromCar AssignedUser;
     private Date incomeTime;
 
     public static Order getOrderFromJson(String json) {
@@ -64,7 +66,19 @@ public class Tender extends RealmObject implements Serializable {
                         RealmStringListTypeAdapter.INSTANCE)
                 .create();
         Tender tender = gson.fromJson(json, Tender.class);
-        return tender.getNewStatus();
+        return tender.getStatus();
+    }
+
+    public static UserWhoKickedMeFromCar getUserWhoKickedMeFromCar(String json) {
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+                        }.getType(),
+                        RealmStringListTypeAdapter.INSTANCE)
+                .create();
+        Tender tender = gson.fromJson(json, Tender.class);
+        return tender.getAssignedUser();
     }
 
     public static Tender getTender(String json) {
@@ -102,14 +116,6 @@ public class Tender extends RealmObject implements Serializable {
         TenderId = tenderId;
     }
 
-    public Long getNewStatus() {
-        return NewStatus;
-    }
-
-    public void setNewStatus(Long newStatus) {
-        NewStatus = newStatus;
-    }
-
     public Car getEntity() {
         return Entity;
     }
@@ -132,5 +138,21 @@ public class Tender extends RealmObject implements Serializable {
 
     public void setPushId(int pushId) {
         this.pushId = pushId;
+    }
+
+    public UserWhoKickedMeFromCar getAssignedUser() {
+        return AssignedUser;
+    }
+
+    public void setAssignedUser(UserWhoKickedMeFromCar assignedUser) {
+        AssignedUser = assignedUser;
+    }
+
+    public Long getStatus() {
+        return Status;
+    }
+
+    public void setStatus(Long status) {
+        Status = status;
     }
 }
