@@ -112,6 +112,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             case PUSH_CAR_STATUS_CHANGE:
                 handleCarStatusChange(remoteMessage);
                 break;
+            case PUSH_USER_LOGGED_OUT:
+                handleUserKickedFromCar(remoteMessage);
+                break;
         }
     }
 
@@ -238,6 +241,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             EventBus.getDefault().post(new StateSelectedEvent(newStatus));
             sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
         }
+    }
+
+    private void handleUserKickedFromCar(RemoteMessage remoteMessage) {
+
     }
 
     /**
