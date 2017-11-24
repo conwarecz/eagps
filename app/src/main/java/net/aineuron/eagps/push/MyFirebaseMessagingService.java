@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -58,14 +61,16 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 
 @EService
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
-    public static final int TENDER_NEW = 1;
-    public static final int TENDER_ORDER_UPDATE = 2;
-    public static final int TENDER_ORDER_ACCEPTED = 3;
-    public static final int TENDER_ORDER_CANCELED = 4;
-    public static final int TENDER_NOT_WON = 5;
-    public static final int NEW_MESSAGE = 6;
-    public static final int CAR_STATUS_CHANGE = 7;
-    public static final int USER_LOGGED_OUT = 8;
+    public static final int PUSH_TENDER_NEW = 1;
+    public static final int PUSH_ORDER_UPDATED = 2;
+    public static final int PUSH_ORDER_ACCEPTED = 3;
+    public static final int PUSH_ORDER_CANCELED = 4;
+    public static final int PUSH_TENDER_NOT_WON = 5;
+    public static final int PUSH_NEW_MESSAGE = 6;
+    public static final int PUSH_CAR_STATUS_CHANGE = 7;
+    public static final int PUSH_USER_LOGGED_OUT = 8;
+    public static final int PUSH_ORDER_FINISHED = 9;
+    public static final int PUSH_ORDER_SENT = 10;
     private static final String TAG = "FCM Service";
     @Bean
     UserManager userManager;
@@ -86,25 +91,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "From: " + remoteMessage.getFrom() + " Not. type:" + type);
 
         switch (type) {
-            case TENDER_NEW:
+            case PUSH_TENDER_NEW:
                 handleNewTender(remoteMessage);
                 break;
-            case TENDER_ORDER_UPDATE:
+            case PUSH_ORDER_UPDATED:
                 handleAcceptedOrder(remoteMessage);
                 break;
-            case TENDER_ORDER_ACCEPTED:
+            case PUSH_ORDER_ACCEPTED:
                 handleAcceptedOrder(remoteMessage);
                 break;
-            case TENDER_ORDER_CANCELED:
+            case PUSH_ORDER_CANCELED:
                 handleCancelledOrder(remoteMessage);
                 break;
-            case TENDER_NOT_WON:
+            case PUSH_TENDER_NOT_WON:
                 handleNotWonTender(remoteMessage);
                 break;
-            case NEW_MESSAGE:
+            case PUSH_NEW_MESSAGE:
                 handleMessage(remoteMessage);
                 break;
-            case CAR_STATUS_CHANGE:
+            case PUSH_CAR_STATUS_CHANGE:
                 handleCarStatusChange(remoteMessage);
                 break;
         }
@@ -248,7 +253,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         currentNotificationID++;
 
         if (notificationIntent != null) {
-            if (type == TENDER_NEW) {
+            if (type == PUSH_TENDER_NEW) {
                 notificationIntent.putExtra("pushId", currentNotificationID);
             }
         }
@@ -257,35 +262,40 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 R.mipmap.ic_launcher);
         NotificationCompat.Builder notificationBuilder = null;
         Notification notification = null;
-        if (type == TENDER_NEW) {
-//            Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_TENDER)
+        if (type == PUSH_TENDER_NEW) {
+            notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFFICATIONS_CHANNEL_TENDER)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
-                    .setChannelId(NOTIFFICATIONS_CHANNEL_TENDER)
                     .setContentTitle(title)
                     .setGroup(String.valueOf(type))
-//                    .setSound(sound)
                     .setAutoCancel(true)
                     .setContentText(messageBody);
 
-            notification = notificationBuilder.build();
+            if (Build.VERSION.SDK_INT < 26) {
+                Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+                notificationBuilder.setSound(sound);
+                notificationBuilder.setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400});
+                notificationBuilder.setPriority(Notification.PRIORITY_HIGH);
+                notificationBuilder.setDefaults(Notification.FLAG_SHOW_LIGHTS);
+                notificationBuilder.setLights(0xffff0000, 300, 100);
+            }
         } else {
-            notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_DEFAULT)
+            notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
-                    .setChannelId(NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setContentTitle(title)
                     .setAutoCancel(true)
                     .setGroup(String.valueOf(type))
                     .setContentText(messageBody);
 
-            notification = notificationBuilder.build();
-            notification.defaults |= Notification.DEFAULT_SOUND;
+            if (Build.VERSION.SDK_INT < 26) {
+                Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                notificationBuilder.setSound(sound);
+                notificationBuilder.setPriority(Notification.PRIORITY_DEFAULT);
+                notificationBuilder.setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.FLAG_SHOW_LIGHTS);
+                notificationBuilder.setLights(0xff00ff00, 300, 100);
+            }
         }
-
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notification.defaults |= Notification.DEFAULT_VIBRATE;
 
         PendingIntent contentIntent = null;
         if (notificationIntent != null) {
@@ -299,7 +309,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notification = notificationBuilder.build();
 
 //         Ring repeatedly
-        if (type == TENDER_NEW && !(app.getActiveActivity() instanceof NewTenderActivity_)) {
+        if (type == PUSH_TENDER_NEW && !(app.getActiveActivity() instanceof NewTenderActivity_)) {
             notification.flags |= Notification.FLAG_INSISTENT;
         }
 
@@ -308,7 +318,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationId = 1;
 
         // Showing only one state change push
-        if (type == CAR_STATUS_CHANGE) {
+        if (type == PUSH_CAR_STATUS_CHANGE) {
             notificationId = 0;
             notificationManager.cancel(notificationId);
         }
