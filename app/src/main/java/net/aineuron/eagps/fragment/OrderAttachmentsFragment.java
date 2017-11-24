@@ -47,6 +47,7 @@ import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -67,7 +68,7 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
-import static net.aineuron.eagps.util.FileUtils.fileToBase64;
+import static net.aineuron.eagps.util.FileUtils.imageFileToBase64;
 
 /**
  * Created by Vit Veres on 07-Jun-17
@@ -441,23 +442,28 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 	}
 
-	private void uploadPhotos() {
+	void uploadPhotos() {
 		String path = localPhotos.getLocalPhotos().get(uploadedPhotos).getPath();
 		File file = new File(path);
 		PhotoFile photoFile = new PhotoFile();
 		try {
 			photoFile.setExtension(file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")));
 			photoFile.setFileName(file.getName().substring(0, file.getName().lastIndexOf(".")));
-			photoFile.setFileString(fileToBase64(file));
+			uploadPhoto(localPhotos.getLocalPhotos().get(uploadedPhotos).getType(), photoFile, file, order.getId());
 //			photoFile.setFileString(fileToByteArray2(file));
-			if (localPhotos.getLocalPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_PHOTO) {
-				clientProvider.getEaClient().uploadPhoto(photoFile, order.getId());
-			} else if (localPhotos.getLocalPhotos().get(uploadedPhotos).getType() == Photo.PHOTO_TYPE_DOCUMENT) {
-				clientProvider.getEaClient().uploadSheet(photoFile, order.getId());
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.d("PhotoFile file", "Couldn't create byte stream from file");
+		}
+	}
+
+	@Background
+	void uploadPhoto(int type, PhotoFile photoFile, File file, Long orderId) {
+		photoFile.setFileString(imageFileToBase64(getContext(), file));
+		if (type == Photo.PHOTO_TYPE_PHOTO) {
+			clientProvider.getEaClient().uploadPhoto(photoFile, orderId);
+		} else if (type == Photo.PHOTO_TYPE_DOCUMENT) {
+			clientProvider.getEaClient().uploadSheet(photoFile, orderId);
 		}
 	}
 
@@ -486,9 +492,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 
 		if (noDocumentsReason != null && !noDocumentsReason.isEmpty()) {
-			db.executeTransaction(realm -> {
-				order.setReasonForNoDocuments(noDocumentsReason);
-			});
+			db.executeTransaction(realm ->
+					order.setReasonForNoDocuments(noDocumentsReason)
+			);
 			hasDocuments = true;
 		}
 	}

@@ -98,7 +98,7 @@ public class Appl extends MultiDexApplication implements
 		}
 		NotificationManager notificationManager =
 				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        List<NotificationChannel> channelList = new ArrayList<>();
+
         NotificationChannel channel = new NotificationChannel(NOTIFFICATIONS_CHANNEL_DEFAULT,
                 NOTIFFICATIONS_CHANNEL_DEFAULT_NAME,
                 NotificationManager.IMPORTANCE_HIGH);
