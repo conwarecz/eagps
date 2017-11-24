@@ -30,8 +30,8 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ARRIVED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ENTITY_FINISHED;
 
 /**
  * Created by Vit Veres on 29-May-17
@@ -214,13 +214,13 @@ public class UserManager {
 				.beginGroup()
 				.equalTo("status", ORDER_STATE_ASSIGNED)
 				.or()
-				.equalTo("status", ORDER_STATE_ARRIVED)
+				.equalTo("status", ORDER_STATE_ENTITY_FINISHED)
 				.endGroup()
 				.findAll();
 		if (activeOrders.size() > 0) {
 			activeOrder = true;
-            setSelectedStateId(STATE_ID_BUSY_ORDER);
-        }
+//            setSelectedStateId(STATE_ID_BUSY_ORDER);
+		}
         return activeOrder;
     }
 

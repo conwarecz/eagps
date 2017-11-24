@@ -51,8 +51,8 @@ public class OrderItemView extends ConstraintLayout {
 	public void bind(Order order) {
 		if (order.getStatus() == Order.ORDER_STATE_CREATED) {
 			this.setBackgroundColor(getContext().getResources().getColor(R.color.createdOrder));
-		} else if (order.getStatus() == Order.ORDER_STATE_ASSIGNED || order.getStatus() == Order.ORDER_STATE_ARRIVED) {
-			this.setBackgroundColor(getContext().getResources().getColor(R.color.busy));
+        } else if (order.getStatus() == Order.ORDER_STATE_ASSIGNED || order.getStatus() == Order.ORDER_STATE_ENTITY_FINISHED) {
+            this.setBackgroundColor(getContext().getResources().getColor(R.color.busy));
 		} else if (order.getStatus() == Order.ORDER_STATE_FINISHED) {
 			this.setBackgroundColor(getContext().getResources().getColor(R.color.colorPrimary));
 		} else if (order.getStatus() == Order.ORDER_STATE_SENT) {

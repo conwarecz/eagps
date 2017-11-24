@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -67,6 +65,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static final int TENDER_NOT_WON = 5;
     public static final int NEW_MESSAGE = 6;
     public static final int CAR_STATUS_CHANGE = 7;
+    public static final int USER_LOGGED_OUT = 8;
     private static final String TAG = "FCM Service";
     @Bean
     UserManager userManager;
@@ -81,10 +80,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
         app = (Appl) getApplication();
         wasInBackground = app.wasInBackground();
         type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
+        Log.d(TAG, "From: " + remoteMessage.getFrom() + " Not. type:" + type);
 
         switch (type) {
             case TENDER_NEW:
@@ -259,13 +258,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = null;
         Notification notification = null;
         if (type == TENDER_NEW) {
-            Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+//            Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
             notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_TENDER)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
+                    .setChannelId(NOTIFFICATIONS_CHANNEL_TENDER)
                     .setContentTitle(title)
                     .setGroup(String.valueOf(type))
-                    .setSound(sound)
+//                    .setSound(sound)
                     .setAutoCancel(true)
                     .setContentText(messageBody);
 
@@ -274,6 +274,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationBuilder = new NotificationCompat.Builder(this, NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(icon)
+                    .setChannelId(NOTIFFICATIONS_CHANNEL_DEFAULT)
                     .setContentTitle(title)
                     .setAutoCancel(true)
                     .setGroup(String.valueOf(type))

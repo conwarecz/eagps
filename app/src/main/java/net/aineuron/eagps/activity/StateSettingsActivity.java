@@ -9,6 +9,7 @@ import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.util.IntentUtils;
@@ -71,15 +72,31 @@ public class StateSettingsActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(StateSelectedEvent e) {
-		progressDialog.dismiss();
+		if (progressDialog != null) {
+			progressDialog.dismiss();
+		}
 		finishSettings();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
-		progressDialog.dismiss();
-        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+		if (progressDialog != null) {
+			progressDialog.dismiss();
+		}
+		Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
     }
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onErrorApiEvent(ApiErrorEvent e) {
+		dismissProgress();
+		Toast.makeText(this, e.message, Toast.LENGTH_LONG).show();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownError(KnownErrorEvent e) {
+		dismissProgress();
+		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_LONG).show();
+	}
 
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)
@@ -93,5 +110,17 @@ public class StateSettingsActivity extends AppCompatActivity {
 	private void finishSettings() {
 		IntentUtils.openMainActivity(this);
 		finish();
+	}
+
+	protected void dismissProgress() {
+		if (progressDialog == null) {
+			return;
+		}
+
+		if (progressDialog.isCancelled()) {
+			return;
+		}
+
+		progressDialog.dismiss();
 	}
 }

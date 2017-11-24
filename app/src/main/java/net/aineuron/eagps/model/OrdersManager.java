@@ -15,8 +15,8 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import io.reactivex.annotations.Nullable;
 import io.realm.Realm;
 
-import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ARRIVED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ENTITY_FINISHED;
 
 /**
  * Created by Vit Veres on 05-Jun-17
@@ -88,8 +88,8 @@ public class OrdersManager {
 				.beginGroup()
 				.equalTo("status", ORDER_STATE_ASSIGNED)
 				.or()
-				.equalTo("status", ORDER_STATE_ARRIVED)
-				.endGroup()
+                .equalTo("status", ORDER_STATE_ENTITY_FINISHED)
+                .endGroup()
 				.findFirst();
 	}
 

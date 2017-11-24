@@ -46,16 +46,20 @@ public class BaseFragment extends Fragment {
 	}
 
 	protected void showProgress(String title, String content) {
-		progressDialog = new MaterialDialog.Builder(getContext())
-				.title(title)
-				.content(content)
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
-	}
+        try {
+            progressDialog = new MaterialDialog.Builder(getContext())
+                    .title(title)
+                    .content(content)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	protected void hideProgress() {
-		if (progressDialog == null) {
+    protected void dismissProgress() {
+        if (progressDialog == null) {
 			return;
 		}
 
@@ -68,6 +72,6 @@ public class BaseFragment extends Fragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void stopRefreshing(StopRefreshingEvent e) {
-		hideProgress();
-	}
+        dismissProgress();
+    }
 }

@@ -22,8 +22,8 @@ import io.realm.annotations.PrimaryKey;
 public class Order extends RealmObject {
     public static final int ORDER_STATE_CREATED = 1;
     public static final int ORDER_STATE_ASSIGNED = 2;
-	public static final int ORDER_STATE_ARRIVED = 3;
-	public static final int ORDER_STATE_FINISHED = 4;
+    public static final int ORDER_STATE_ENTITY_FINISHED = 3;
+    public static final int ORDER_STATE_FINISHED = 4;
 	public static final int ORDER_STATE_SENT = 5;
 	public static final int ORDER_STATE_CANCELLED = 6;
 

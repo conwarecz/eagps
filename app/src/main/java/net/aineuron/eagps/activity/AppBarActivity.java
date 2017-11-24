@@ -121,15 +121,21 @@ public class AppBarActivity extends MainActivityBase {
 
 		} else if (i.equals(UserManager.STATE_ID_READY)) {
             setActionBarColor(ready);
-            stateIcon.setImageResource(R.drawable.icon_ready);
+            if (stateIcon != null) {
+                stateIcon.setImageResource(R.drawable.icon_ready);
+            }
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY)) {
             setActionBarColor(busy);
-            stateIcon.setImageResource(R.drawable.icon_busy);
+            if (stateIcon != null) {
+                stateIcon.setImageResource(R.drawable.icon_busy);
+            }
 
 		} else if (i.equals(UserManager.STATE_ID_UNAVAILABLE)) {
             setActionBarColor(unavailable);
-            stateIcon.setImageResource(R.drawable.icon_unavailable);
+            if (stateIcon != null) {
+                stateIcon.setImageResource(R.drawable.icon_unavailable);
+            }
 
 		} else if (i.equals(UserManager.STATE_ID_NO_CAR)) {
 			menuState.setVisible(false);
@@ -137,17 +143,23 @@ public class AppBarActivity extends MainActivityBase {
 
 		} else if (i.equals(UserManager.STATE_ID_BUSY_ORDER)) {
             setActionBarColor(busy);
-            stateIcon.setImageResource(R.drawable.icon_busy);
-		} else {
+            if (stateIcon != null) {
+                stateIcon.setImageResource(R.drawable.icon_busy);
+            }
+        } else {
             setActionBarColor(primary);
         }
 
         if (userManager.getUser().getUserRole() == null || userManager.getUser().getUserRole() == DISPATCHER_ID) {
-            stateIcon.setVisibility(View.GONE);
+            if (stateIcon != null) {
+                stateIcon.setVisibility(View.GONE);
+            }
             licencePlate.setVisibility(View.GONE);
             setActionBarColor(primary);
         } else {
-            stateIcon.setVisibility(View.VISIBLE);
+            if (stateIcon != null) {
+                stateIcon.setVisibility(View.VISIBLE);
+            }
             licencePlate.setVisibility(View.VISIBLE);
         }
 

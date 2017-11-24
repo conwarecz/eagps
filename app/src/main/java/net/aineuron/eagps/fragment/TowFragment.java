@@ -20,6 +20,7 @@ import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.NetworkUtil;
+import net.aineuron.eagps.util.OrderToastComposer;
 import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
@@ -44,6 +45,8 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ENTITY_FINISHED;
 
 /**
  * Created by Vit Veres on 19-Apr-17
@@ -83,6 +86,7 @@ public class TowFragment extends BaseFragment {
 	private Order order;
 	private Realm db;
 	private RealmObjectChangeListener objectListener;
+	private boolean alreadyBacked = false;
 
 	public static TowFragment newInstance(Long orderId) {
 		return TowFragment_.builder().orderId(orderId).build();
@@ -97,11 +101,13 @@ public class TowFragment extends BaseFragment {
 			setAppbarTitle(getString(R.string.car_on_order));
 		}
 
-		loadOrder();
+//		loadOrder();
 	}
 
 	@Click(R.id.finishOrder)
 	void finishClicked() {
+		removeListener();
+		alreadyBacked = true;
 		showProgress("Dokončuji zakázku", getString(R.string.dialog_wait_content));
 		clientProvider.getEaClient().finalizeOrder(order.getId());
 	}
@@ -115,6 +121,8 @@ public class TowFragment extends BaseFragment {
 				.autoDismiss(false)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
 					if (which >= 0) {
+						removeListener();
+						alreadyBacked = true;
 						showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
 						ordersManager.cancelOrder(order.getId(), Long.valueOf(which + 1));
 					}
@@ -134,18 +142,17 @@ public class TowFragment extends BaseFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-//		loadOrder();
+		alreadyBacked = false;
+		dismissProgress();
+		loadOrder();
 	}
 
 	@Override
 	public void onPause() {
+		removeListener();
+		dismissProgress();
+		alreadyBacked = true;
 		super.onPause();
-		hideProgress();
-		try {
-			order.removeAllChangeListeners();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Click({R.id.photosStep, R.id.documentPhotos})
@@ -165,7 +172,8 @@ public class TowFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderCanceledEvent(OrderCanceledEvent e) {
-		hideProgress();
+		dismissProgress();
+		removeListener();
 		if (userManager.haveActiveOrder() && userManager.getUser().getRoleId() == WORKER_ID) {
 			// TODO: ověřit, jestli je nutno dělat New
 			IntentUtils.openNewMainActivity(getContext());
@@ -181,7 +189,7 @@ public class TowFragment extends BaseFragment {
 	public void apiFailedEvent(ApiErrorEvent e) {
 		e.throwable.printStackTrace();
         Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
-        hideProgress();
+		dismissProgress();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -191,7 +199,8 @@ public class TowFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void orderFinalized(OrderFinalizedEvent e) {
-		hideProgress();
+		dismissProgress();
+		removeListener();
 		MainActivityBase activity = (MainActivityBase) getActivity();
 		activity.selectTab(MAIN_TAB_ID);
 		if (userManager.getUser().getRoleId() == WORKER_ID) {
@@ -228,12 +237,13 @@ public class TowFragment extends BaseFragment {
 			if (NetworkUtil.isConnected(getContext())) {
 				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
 			}
-			clientProvider.getEaClient().getOrderDetail(orderId);
+			ordersManager.updateOrder(orderId);
 		}
 	}
 
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {
+			removeListener();
 			MainActivityBase activity = (MainActivityBase) getActivity();
 			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
@@ -259,13 +269,25 @@ public class TowFragment extends BaseFragment {
 			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
 				db = RealmHelper.getDb();
 				order = ordersManager.getOrderById(orderId);
-                if (orderDetailHeader != null && order != null) {
-                    setContent();
-                }
-                hideProgress();
+				if (order.getStatus() != ORDER_STATE_ASSIGNED && order.getStatus() != ORDER_STATE_ENTITY_FINISHED) {
+					dismissProgress();
+					if (!alreadyBacked) {
+						alreadyBacked = true;
+						// TODO: Switch fragment to State Fragment
+						Toast.makeText(getContext(), OrderToastComposer.getOrderChangedToastMessage(getContext(), order.getStatus()), Toast.LENGTH_LONG).show();
+						if (userManager.getUser().getRoleId() == WORKER_ID) {
+							IntentUtils.openMainActivity(getContext());
+						} else {
+							getActivity().onBackPressed();
+						}
+					}
+				} else if (order != null && orderDetailHeader != null) {
+					setContent();
+					dismissProgress();
+				}
 			}
 		};
-		order.removeAllChangeListeners();
+		removeListener();
 		order.addChangeListener(objectListener);
 	}
 
@@ -323,5 +345,14 @@ public class TowFragment extends BaseFragment {
 			this.clientAddress.setText(addressResult);
 		}
 		return addressResult;
+	}
+
+	private void removeListener() {
+		try {
+//			order.removeChangeListener(objectListener);
+			order.removeAllChangeListeners();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 }

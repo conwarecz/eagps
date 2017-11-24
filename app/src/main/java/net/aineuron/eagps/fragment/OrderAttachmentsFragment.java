@@ -42,6 +42,7 @@ import net.aineuron.eagps.model.database.order.PhotoFile;
 import net.aineuron.eagps.model.database.order.Reasons;
 import net.aineuron.eagps.util.BitmapUtil;
 import net.aineuron.eagps.util.NetworkUtil;
+import net.aineuron.eagps.util.OrderToastComposer;
 import net.aineuron.eagps.util.RealmHelper;
 import net.aineuron.eagps.view.widget.OrderDetailHeader;
 
@@ -65,6 +66,7 @@ import io.realm.RealmObjectChangeListener;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
+import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
 import static net.aineuron.eagps.util.FileUtils.fileToBase64;
 
 /**
@@ -108,6 +110,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private int uploadedPhotos = 0;
 	private LocalPhotos localPhotos;
 	private LocalReasons localReasons;
+	private boolean alreadyBacked = false;
 
 	private boolean hasPhotos = false;
 	private boolean hasDocuments = false;
@@ -118,18 +121,20 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Override
     public void onPause() {
-        hideProgress();
-
-        checkReasons();
-
+		removeListener();
+		alreadyBacked = true;
+		dismissProgress();
+		checkReasons();
 		saveReasonsToDb();
-
-        super.onPause();
-    }
+		super.onPause();
+	}
 
     @Override
     public void onResume() {
         super.onResume();
+		alreadyBacked = false;
+		dismissProgress();
+		loadOrder();
 
         localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
 		if (localReasons != null && localReasons.isValid()) {
@@ -145,34 +150,6 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		if (db == null) {
 			db = RealmHelper.getDb();
 		}
-
-		if (orderId == null) {
-//			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
-//			order = ordersManager.gedDefaultOrder();
-//			setContent();
-			Toast.makeText(getContext(), "Nastala chyba, prosím zkuste znovu", Toast.LENGTH_LONG).show();
-			getActivity().onBackPressed();
-		} else {
-			localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-			localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
-
-			if (localPhotos == null) {
-				localPhotos = new LocalPhotos();
-				localPhotos.setOrderId(orderId);
-				db.executeTransaction(realm -> realm.copyToRealmOrUpdate(localPhotos));
-				localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
-			}
-
-			order = ordersManager.getOrderById(orderId);
-			if (order != null) {
-				setContent();
-			}
-			if (NetworkUtil.isConnected(getContext())) {
-				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
-			}
-			setOrderListener();
-			clientProvider.getEaClient().getOrderDetail(orderId);
-		}
 	}
 
 	@Click(R.id.closeOrder)
@@ -183,6 +160,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Click(R.id.sendOrder)
 	public void sendOrder() {
+		alreadyBacked = true;
 		checkReasons();
 
 		if (!hasPhotos || !hasDocuments) {
@@ -216,7 +194,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderSentEvent(OrderSentEvent e) {
-		hideProgress();
+		alreadyBacked = true;
+		dismissProgress();
 		db.executeTransaction(realm -> {
 			LocalPhotos photos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
 			if (photos != null && photos.isValid()) {
@@ -273,13 +252,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
-		hideProgress();
-        Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
+		dismissProgress();
+		Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
     }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {
-		hideProgress();
+		dismissProgress();
 		Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 
@@ -325,8 +304,43 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		}
 	}
 
+	private void loadOrder() {
+		if (orderId == null) {
+//			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
+//			order = ordersManager.gedDefaultOrder();
+//			setContent();
+			Toast.makeText(getContext(), "Nastala chyba, prosím zkuste znovu", Toast.LENGTH_LONG).show();
+			getActivity().onBackPressed();
+		} else {
+			localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
+
+			if (localPhotos == null) {
+				localPhotos = new LocalPhotos();
+				localPhotos.setOrderId(orderId);
+				db.executeTransaction(realm -> realm.copyToRealmOrUpdate(localPhotos));
+				localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
+			}
+
+			order = ordersManager.getOrderById(orderId);
+			if (order != null) {
+//				if(order.getStatus() != ORDER_STATE_FINISHED /*&& !alreadyBacked*/){
+//					orderChanged();
+//					return;
+//				}
+				setContent();
+			}
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
+			setOrderListener();
+			clientProvider.getEaClient().getOrderDetail(orderId);
+		}
+	}
+
 	private void setContent() {
 		orderDetailHeader.setContent(order, v -> {
+			removeListener();
 			MainActivityBase activity = (MainActivityBase) getActivity();
 			activity.showFragment(OrderDetailFragment.newInstance(order.getId(), null));
 		});
@@ -411,12 +425,18 @@ public class OrderAttachmentsFragment extends BaseFragment {
 				public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
 					db = RealmHelper.getDb();
 					order = ordersManager.getOrderById(orderId);
-					if (orderDetailHeader != null) {
+					if (order != null && order.getStatus() != ORDER_STATE_FINISHED) {
+						dismissProgress();
+						if (!alreadyBacked) {
+							orderChanged();
+						}
+					} else if (order != null && orderDetailHeader != null) {
 						setContent();
-						hideProgress();
+						dismissProgress();
 					}
 				}
 			};
+			removeListener();
 			order.addChangeListener(objectListener);
 		}
 	}
@@ -450,6 +470,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			localReasons.setReasons(reasons);
 			localReasons.setOrderId(orderId);
 		}
+		removeListener();
 		ordersManager.sendOrder(order.getId(), localReasons.getReasons());
 	}
 
@@ -497,6 +518,26 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	public void onCancelledOrder(OrderCanceledEvent e) {
 		if (e.orderId.equals(orderId)) {
 			getActivity().onBackPressed();
+		}
+	}
+
+	private void removeListener() {
+		try {
+//			order.removeChangeListener(objectListener);
+			order.removeAllChangeListeners();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	private void orderChanged() {
+		try {
+			alreadyBacked = true;
+			removeListener();
+			Toast.makeText(getContext(), OrderToastComposer.getOrderChangedToastMessage(getContext(), order.getStatus()), Toast.LENGTH_LONG).show();
+			getActivity().onBackPressed();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

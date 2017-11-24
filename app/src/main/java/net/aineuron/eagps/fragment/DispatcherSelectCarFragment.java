@@ -151,7 +151,7 @@ public class DispatcherSelectCarFragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarsDownloaded(CarsDownloadedEvent e) {
-        hideProgress();
+        dismissProgress();
         carsRefresh.setRefreshing(false);
         this.cars = e.cars;
         carAdapter.setCars(e.cars);

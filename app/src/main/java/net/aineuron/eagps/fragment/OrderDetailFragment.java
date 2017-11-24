@@ -91,21 +91,19 @@ public class OrderDetailFragment extends BaseFragment {
 			setAppbarUpNavigation(false);
 			setAppbarTitle(title);
 		}
+	}
 
-		if (orderId == null) {
-//			Toast.makeText(getContext(), "Načtena defaultní zakázka", Toast.LENGTH_LONG).show();
-//			this.order = ordersManager.gedDefaultOrder();
-			Toast.makeText(getContext(), "Nastala chyba, prosím zkuste znovu", Toast.LENGTH_LONG).show();
-			onBackClicked();
-		} else {
-			setOrderListener();
-			if (NetworkUtil.isConnected(getContext())) {
-				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
-			}
-			clientProvider.getEaClient().getOrderDetail(orderId);
-		}
+	@Override
+	public void onResume() {
+		super.onResume();
+		loadOrder();
+	}
 
-		setUi();
+	@Override
+	public void onPause() {
+		dismissProgress();
+		removeListeners();
+		super.onPause();
 	}
 
 	@Click(R.id.client)
@@ -124,8 +122,21 @@ public class OrderDetailFragment extends BaseFragment {
 		getActivity().onBackPressed();
 	}
 
-	private void setUi() {
+	private void loadOrder() {
+		if (orderId == null) {
+			Toast.makeText(getContext(), "Nastala chyba, prosím zkuste znovu", Toast.LENGTH_LONG).show();
+			onBackClicked();
+		} else {
+			setOrderListener();
+			if (NetworkUtil.isConnected(getContext())) {
+				showProgress("Načítám detail", getString(R.string.dialog_wait_content));
+			}
+			clientProvider.getEaClient().getOrderDetail(orderId);
+		}
+		setUi();
+	}
 
+	private void setUi() {
         if (order.getClaimSaxCode() != null) {
             this.header.setText("Detail objednávky " + order.getClaimSaxCode());
         }
@@ -259,11 +270,20 @@ public class OrderDetailFragment extends BaseFragment {
 					order = ordersManager.getOrderById(orderId);
 					if (header != null && order != null) {
 						setUi();
-						hideProgress();
+						dismissProgress();
 					}
 				}
 			};
+			removeListeners();
 			order.addChangeListener(objectListener);
+		}
+	}
+
+	private void removeListeners() {
+		try {
+			order.removeAllChangeListeners();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

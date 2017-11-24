@@ -26,4 +26,11 @@
     <string name="intent_browser">Nemáte žádný webový prohlížeč</string>
     <string name="widget_delay_title">Vyberte zpoždění výjezdu</string>
     <string name="login_relogin">Přihlaste se znovu, prosím</string>
+    <string name="order_changed">Objednávka byla změněna na stav: </string>
+    <string name="order_created">Čeká na přidělení</string>
+    <string name="order_assigned">Přidělena</string>
+    <string name="order_entity_finished">Výjezd dokončen</string>
+    <string name="order_finished">Dokončena</string>
+    <string name="order_sent">Ukončena ze strany dodavatele</string>
+    <string name="order_cancelled">Zrušena</string>
 </resources>
