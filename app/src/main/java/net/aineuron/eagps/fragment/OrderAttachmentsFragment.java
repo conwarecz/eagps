@@ -112,6 +112,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	private LocalPhotos localPhotos;
 	private LocalReasons localReasons;
 	private boolean alreadyBacked = false;
+	private DividerItemDecoration decor = null;
 
 	private boolean hasPhotos = false;
 	private boolean hasDocuments = false;
@@ -147,6 +148,10 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	void afterViews() {
 		setAppbarUpNavigation(true);
 		setAppbarTitle("Přílohy");
+
+		decor = new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL);
+		Drawable verticalDivider = ContextCompat.getDrawable(getActivity(), R.drawable.vertical_divider);
+		decor.setDrawable(verticalDivider);
 
 		if (db == null) {
 			db = RealmHelper.getDb();
@@ -349,10 +354,6 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		LinearLayoutManager documentsLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 		LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 
-		DividerItemDecoration decor = new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL);
-		Drawable verticalDivider = ContextCompat.getDrawable(getActivity(), R.drawable.vertical_divider);
-		decor.setDrawable(verticalDivider);
-
 		List<Photo> photos = new ArrayList<>();
 		List<Photo> documents = new ArrayList<>();
 
@@ -392,7 +393,10 @@ public class OrderAttachmentsFragment extends BaseFragment {
 					.withReason(docsReason)
 					.finish();
 			orderDocumentsView.setLayoutManager(documentsLayoutManager);
-			orderDocumentsView.addItemDecoration(decor);
+			if (decor != null) {
+				orderDocumentsView.removeItemDecoration(decor);
+				orderDocumentsView.addItemDecoration(decor);
+			}
 			orderDocumentsView.setAdapter(documentsAdapter);
 		}
 
@@ -403,7 +407,10 @@ public class OrderAttachmentsFragment extends BaseFragment {
 					.withReason(photoReason)
 					.finish();
 			orderPhotosView.setLayoutManager(photosLayoutManager);
-			orderPhotosView.addItemDecoration(decor);
+			if (decor != null) {
+				orderPhotosView.removeItemDecoration(decor);
+				orderPhotosView.addItemDecoration(decor);
+			}
 			orderPhotosView.setAdapter(photosAdapter);
 		}
 	}
