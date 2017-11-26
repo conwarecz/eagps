@@ -136,13 +136,14 @@ public class OrderAttachmentsFragment extends BaseFragment {
         super.onResume();
 		alreadyBacked = false;
 		dismissProgress();
-		loadOrder();
 
         localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
 		if (localReasons != null && localReasons.isValid()) {
 			setContent();
         }
-    }
+
+		loadOrder();
+	}
 
 	@AfterViews
 	void afterViews() {
