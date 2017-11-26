@@ -16,6 +16,7 @@ import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.util.IntentUtils;
@@ -94,7 +95,11 @@ public class TowFragment extends BaseFragment {
 
 	@AfterViews
 	void afterViews() {
-		setAppbarUpNavigation(userManager.getUser().getUserRole() == DISPATCHER_ID);
+		User user = userManager.getUser();
+		if (user == null) {
+			return;
+		}
+		setAppbarUpNavigation(user.getUserRole() == DISPATCHER_ID);
 		if (userManager.getSelectedStateId() == STATE_ID_BUSY) {
 			setAppbarTitle(getString(R.string.car_busy));
 		} else if (userManager.getSelectedStateId() == STATE_ID_BUSY_ORDER) {
@@ -269,6 +274,9 @@ public class TowFragment extends BaseFragment {
 			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
 				db = RealmHelper.getDb();
 				order = ordersManager.getOrderById(orderId);
+				if (order == null) {
+					return;
+				}
 				if (order.getStatus() != ORDER_STATE_ASSIGNED && order.getStatus() != ORDER_STATE_ENTITY_FINISHED) {
 					dismissProgress();
 					if (!alreadyBacked) {
@@ -281,7 +289,7 @@ public class TowFragment extends BaseFragment {
 							getActivity().onBackPressed();
 						}
 					}
-				} else if (order != null && orderDetailHeader != null) {
+				} else if (orderDetailHeader != null) {
 					setContent();
 					dismissProgress();
 				}

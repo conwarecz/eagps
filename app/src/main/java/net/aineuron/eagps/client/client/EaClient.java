@@ -549,8 +549,21 @@ public class EaClient {
 
             if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
                 clientProvider.postUnauthorisedError();
-            } else if (error.getKind() == RetrofitException.Kind.HTTP) {
-                KnownError knownError = error.getErrorBodyAs(KnownError.class);
+			} else if (error.getResponse().code() == 400) {
+				try {
+					RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+					KnownError knownError = new KnownError();
+					knownError.setCode(recognizedError.getCode().intValue());
+					knownError.setMessage(recognizedError.getMessage());
+					ClientProvider.postKnownError(knownError);
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if (error.getKind() == RetrofitException.Kind.HTTP) {
+				KnownError knownError = error.getErrorBodyAs(KnownError.class);
                 Log.d("KnownError", knownError.getCode() + knownError.getMessage());
                 knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
                 ClientProvider.postKnownError(knownError);

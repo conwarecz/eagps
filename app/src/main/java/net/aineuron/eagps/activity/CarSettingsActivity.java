@@ -20,6 +20,7 @@ import net.aineuron.eagps.event.network.car.CarSelectedEvent;
 import net.aineuron.eagps.event.network.car.CarsDownloadedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.ui.WorkerCarSelectedEvent;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.User;
@@ -54,6 +55,9 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Bean
 	UserManager userManager;
+
+	@Bean
+	OrdersManager ordersManager;
 
 	@Bean
 	ClientProvider clientProvider;
@@ -201,7 +205,10 @@ public class CarSettingsActivity extends AppCompatActivity {
                 .cancelable(false)
                 .progress(true, 0)
                 .show();
-        if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+		if (userManager.getSelectedCarId() != null && !userManager.getSelectedCarId().equals(e.selectedCarId)) {
+			ordersManager.deleteOrders();
+		}
+		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
             userManager.releaseCar(e.selectedCarId);
         } else {
             userManager.setSelectedStateId(e.stateId);

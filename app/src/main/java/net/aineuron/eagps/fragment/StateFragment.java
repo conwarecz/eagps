@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
+import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.util.IntentUtils;
@@ -17,6 +18,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.Subscribe;
 
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
@@ -51,6 +53,7 @@ public class StateFragment extends BaseFragment {
 	OrdersManager ordersManager;
 
 	private Long actualState = -1L;
+	private boolean alreadyTried = false;
 
 	public static StateFragment newInstance() {
 		return StateFragment_.builder().build();
@@ -82,6 +85,11 @@ public class StateFragment extends BaseFragment {
 		StateSettingsActivity_.intent(getContext()).start();
 	}
 
+	@Subscribe
+	public void onUserDataRefreshed(UserDataGotEvent e) {
+		setContent();
+	}
+
 	private void setContent() {
 		actualState = userManager.getSelectedStateId();
 		stateButton.setVisibility(View.VISIBLE);
@@ -99,6 +107,10 @@ public class StateFragment extends BaseFragment {
 //				((MainActivityBase) getActivity()).showFragment(TowFragment_.newInstance(ordersManager.getFirstActiveOrder().getId()), false);
 				IntentUtils.openMainActivity(getContext());
 			} else {
+				if (!alreadyTried) {
+					alreadyTried = true;
+					userManager.getUserData(userManager.getUser().getUserId());
+				}
 				setOnOrderContent();
 			}
 
