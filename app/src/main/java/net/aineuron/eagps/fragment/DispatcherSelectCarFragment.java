@@ -205,8 +205,19 @@ public class DispatcherSelectCarFragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshCars(DispatcherRefreshCarsEvent e) {
+        // TODO: after API customization refresh only changed cars based on push not.
+//        if(e.entityId != null){
+//            for(int i = 0; i < cars.size(); i++){
+//                Car car = cars.get(i);
+//                if(car.getId().equals(e.entityId)){
+//                    car.setStatusId(e.entityState);
+//                    carAdapter.notifyItemChanged(i);
+//                }
+//            }
+//        } else {
         carsRefresh.setRefreshing(true);
         clientProvider.getEaClient().getCars();
+//        }
     }
 
     private void setCarsState() {

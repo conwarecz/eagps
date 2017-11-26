@@ -31,6 +31,7 @@ public class Tender extends RealmObject implements Serializable {
     private Long TenderId;
     private Car Entity;
     private UserWhoKickedMeFromCar AssignedUser;
+    private Long EntityId;
     private Date incomeTime;
 
     public static Order getOrderFromJson(String json) {
@@ -154,5 +155,13 @@ public class Tender extends RealmObject implements Serializable {
 
     public void setStatus(Long status) {
         Status = status;
+    }
+
+    public Long getEntityId() {
+        return EntityId;
+    }
+
+    public void setEntityId(Long entityId) {
+        EntityId = entityId;
     }
 }

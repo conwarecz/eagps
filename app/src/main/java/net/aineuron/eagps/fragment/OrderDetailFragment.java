@@ -167,8 +167,8 @@ public class OrderDetailFragment extends BaseFragment {
             if (clientCar.length() > 0) {
                 clientCar = clientCar + ", ";
             }
-            clientCar = clientCar + order.getClientCarWeight();
-        }
+			clientCar = clientCar + order.getClientCarWeight() + " kg";
+		}
         if (order.getClientCarLicencePlate() != null) {
             if (clientCar.length() > 0) {
                 clientCar = clientCar + ", ";

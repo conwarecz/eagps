@@ -276,7 +276,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 
 		if (order.getClientCarModel() != null && order.getClientCarWeight() != null && order.getClientCarLicencePlate() != null) {
-			this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + ", " + order.getClientCarLicencePlate());
+			this.clientCar.setText(order.getClientCarModel() + ", " + order.getClientCarWeight() + " kg, " + order.getClientCarLicencePlate());
 		}
 
 		Address clientAddress = order.getClientAddress();

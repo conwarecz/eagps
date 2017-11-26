@@ -106,8 +106,8 @@ public class OrderDetailHeader extends ConstraintLayout {
             car = order.getClientCarModel();
         }
         if (order.getClientCarWeight() != null) {
-            car = car + ", " + order.getClientCarWeight();
-        }
+			car = car + ", " + order.getClientCarWeight() + " kg";
+		}
         this.clientCar.setText(car);
         if (order.getClientCarLicencePlate() != null) {
             this.licensePlate.setText(order.getClientCarLicencePlate());

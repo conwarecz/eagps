@@ -5,4 +5,11 @@ package net.aineuron.eagps.event.network.car;
  */
 
 public class DispatcherRefreshCarsEvent {
+    public final Long entityId;
+    public final Long entityState;
+
+    public DispatcherRefreshCarsEvent(Long entityId, Long entityState) {
+        this.entityId = entityId;
+        this.entityState = entityState;
+    }
 }

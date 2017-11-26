@@ -36,8 +36,11 @@
 
 		<TextView
 			android:id="@+id/date"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
+			android:ellipsize="marquee"
+			android:padding="4dp"
+			android:singleLine="true"
 			android:text="21.5.2017"
 			android:textColor="@color/backgroundWhite"
 			app:layout_constraintEnd_toStartOf="@+id/guideline6"
@@ -46,8 +49,11 @@
 
 		<TextView
 			android:id="@+id/orderId"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
+			android:ellipsize="marquee"
+			android:padding="4dp"
+			android:singleLine="true"
 			android:text="9846566"
 			android:textColor="@color/backgroundWhite"
 			app:layout_constraintEnd_toStartOf="@+id/guideline7"
@@ -56,8 +62,11 @@
 
 		<TextView
 			android:id="@+id/licensePlate"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
+			android:ellipsize="marquee"
+			android:padding="4dp"
+			android:singleLine="true"
 			android:text="4T5 45654"
 			android:textColor="@color/backgroundWhite"
 			app:layout_constraintEnd_toStartOf="@+id/guideline8"
