@@ -111,7 +111,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
-		userManager.setStateNoCar();
+		userManager.releaseCar(userManager.getSelectedCarId());
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

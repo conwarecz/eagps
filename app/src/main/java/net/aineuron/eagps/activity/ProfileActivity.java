@@ -11,6 +11,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
@@ -97,15 +98,22 @@ public class ProfileActivity extends AppBarActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoggedOutEvent(UserLoggedOutEvent e) {
+		userManager.deleteUser();
 		dismissDialog();
 		showLogin();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onLoginFailed(ApiErrorEvent e) {
+	public void onErrorApiEvent(ApiErrorEvent e) {
 		dismissDialog();
-        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
-    }
+		super.onErrorApiEvent(e);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownError(KnownErrorEvent e) {
+		dismissDialog();
+		super.onKnownError(e);
+	}
 
 	private void showLogin() {
 		LoginActivity_.intent(this).flags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK).start();

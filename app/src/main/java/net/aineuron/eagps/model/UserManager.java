@@ -177,7 +177,6 @@ public class UserManager {
 
 	@Background
 	public void logout(User user) {
-		deleteUser();
 		if (user != null) {
 			clientProvider.getEaClient().logout(user);
 		}

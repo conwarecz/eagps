@@ -1,5 +1,6 @@
 package net.aineuron.eagps.client.client;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.tmtron.greenannotations.EventBusGreenRobot;
@@ -40,10 +41,12 @@ import net.aineuron.eagps.model.transfer.Paging;
 import net.aineuron.eagps.model.transfer.RecognizedError;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
+import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
@@ -81,6 +84,9 @@ public class EaClient {
 	@Pref
 	Pref_ pref;
 
+	@RootContext
+	Context context;
+
 	@EventBusGreenRobot
 	EventBus eventBus;
 
@@ -92,6 +98,9 @@ public class EaClient {
 	}
 
 	public void login(LoginInfo info) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		if (info == null) {
 			return;
 		}
@@ -110,6 +119,9 @@ public class EaClient {
 	}
 
 	public void logout(User user) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		if (user == null) {
 			return;
 		}
@@ -128,6 +140,9 @@ public class EaClient {
 	}
 
 	public void getUser(Long userId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		eaService.getUser(userId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -174,6 +189,9 @@ public class EaClient {
 	}
 
 	public void selectCar(Long carId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -203,6 +221,9 @@ public class EaClient {
 	}
 
 	public void releaseCar(Long selectedCarId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null || user.getUserId() == null || user.getEntity() == null || user.getEntity().getEntityId() == null) {
 			return;
@@ -227,6 +248,9 @@ public class EaClient {
 	}
 
 	public void getCars() {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -244,6 +268,9 @@ public class EaClient {
 	}
 
 	public void setUserState(Long stateId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		if (stateId.equals(STATE_ID_BUSY_ORDER)) {
 			return;
 		}
@@ -279,6 +306,9 @@ public class EaClient {
 	}
 
 	public void setUserFirebaseToken(String token) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -301,6 +331,9 @@ public class EaClient {
 	}
 
 	public void setCarState(Long stateId, Long carId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		if (stateId.equals(STATE_ID_BUSY_ORDER)) {
 			return;
 		}
@@ -323,6 +356,9 @@ public class EaClient {
 
 	// Orders
 	public void updateOrders(Paging paging) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		eaService.getOrders(paging.getSkip(), paging.getTake())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -350,6 +386,9 @@ public class EaClient {
 	}
 
 	public void getOrderDetail(Long orderId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		eaService.getOrderDetail(orderId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -369,6 +408,9 @@ public class EaClient {
 	}
 
 	public void cancelOrder(Long orderId, Long reason) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -396,6 +438,9 @@ public class EaClient {
 	}
 
 	public void finalizeOrder(Long orderId) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -423,6 +468,9 @@ public class EaClient {
 	}
 
 	public void sendOrder(Long orderId, Reasons reasons) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		User user = userManager.getUser();
 		if (user == null) {
 			return;
@@ -455,6 +503,9 @@ public class EaClient {
 	}
 
 	public void setMessageRead(Long messageId, boolean isRead) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		if (messageId == null) {
 			return;
 		}
@@ -475,6 +526,9 @@ public class EaClient {
 	}
 
 	public void updateMessages(Paging paging) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		eaService.getMessages(paging.getSkip(), paging.getTake())
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -509,7 +563,10 @@ public class EaClient {
 
 	// Pictures
     public void uploadPhoto(PhotoFile photoFile, Long orderId) {
-        eaService.uploadPhoto(orderId, photoFile)
+		if (!connectedToInternet()) {
+			return;
+		}
+		eaService.uploadPhoto(orderId, photoFile)
                 .subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -526,7 +583,10 @@ public class EaClient {
 	}
 
     public void uploadSheet(PhotoFile photoFile, Long orderId) {
-        eaService.uploadSheet(orderId, photoFile)
+		if (!connectedToInternet()) {
+			return;
+		}
+		eaService.uploadSheet(orderId, photoFile)
                 .subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -609,6 +669,9 @@ public class EaClient {
 	}
 
 	public void acceptTender(Long tenderId, TenderAcceptModel tenderModel) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		eaService.acceptTender(tenderId, tenderModel)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -626,6 +689,9 @@ public class EaClient {
 	}
 
 	public void rejectTender(Long tenderId, TenderRejectModel tenderModel) {
+		if (!connectedToInternet()) {
+			return;
+		}
 		eaService.rejectTender(tenderId, tenderModel)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -640,6 +706,18 @@ public class EaClient {
 						,
 						this::sendError
 				);
+	}
+
+	private boolean connectedToInternet() {
+		boolean connected = true;
+		if (!NetworkUtil.isConnected(context)) {
+			KnownError knownError = new KnownError();
+			knownError.setCode(400);
+			knownError.setMessage("Nejste připojen k internetu");
+			ClientProvider.postKnownError(knownError);
+			connected = false;
+		}
+		return connected;
 	}
 
 	private void setOrderDatesProperTimeZone(Order order) {
