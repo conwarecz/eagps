@@ -39,6 +39,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 
 @EActivity(R.layout.activity_car_settings)
@@ -147,7 +148,11 @@ public class CarSettingsActivity extends AppCompatActivity {
 	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {
 		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
 			progressDialog.dismiss();
-			selectState();
+			if (e.carStateId.equals(STATE_ID_BUSY_ORDER)) {
+				finishSettings();
+			} else {
+				selectState();
+			}
 		}
 	}
 

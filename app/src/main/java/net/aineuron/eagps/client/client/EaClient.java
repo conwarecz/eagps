@@ -197,7 +197,7 @@ public class EaClient {
 							user.setCar(car);
 							userManager.setUser(user);
 							userManager.setSelectedStateId(car == null ? STATE_ID_NO_CAR : STATE_ID_READY);
-							eventBus.post(new CarSelectedEvent());
+							eventBus.post(new CarSelectedEvent(car.getStatusId()));
 						},
 						this::sendError
 				);
@@ -269,8 +269,8 @@ public class EaClient {
                                 userManager.setSelectedStateId(stateId);
                                 eventBus.post(new StateSelectedEvent(stateId));
                                 if (stateId.equals(STATE_ID_NO_CAR)) {
-                                    eventBus.post(new CarSelectedEvent());
-                                }
+									eventBus.post(new CarSelectedEvent(stateId));
+								}
                             } else {
                                 sendKnownError(voidResponse);
                             }
