@@ -47,7 +47,6 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -571,7 +570,7 @@ public class EaClient {
                 Log.d("NetworkError", errorThrowable.getMessage());
                 ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
             }
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
             Log.d("NetworkError", errorThrowable.getMessage());
             ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
