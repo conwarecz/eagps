@@ -111,16 +111,16 @@ public class CarSettingsActivity extends AppCompatActivity {
 				.cancelable(false)
 				.progress(true, 0)
 				.show();
-		userManager.releaseCar(userManager.getSelectedCarId());
+		userManager.releaseCar(null);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarReleasedEvent(CarReleasedEvent e) {
-		if (e.selectedCarId == null) {
+		if (e.newSelectedCarId == null) {
 			progressDialog.dismiss();
 			finishSettings();
 		} else {
-			userManager.selectCar(e.selectedCarId);
+			userManager.selectCar(e.newSelectedCarId);
 		}
 	}
 

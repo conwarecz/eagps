@@ -5,9 +5,9 @@ package net.aineuron.eagps.event.network.car;
  */
 
 public class CarReleasedEvent {
-    public final Long selectedCarId;
+    public final Long newSelectedCarId;
 
-    public CarReleasedEvent(Long selectedCarId) {
-        this.selectedCarId = selectedCarId;
+    public CarReleasedEvent(Long newSelectedCarId) {
+        this.newSelectedCarId = newSelectedCarId;
     }
 }

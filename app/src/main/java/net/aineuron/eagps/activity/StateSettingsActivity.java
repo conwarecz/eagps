@@ -45,20 +45,20 @@ public class StateSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.readyLayout)
 	public void onReady() {
-		userManager.setStateReady();
 		showProgress();
+		userManager.setStateReady();
 	}
 
 	@Click(R.id.busyLayout)
 	public void onBusy() {
-		userManager.setStateBusy();
 		showProgress();
+		userManager.setStateBusy();
 	}
 
 	@Click(R.id.unavailableLayout)
 	public void onUnavailable() {
-		userManager.setStateUnavailable();
 		showProgress();
+		userManager.setStateUnavailable();
 	}
 
 	@Click(R.id.skipLayout)
@@ -77,15 +77,6 @@ public class StateSettingsActivity extends AppCompatActivity {
 		}
 		finishSettings();
 	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onNetworkStateSelectedEvent(ApiErrorEvent e) {
-		if (progressDialog != null) {
-			progressDialog.dismiss();
-		}
-		Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
-    }
-
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onErrorApiEvent(ApiErrorEvent e) {
 		dismissProgress();
