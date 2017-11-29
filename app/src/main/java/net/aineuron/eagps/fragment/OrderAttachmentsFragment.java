@@ -387,8 +387,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			docsReason = localReasons.getReasons().getReasonForNoDocuments();
 		}
 
-		if (localPhotos.getLocalPhotos() != null) {
-			documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+        if (localReasons != null && localPhotos.getLocalPhotos() != null) {
+            documentsAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(documents)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_DOCS)
 					.withReason(docsReason)
@@ -401,8 +401,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			orderDocumentsView.setAdapter(documentsAdapter);
 		}
 
-		if (localPhotos.getLocalPhotos() != null) {
-			photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+        if (localPhotos != null && localPhotos.getLocalPhotos() != null) {
+            photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(photos)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS)
 					.withReason(photoReason)
