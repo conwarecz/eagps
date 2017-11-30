@@ -50,7 +50,7 @@
 		android:layout_marginEnd="@dimen/padding_sides"
 		android:layout_marginStart="@dimen/padding_sides"
 		app:ilt_labelText="Telefon"
-		app:ilt_text="+420 774 789 789"
+		app:ilt_text=""
 		app:layout_constraintEnd_toEndOf="@+id/logoutButton"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent"

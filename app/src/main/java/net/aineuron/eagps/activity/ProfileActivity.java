@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +36,7 @@ public class ProfileActivity extends AppBarActivity {
 	TextView nameView;
 
 	@ViewById(R.id.telephoneView)
-	IcoLabelTextView profile;
+	IcoLabelTextView telephone;
 
 	private MaterialDialog progressDialog;
 	private User user;
@@ -56,10 +57,13 @@ public class ProfileActivity extends AppBarActivity {
             nameView.setText(user.getUserName());
         }
         if (user.getPhone() != null) {
-            profile.setLabelText("Telefon");
-            profile.setText(user.getPhone());
-        }
-    }
+			telephone.setLabelText("Telefon");
+			telephone.setText(user.getPhone());
+			telephone.setVisibility(View.VISIBLE);
+		} else {
+			telephone.setVisibility(View.GONE);
+		}
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
