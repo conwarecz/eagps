@@ -255,6 +255,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         KnownError error = new KnownError();
         error.setMessage("Byl jste odhlášen z vozidla uživatelem " + user.getUsername());
         EventBus.getDefault().post(new KnownErrorEvent(error));
+        userManager.setSelectedCarId(null);
         userManager.setSelectedStateId(STATE_ID_NO_CAR);
         if (wasInBackground) {
             sendNotification("Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
