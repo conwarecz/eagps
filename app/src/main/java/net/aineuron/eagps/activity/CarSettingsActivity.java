@@ -105,19 +105,23 @@ public class CarSettingsActivity extends AppCompatActivity {
 
 	@Click(R.id.skipLayout)
 	public void onSkip() {
-		progressDialog = new MaterialDialog.Builder(this)
-				.title(R.string.dialog_changing_settings)
-				.content(getString(R.string.dialog_wait_content))
-				.cancelable(false)
-				.progress(true, 0)
-				.show();
-		userManager.releaseCar(null);
+		if (userManager.getSelectedCarId() != null) {
+			progressDialog = new MaterialDialog.Builder(this)
+					.title(R.string.dialog_changing_settings)
+					.content(getString(R.string.dialog_wait_content))
+					.cancelable(false)
+					.progress(true, 0)
+					.show();
+			userManager.releaseCar(null);
+		} else {
+			finishSettings();
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarReleasedEvent(CarReleasedEvent e) {
 		if (e.newSelectedCarId == null) {
-			progressDialog.dismiss();
+			dismissProgress();
 			finishSettings();
 		} else {
 			userManager.selectCar(e.newSelectedCarId);
@@ -147,7 +151,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(CarSelectedEvent e) {
 		if (!userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
-			progressDialog.dismiss();
+			dismissProgress();
 			if (e.carStateId.equals(STATE_ID_BUSY_ORDER)) {
 				finishSettings();
 			} else {
@@ -159,7 +163,7 @@ public class CarSettingsActivity extends AppCompatActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkCarSelectedEvent(StateSelectedEvent e) {
 		if (userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
-			progressDialog.dismiss();
+			dismissProgress();
 			finishSettings();
 		}
 	}
@@ -175,18 +179,26 @@ public class CarSettingsActivity extends AppCompatActivity {
 	public void onApiError(ApiErrorEvent e) {
 		carAdapter.notifyDataChanged();
 		carsRefresh.setRefreshing(false);
-		try {
-			progressDialog.dismiss();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+		dismissProgress();
+		Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
     }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {
-		progressDialog.dismiss();
+		dismissProgress();
 		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
+	}
+
+	protected void dismissProgress() {
+		if (progressDialog == null) {
+			return;
+		}
+
+		if (progressDialog.isCancelled()) {
+			return;
+		}
+
+		progressDialog.dismiss();
 	}
 
 	private void selectState() {
