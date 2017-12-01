@@ -11,6 +11,8 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.MessagesAdapter;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.ui.MessageClickedEvent;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.MessagesManager;
@@ -96,7 +98,11 @@ public class MessagesFragment extends BaseFragment {
 				clientProvider.getEaClient().updateMessages(paging);
 			}
 		});
+	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
 		swipeRefreshLayout.setRefreshing(true);
 		clientProvider.getEaClient().updateMessages(paging);
 	}
@@ -120,6 +126,16 @@ public class MessagesFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStopRefreshing(StopRefreshingEvent e) {
 		messagesManager.checkUnreadMessage();
+		swipeRefreshLayout.setRefreshing(false);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void apiFailedEvent(ApiErrorEvent e) {
+		swipeRefreshLayout.setRefreshing(false);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownErrorEvent(KnownErrorEvent e) {
 		swipeRefreshLayout.setRefreshing(false);
 	}
 }

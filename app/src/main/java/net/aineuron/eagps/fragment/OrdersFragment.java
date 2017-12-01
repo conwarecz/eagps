@@ -11,6 +11,8 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.MainActivityBase;
 import net.aineuron.eagps.adapter.OrdersAdapter;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.event.network.ApiErrorEvent;
+import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
@@ -108,9 +110,28 @@ public class OrdersFragment extends BaseFragment {
 				clientProvider.getEaClient().updateOrders(paging);
 			}
 		});
+	}
 
-		swipeRefreshLayout.setRefreshing(true);
-		clientProvider.getEaClient().updateOrders(paging);
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		if (adapter.getItemCount() < 1) {
+			swipeRefreshLayout.setRefreshing(true);
+			clientProvider.getEaClient().updateOrders(paging);
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void apiFailedEvent(ApiErrorEvent e) {
+		dismissProgress();
+		swipeRefreshLayout.setRefreshing(false);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownErrorEvent(KnownErrorEvent e) {
+		dismissProgress();
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

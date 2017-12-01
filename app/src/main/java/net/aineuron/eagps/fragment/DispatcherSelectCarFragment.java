@@ -137,8 +137,6 @@ public class DispatcherSelectCarFragment extends BaseFragment {
         decor.setDrawable(horizontalDivider);
 
         carsView.addItemDecoration(decor);
-        carsRefresh.setRefreshing(true);
-        clientProvider.getEaClient().getCars();
     }
 
     @Override
@@ -164,15 +162,15 @@ public class DispatcherSelectCarFragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
+        dismissProgress();
         carsRefresh.setRefreshing(false);
         carAdapter.notifyDataChanged();
-        Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarSelectError(KnownErrorEvent e) {
+        dismissProgress();
         carsRefresh.setRefreshing(false);
-        Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

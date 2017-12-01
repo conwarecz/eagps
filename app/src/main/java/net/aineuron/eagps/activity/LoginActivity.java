@@ -77,7 +77,11 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 		validator = new Validator(this);
 		validator.setValidationListener(this);
+	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
 		if (userManager.getUser() != null) {
 			// User logged in
 			showProgress();

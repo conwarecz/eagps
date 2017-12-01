@@ -192,15 +192,16 @@ public class TowFragment extends BaseFragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void apiFailedEvent(ApiErrorEvent e) {
+		dismissProgress();
 		e.throwable.printStackTrace();
         Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
-		dismissProgress();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
     public void onKnownErrorEvent(KnownErrorEvent e) {
-        Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_LONG);
-    }
+		dismissProgress();
+		Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_LONG).show();
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void orderFinalized(OrderFinalizedEvent e) {
