@@ -11,6 +11,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -20,6 +21,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.NewTenderActivity;
 import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
@@ -71,14 +73,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static final int PUSH_TENDER_NOT_WON = 5;
     public static final int PUSH_NEW_MESSAGE = 6;
     public static final int PUSH_CAR_STATUS_CHANGE = 7;
-    public static final int PUSH_USER_LOGGED_OUT = 8;
+    public static final int PUSH_USER_LOGGED_OUT_BY_ANOTHER_USER = 8;
     public static final int PUSH_ORDER_FINISHED = 9;
     public static final int PUSH_ORDER_SENT = 10;
+    public static final int PUSH_USER_LOGGED_OUT = 11;
     private static final String TAG = "FCM Service";
     @Bean
     UserManager userManager;
     @Bean
     TendersManager tendersManager;
+    @Bean
+    ClientProvider clientProvider;
     @App
     Appl app;
     private int currentNotificationID = 1;
@@ -115,8 +120,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             case PUSH_CAR_STATUS_CHANGE:
                 handleCarStatusChange(remoteMessage);
                 break;
-            case PUSH_USER_LOGGED_OUT:
+            case PUSH_USER_LOGGED_OUT_BY_ANOTHER_USER:
                 handleUserKickedFromCar(remoteMessage);
+                break;
+            case PUSH_USER_LOGGED_OUT:
+                Toast.makeText(getApplicationContext(), "Byl jste odhlášen z aplikace", Toast.LENGTH_LONG).show();
+                clientProvider.postUnauthorisedError();
                 break;
         }
     }

@@ -2,7 +2,6 @@ package net.aineuron.eagps.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
-import com.ashokvarma.bottomnavigation.ShapeBadgeItem;
 import com.jetradar.multibackstack.BackStackActivity;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
@@ -100,7 +98,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private Bundle savedInstanceState = null;
 	private Fragment currentFragment;
 	private int currentTabId;
-	private ShapeBadgeItem shapeBadgeItem;
+//	private ShapeBadgeItem shapeBadgeItem;
 
 	@AfterViews
 	public void afterViewsLocal() {
@@ -280,17 +278,17 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 		BottomNavigationItem messagesItem = new BottomNavigationItem(R.drawable.icon_messages, "Zprávy");
 
-		shapeBadgeItem = new ShapeBadgeItem()
-				.setShape(ShapeBadgeItem.SHAPE_OVAL)
-				.setSizeInDp(this, 10, 10)
-				.setShapeColor(Color.RED)
-				.hide();
-
-		messagesItem.setBadgeItem(shapeBadgeItem);
-
-		if (messagesManager.checkUnreadMessage()) {
-			shapeBadgeItem.show();
-		}
+//		shapeBadgeItem = new ShapeBadgeItem()
+//				.setShape(ShapeBadgeItem.SHAPE_OVAL)
+//				.setSizeInDp(this, 10, 10)
+//				.setShapeColor(Color.RED)
+//				.hide();
+//
+//		messagesItem.setBadgeItem(shapeBadgeItem);
+//
+//		if (messagesManager.checkUnreadMessage()) {
+//			shapeBadgeItem.show();
+//		}
 
 		bottomNavigation
 				.setActiveColor(R.color.colorPrimary)
@@ -401,11 +399,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void messageStatusChanged(MessageStatusChangedEvent e) {
-		if (e.unread) {
-			shapeBadgeItem.show();
-		} else {
-			shapeBadgeItem.hide();
-		}
+//		if (e.unread) {
+//			shapeBadgeItem.show();
+//		} else {
+//			shapeBadgeItem.hide();
+//		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

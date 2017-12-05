@@ -140,6 +140,7 @@ public class ClientProvider {
 
 		gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
 						}.getType(),
@@ -160,7 +161,7 @@ public class ClientProvider {
 			clientBuilder.addInterceptor(interceptor);
 		}
 
-        // Set token when not empty
+        // Set token
         if (!token.isEmpty()) {
             clientBuilder.addInterceptor(chain -> {
 				Request.Builder requestBuilder = chain.request().newBuilder();

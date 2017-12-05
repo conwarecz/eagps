@@ -75,6 +75,9 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	public void afterViews() {
 		getSupportActionBar().hide();
 
+        // TODO: uncomment before Store release
+//		new GoogleChecker(this, false);
+
 		validator = new Validator(this);
 		validator.setValidationListener(this);
 	}
