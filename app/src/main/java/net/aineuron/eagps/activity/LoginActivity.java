@@ -3,6 +3,7 @@ package net.aineuron.eagps.activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.grisoftware.updatechecker.GoogleChecker;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
@@ -71,12 +73,26 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	private Validator validator;
 	private MaterialDialog progressDialog;
 
+	public static boolean isStoreVersion(Context context) {
+		boolean result = false;
+
+		try {
+			String installer = context.getPackageManager()
+					.getInstallerPackageName(context.getPackageName());
+			result = !TextUtils.isEmpty(installer);
+		} catch (Throwable e) {
+		}
+
+		return result;
+	}
+
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
 
-        // TODO: uncomment before Store release
-//		new GoogleChecker(this, false);
+		if (isStoreVersion(this)) {
+			new GoogleChecker(this, false);
+		}
 
 		validator = new Validator(this);
 		validator.setValidationListener(this);

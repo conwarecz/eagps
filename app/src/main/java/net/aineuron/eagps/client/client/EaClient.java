@@ -20,7 +20,6 @@ import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
 import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.network.order.TenderAcceptSuccessEvent;
-import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
@@ -692,20 +691,7 @@ public class EaClient {
 		if (!connectedToInternet()) {
 			return;
 		}
-		eaService.rejectTender(tenderId, tenderModel)
-				.subscribeOn(Schedulers.computation())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(
-						voidResponse -> {
-							if (voidResponse.isSuccessful()) {
-								eventBus.post(new TenderRejectSuccessEvent());
-							} else {
-								sendKnownError(voidResponse);
-							}
-						}
-						,
-						this::sendError
-				);
+		eaService.rejectTender(tenderId, tenderModel);
 	}
 
 	private boolean connectedToInternet() {
@@ -744,5 +730,22 @@ public class EaClient {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void testErrorCode() {
+		eaService.testErrorResponse(4301L)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								Log.d("Error test", "Succeeded, whaaaat?");
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
+						,
+						this::sendError
+				);
 	}
 }

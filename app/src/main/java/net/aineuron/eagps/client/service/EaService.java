@@ -91,4 +91,8 @@ public interface EaService {
 
     @PUT("tenders/{tenderId}/reject")
     Maybe<Response<Void>> rejectTender(@Path("tenderId") long tenderId, @Body TenderRejectModel tenderModel);
+
+    // Tests
+    @POST("test/badrequest/{errorCode}")
+    Maybe<Response<Void>> testErrorResponse(@Path("errorCode") Long errorCode);
 }
