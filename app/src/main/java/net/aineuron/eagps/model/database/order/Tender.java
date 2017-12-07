@@ -31,6 +31,7 @@ public class Tender extends RealmObject implements Serializable {
     private Long TenderId;
     private Car Entity;
     private UserWhoKickedMeFromCar AssignedUser;
+    private UserWhoKickedMeFromCar User;
     private Long EntityId;
     private Date incomeTime;
 
@@ -80,6 +81,18 @@ public class Tender extends RealmObject implements Serializable {
                 .create();
         Tender tender = gson.fromJson(json, Tender.class);
         return tender.getAssignedUser();
+    }
+
+    public static UserWhoKickedMeFromCar getUser(String json) {
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+                        }.getType(),
+                        RealmStringListTypeAdapter.INSTANCE)
+                .create();
+        Tender tender = gson.fromJson(json, Tender.class);
+        return tender.getUser();
     }
 
     public static Tender getTender(String json) {
@@ -163,5 +176,13 @@ public class Tender extends RealmObject implements Serializable {
 
     public void setEntityId(Long entityId) {
         EntityId = entityId;
+    }
+
+    public UserWhoKickedMeFromCar getUser() {
+        return User;
+    }
+
+    public void setUser(UserWhoKickedMeFromCar user) {
+        User = user;
     }
 }

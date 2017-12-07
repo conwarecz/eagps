@@ -18,6 +18,9 @@ public interface Pref {
 	@DefaultString("")
 	String token();
 
+	@DefaultString("")
+	String tokenFcm();
+
 	@DefaultLong(-1)
 	long selectedCar();
 

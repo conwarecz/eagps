@@ -124,8 +124,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleUserKickedFromCar(remoteMessage);
                 break;
             case PUSH_USER_LOGGED_OUT:
-                Toast.makeText(getApplicationContext(), "Byl jste odhlášen z aplikace", Toast.LENGTH_LONG).show();
-                clientProvider.postUnauthorisedError();
+                handleUserLoggedOut(remoteMessage);
                 break;
         }
     }
@@ -271,8 +270,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
         }
-        // TODO: in background show notification
     }
+
+    private void handleUserLoggedOut(RemoteMessage remoteMessage) {
+        if (userManager.getUser() == null) {
+            return;
+        }
+
+        final UserWhoKickedMeFromCar user = Tender.getUser(remoteMessage.getData().get("message"));
+        if (user.getUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
+            Toast.makeText(getApplicationContext(), "Byl jste odhlášen z aplikace", Toast.LENGTH_LONG).show();
+            clientProvider.postUnauthorisedError();
+        }
+    }
+
 
     /**
      * Create and show a simple notification containing the received FCM message.

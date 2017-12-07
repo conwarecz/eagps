@@ -320,6 +320,7 @@ public class EaClient {
 						voidResponse -> {
 							if (voidResponse.isSuccessful()) {
 								Log.d("FCM Token", "Token put to user: " + token);
+								pref.tokenFcm().put(token);
 								eventBus.post(new UserTokenSet(user.getUserId()));
 							} else {
 								sendKnownError(voidResponse);
