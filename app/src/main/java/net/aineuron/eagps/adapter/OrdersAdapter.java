@@ -8,10 +8,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import net.aineuron.eagps.activity.MainActivityBase;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.fragment.OrderAttachmentsFragment;
 import net.aineuron.eagps.fragment.OrderDetailFragment;
 import net.aineuron.eagps.fragment.TowFragment;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.model.transfer.KnownError;
+import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.view.ItemViewWrapper;
 import net.aineuron.eagps.view.order.OrderItemView;
 import net.aineuron.eagps.view.order.OrderItemView_;
@@ -55,6 +58,13 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 		holder.getView().setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				if (!NetworkUtil.isConnected(mMainActivityBase.getApplicationContext())) {
+					KnownError knownError = new KnownError();
+					knownError.setCode(400);
+					knownError.setMessage("Nejste připojen k internetu");
+					ClientProvider.postKnownError(knownError);
+					return;
+				}
 				if (obj != null) {
 					switch (obj.getStatus()) {
 						case ORDER_STATE_ASSIGNED:

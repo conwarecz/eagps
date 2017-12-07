@@ -11,7 +11,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -27,6 +26,7 @@ import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Message;
@@ -279,7 +279,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         final UserWhoKickedMeFromCar user = Tender.getUser(remoteMessage.getData().get("message"));
         if (user.getUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
-            Toast.makeText(getApplicationContext(), "Byl jste odhlášen z aplikace", Toast.LENGTH_LONG).show();
+            if (wasInBackground) {
+                sendNotification("Odhlášení z vozidla", "Byl jste odhlášen", null);
+            } else {
+                EventBus.getDefault().post(new UserLoggedOutFromAnotherDeviceEvent());
+            }
             clientProvider.postUnauthorisedError();
         }
     }

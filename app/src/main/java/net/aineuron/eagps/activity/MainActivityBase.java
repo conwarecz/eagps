@@ -32,6 +32,7 @@ import net.aineuron.eagps.event.network.MessageStatusChangedEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent;
 import net.aineuron.eagps.fragment.DispatcherSelectCarFragment_;
 import net.aineuron.eagps.fragment.MessageDetailFragment;
 import net.aineuron.eagps.fragment.MessageDetailFragment_;
@@ -415,6 +416,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			showFragment(StateFragment_.newInstance(), false);
 		}
 	}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderAccepted(OrderAcceptedEvent e) {

@@ -26,6 +26,7 @@ import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.order.TenderAcceptSuccessEvent;
 import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
@@ -532,6 +533,11 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		}
 		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
 	}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+    }
 
 	public boolean isAccepting() {
 		return accepting;

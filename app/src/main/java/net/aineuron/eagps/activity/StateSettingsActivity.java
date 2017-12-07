@@ -11,6 +11,7 @@ import net.aineuron.eagps.R;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.util.IntentUtils;
 
@@ -88,6 +89,11 @@ public class StateSettingsActivity extends AppCompatActivity {
 		dismissProgress();
 		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_LONG).show();
 	}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+    }
 
 	private void showProgress() {
 		progressDialog = new MaterialDialog.Builder(this)

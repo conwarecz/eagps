@@ -27,6 +27,7 @@ import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.user.FirebaseTokenRefreshedEvent;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
+import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent;
 import net.aineuron.eagps.event.network.user.UserTokenSet;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
@@ -191,6 +192,11 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	public void onFirebaseTokenRefreshed(FirebaseTokenRefreshedEvent e) {
 		userManager.setFirebaseToken(e.token);
 	}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+    }
 
 	private void setFirebaseToken() {
 		String token = FirebaseInstanceId.getInstance().getToken();

@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">EAGPS</string>
+    <string name="app_name">EA_Assistance partners</string>
 	<string name="login_input_invalid_password">Zadejte heslo</string>
 	<string name="login_input_invalid_username">Zadejte uživatelské heslo</string>
 	<string name="worker_select_car_title">Přihlášení na vozidlo</string>

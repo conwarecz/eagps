@@ -27,6 +27,7 @@ import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
@@ -61,9 +62,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
-    //    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
+    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
 //    public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
-    public static final String END_POINT = "https://www.eaprg.cz/";
+//    public static final String END_POINT = "https://www.eaprg.cz/";
 
 	@RootContext
 	Context context;
@@ -86,6 +87,7 @@ public class ClientProvider {
 		EventBus.getDefault().post(new KnownErrorEvent(error));
 	}
 
+    @UiThread
     public void postUnauthorisedError() {
         userManager.deleteUser();
         Intent intent = new Intent(context, LoginActivity_.class);

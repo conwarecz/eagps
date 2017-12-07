@@ -72,8 +72,8 @@ public class IntentUtils {
 
 	public static void copyToClipboard(Context context, String text) {
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText("EAGPS", text);
-		try {
+        ClipData clip = ClipData.newPlainText(context.getResources().getString(R.string.app_name), text);
+        try {
 			clipboard.setPrimaryClip(clip);
 			Toast.makeText(context, R.string.share_copy, Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
@@ -82,10 +82,9 @@ public class IntentUtils {
 	}
 
 	public static void dialPhone(Context context, @NonNull String phoneNumber) {
-		Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
-
 		try {
-			context.startActivity(intent);
+            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+            context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
             Toast.makeText(context, R.string.intent_dialer, Toast.LENGTH_LONG).show();
