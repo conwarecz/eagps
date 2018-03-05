@@ -62,9 +62,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
-	//    public static final String END_POINT = "https://www.vgsdapi-test.europ-assistance.cz:41443/";
-	public static final String END_POINT = "https://www.vgsdapi-preprod.europ-assistance.cz:41443/";
-//    public static final String END_POINT = "https://www.eaprg.cz/";
 
 	@RootContext
 	Context context;
@@ -150,7 +147,7 @@ public class ClientProvider {
 				.create();
 
 		Retrofit.Builder builder = new Retrofit.Builder()
-				.baseUrl(END_POINT)
+				.baseUrl(BuildConfig.ENDPOINT_URL)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create());
 
