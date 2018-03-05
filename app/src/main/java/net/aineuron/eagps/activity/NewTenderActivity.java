@@ -102,8 +102,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	TextView header;
 	private MaterialDialog progressDialog;
 	private Order order;
-    private TenderAcceptModel tenderAcceptModel;
-    private TenderRejectModel tenderRejectModel;
+	private TenderAcceptModel tenderAcceptModel;
+	private TenderRejectModel tenderRejectModel;
 	private int retryCounter = 0;
 	private boolean accepting = false;
 	private int days = 0;
@@ -146,17 +146,17 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNetworkStateSelectedEvent(StateSelectedEvent e) {
-        finishTenderActivity();
-    }
+		finishTenderActivity();
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onApiErrorEvent(ApiErrorEvent e) {
 		Toast.makeText(getApplicationContext(), e.message, Toast.LENGTH_SHORT).show();
 		finishTenderActivity();
-    }
+	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onKnownErrorEvent(KnownErrorEvent e) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownErrorEvent(KnownErrorEvent e) {
 		if (retryCounter < 3) {
 			trySendAgain();
 			Toast.makeText(getApplicationContext(), "Pokus " + retryCounter + ": " + e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
@@ -171,14 +171,14 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		finishTenderActivity();
 	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
 		tendersManager.deleteAllOtherTenders(tenderId);
 		finishTenderActivity();
 	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onTenderRejectSuccessEvent(TenderRejectSuccessEvent e) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onTenderRejectSuccessEvent(TenderRejectSuccessEvent e) {
 		if (tendersManager.isNextTender(tenderId)) {
 			tendersManager.deleteTender(tenderId, tender.getIncomeTime());
 			hideProgress();
@@ -213,8 +213,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		// State is the same as before
 		new MaterialDialog.Builder(this)
 				.title("Důvod zrušení")
-				.items(R.array.order_cancel_choices)
-				.itemsIds(R.array.order_cancel_choice_ids)
+				.items(R.array.order_reject_choices)
+				.itemsIds(R.array.order_reject_choice_ids)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
 					if (which < 0) {
 						Toast.makeText(getApplicationContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
@@ -224,7 +224,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 					tenderRejectModel.setRejectReason(Long.valueOf(which + 1));
 					clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
 					return true;
-                })
+				})
 				.positiveText("OK")
 				.show();
 	}
@@ -376,12 +376,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		return addressResult;
 	}
 
-    private void finishTenderActivity() {
-        hideProgress();
-        if (!appl.wasInBackground()) {
-            IntentUtils.openMainActivity(this);
-        }
-        finish();
+	private void finishTenderActivity() {
+		hideProgress();
+		if (!appl.wasInBackground()) {
+			IntentUtils.openMainActivity(this);
+		}
+		finish();
 	}
 
 	private void showProgress(String title, String content) {
@@ -534,10 +534,10 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
 	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
-        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
-    }
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+		Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+	}
 
 	public boolean isAccepting() {
 		return accepting;

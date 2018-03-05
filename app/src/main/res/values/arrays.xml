@@ -12,6 +12,16 @@
 		<item>2</item>
 		<item>3</item>
 	</integer-array>
+	<string-array name="order_reject_choices">
+		<item>Zaneprázdněn jinou zakázkou</item>
+		<item>Nedostatečné vybavení pro zásah</item>
+		<item>Technické problémy</item>
+	</string-array>
+	<integer-array name="order_reject_choice_ids">
+		<item>0</item>
+		<item>1</item>
+		<item>2</item>
+	</integer-array>
 	<string-array name="delay_minutes">
 		<item>5</item>
 		<item>10</item>

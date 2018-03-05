@@ -20,6 +20,7 @@ import net.aineuron.eagps.event.network.order.OrderSentEvent;
 import net.aineuron.eagps.event.network.order.PhotoUploadedEvent;
 import net.aineuron.eagps.event.network.order.SheetUploadedEvent;
 import net.aineuron.eagps.event.network.order.TenderAcceptSuccessEvent;
+import net.aineuron.eagps.event.network.order.TenderRejectSuccessEvent;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedInEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutEvent;
@@ -692,7 +693,20 @@ public class EaClient {
 		if (!connectedToInternet()) {
 			return;
 		}
-		eaService.rejectTender(tenderId, tenderModel);
+		eaService.rejectTender(tenderId, tenderModel)
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
+								eventBus.post(new TenderRejectSuccessEvent());
+							} else {
+								sendKnownError(voidResponse);
+							}
+						}
+						,
+						this::sendError
+				);
 	}
 
 	private boolean connectedToInternet() {
