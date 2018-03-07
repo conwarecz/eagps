@@ -157,12 +157,21 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onKnownErrorEvent(KnownErrorEvent e) {
-		if (retryCounter < 3) {
+		if (e.knownError.getCode() == 500 && retryCounter < 3) {
+			// Retry on 500 errors 3x
 			trySendAgain();
-			Toast.makeText(getApplicationContext(), "Pokus " + retryCounter + ": " + e.knownError.getMessage(), Toast.LENGTH_SHORT).show();
-		} else {
-			finishTenderActivity();
+			return;
 		}
+
+		new MaterialDialog.Builder(this)
+				.content(e.knownError.getMessage())
+				.positiveText(R.string.confirmation_ok)
+				.onPositive((dialog1, which) -> {
+					dialog1.dismiss();
+					finishTenderActivity();
+				})
+				.cancelable(false)
+				.show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -221,7 +230,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 						return false;
 					}
 					showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
-					tenderRejectModel.setRejectReason(Long.valueOf(which + 1));
+					tenderRejectModel.setRejectReason((long) which);
 					clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
 					return true;
 				})

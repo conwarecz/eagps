@@ -129,7 +129,7 @@ public class TowFragment extends BaseFragment {
 						removeListener();
 						alreadyBacked = true;
 						showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
-						ordersManager.cancelOrder(order.getId(), Long.valueOf(which + 1));
+						ordersManager.cancelOrder(order.getId(), (long) which);
 					}
 					return true;
 				})
@@ -194,11 +194,11 @@ public class TowFragment extends BaseFragment {
 	public void apiFailedEvent(ApiErrorEvent e) {
 		dismissProgress();
 		e.throwable.printStackTrace();
-        Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
+		Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-    public void onKnownErrorEvent(KnownErrorEvent e) {
+	public void onKnownErrorEvent(KnownErrorEvent e) {
 		dismissProgress();
 		Toast.makeText(getContext(), e.knownError.getMessage(), Toast.LENGTH_LONG).show();
 	}

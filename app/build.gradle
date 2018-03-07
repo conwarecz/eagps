@@ -22,8 +22,8 @@ android {
 		applicationId "cz.europassistance.assistancepartners"
 		minSdkVersion 16
 		targetSdkVersion 27
-		versionCode 53
-		versionName "0.5.9"
+		versionCode 54
+		versionName "0.5.10"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {
@@ -128,13 +128,13 @@ android {
 		implementation "com.zhihu.android:matisse:0.4.3"
 		implementation "io.realm:android-adapters:2.1.0"
 		// Permissions
-		implementation("com.github.hotchemi:permissionsdispatcher:2.4.0") {
+		implementation("com.github.hotchemi:permissionsdispatcher:3.1.0") {
 			// if you don"t use android.app.Fragment you can exclude support for them
 			exclude module: "support-v13"
 		}
-		annotationProcessor "com.github.hotchemi:permissionsdispatcher-processor:2.4.0"
+		annotationProcessor "com.github.hotchemi:permissionsdispatcher-processor:3.1.0"
 		// Permission dispatcher annotation
-		annotationProcessor "com.github.AleksanderMielczarek:AndroidAnnotationsPermissionsDispatcherPlugin:0.1.0"
+		annotationProcessor "com.github.AleksanderMielczarek:AndroidAnnotationsPermissionsDispatcherPlugin:2.1.1"
 		// AA
 		annotationProcessor "org.androidannotations:androidannotations:4.4.0"
 		implementation "org.androidannotations:androidannotations-api:4.4.0"

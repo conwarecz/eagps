@@ -122,7 +122,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	}
 
 	@Override
-    public void onPause() {
+	public void onPause() {
 		removeListener();
 		alreadyBacked = true;
 		dismissProgress();
@@ -131,16 +131,16 @@ public class OrderAttachmentsFragment extends BaseFragment {
 		super.onPause();
 	}
 
-    @Override
-    public void onResume() {
-        super.onResume();
+	@Override
+	public void onResume() {
+		super.onResume();
 		alreadyBacked = false;
 		dismissProgress();
 
-        localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
+		localReasons = db.where(LocalReasons.class).equalTo("orderId", orderId).findFirst();
 		if (localReasons != null && localReasons.isValid()) {
 			setContent();
-        }
+		}
 
 		loadOrder();
 	}
@@ -222,9 +222,9 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onAddPhotoClicked(AddPhotoEvent e) {
 		if (e.TargetId == REQUEST_CODE_CHOOSE_DOCS) {
-			OrderAttachmentsFragmentPermissionsDispatcher.showGalleryPickerForDocsWithCheck(this);
+			showGalleryPickerForDocs();
 		} else {
-			OrderAttachmentsFragmentPermissionsDispatcher.showGalleryPickerForPhotosWithCheck(this);
+			showGalleryPickerForPhotos();
 		}
 	}
 
@@ -261,7 +261,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	public void onNetworkCarSelectedEvent(ApiErrorEvent e) {
 		dismissProgress();
 		Toast.makeText(getContext(), e.message, Toast.LENGTH_SHORT).show();
-    }
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onCarSelectError(KnownErrorEvent e) {
@@ -368,22 +368,22 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			}
 		}
 
-        String photoReason = "";
-        try {
-            photoReason = order.getReasonForNoPhotos();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (localReasons != null && (photoReason == null || photoReason.isEmpty())) {
+		String photoReason = "";
+		try {
+			photoReason = order.getReasonForNoPhotos();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (localReasons != null && (photoReason == null || photoReason.isEmpty())) {
 			photoReason = localReasons.getReasons().getReasonForNoPhotos();
 		}
-        String docsReason = "";
-        try {
-            docsReason = order.getReasonForNoDocuments();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (localReasons != null && (docsReason == null || docsReason.isEmpty())) {
+		String docsReason = "";
+		try {
+			docsReason = order.getReasonForNoDocuments();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (localReasons != null && (docsReason == null || docsReason.isEmpty())) {
 			docsReason = localReasons.getReasons().getReasonForNoDocuments();
 		}
 
@@ -401,8 +401,8 @@ public class OrderAttachmentsFragment extends BaseFragment {
 			orderDocumentsView.setAdapter(documentsAdapter);
 		}
 
-        if (localPhotos != null && localPhotos.getLocalPhotos() != null) {
-            photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
+		if (localPhotos != null && localPhotos.getLocalPhotos() != null) {
+			photosAdapter = PhotoPathsWithReasonAdapter_.getInstance_(getContext())
 					.withPhotoPaths(photos)
 					.withAddPhotoTargetId(REQUEST_CODE_CHOOSE_PHOTOS)
 					.withReason(photoReason)
