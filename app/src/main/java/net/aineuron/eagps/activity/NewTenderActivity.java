@@ -258,6 +258,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 		if (tenderId == null || tender == null) {
 			finish();
+			return;
 		}
 
 		order = tender.getOrder();
@@ -266,6 +267,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		if (user == null) {
 			clientProvider.postUnauthorisedError();
 			finish();
+			return;
 		}
 
 		tenderAcceptModel = new TenderAcceptModel();

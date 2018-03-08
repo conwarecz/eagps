@@ -5,13 +5,32 @@
 		<item>Nedostatečné vybavení pro zásah</item>
 		<item>Technické problémy</item>
 		<item>Nesplnění dojezdové doby</item>
+		<item>Zrušeno klientem</item>
 	</string-array>
 	<integer-array name="order_cancel_choice_ids">
-		<item>0</item>
 		<item>1</item>
 		<item>2</item>
 		<item>3</item>
+		<item>4</item>
+		<item>5</item>
 	</integer-array>
+	<string-array name="order_cancel_options_from_server">
+		<item>Zaneprázdněn jinou zakázkou</item>
+		<item>Nedostatečné vybavení pro zásah</item>
+		<item>Technické problémy</item>
+		<item>Nesplnění dojezdové doby</item>
+		<item>Zrušeno klientem</item>
+		<item>Změna parametru zakázky</item>
+	</string-array>
+	<integer-array name="order_cancel_options_from_server_ids">
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+		<item>4</item>
+		<item>5</item>
+		<item>50</item>
+	</integer-array>
+
 	<string-array name="order_reject_choices">
 		<item>Zaneprázdněn jinou zakázkou</item>
 		<item>Nedostatečné vybavení pro zásah</item>

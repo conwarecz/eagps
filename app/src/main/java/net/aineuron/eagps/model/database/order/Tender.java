@@ -36,62 +36,27 @@ public class Tender extends RealmObject implements Serializable {
     private Date incomeTime;
 
     public static Order getOrderFromJson(String json) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-                        }.getType(),
-                        RealmStringListTypeAdapter.INSTANCE)
-                .create();
-        Tender tender = gson.fromJson(json, Tender.class);
+	    Tender tender = getTender(json);
         return tender.getOrder();
     }
 
     public static Message getMessageFromJson(String json) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-                        }.getType(),
-                        RealmStringListTypeAdapter.INSTANCE)
-                .create();
-        Tender tender = gson.fromJson(json, Tender.class);
+	    Tender tender = getTender(json);
         return tender.getMessage();
     }
 
     public static Long getNewStatusFromJson(String json) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-                        }.getType(),
-                        RealmStringListTypeAdapter.INSTANCE)
-                .create();
-        Tender tender = gson.fromJson(json, Tender.class);
+	    Tender tender = getTender(json);
         return tender.getStatus();
     }
 
     public static UserWhoKickedMeFromCar getUserWhoKickedMeFromCar(String json) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-                        }.getType(),
-                        RealmStringListTypeAdapter.INSTANCE)
-                .create();
-        Tender tender = gson.fromJson(json, Tender.class);
+	    Tender tender = getTender(json);
         return tender.getAssignedUser();
     }
 
     public static UserWhoKickedMeFromCar getUser(String json) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-                        }.getType(),
-                        RealmStringListTypeAdapter.INSTANCE)
-                .create();
-        Tender tender = gson.fromJson(json, Tender.class);
+	    Tender tender = getTender(json);
         return tender.getUser();
     }
 
