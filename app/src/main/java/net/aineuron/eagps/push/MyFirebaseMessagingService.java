@@ -314,7 +314,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		Notification notification = null;
 		if (type == PUSH_TENDER_NEW) {
 			notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFFICATIONS_CHANNEL_TENDER)
-					.setSmallIcon(R.mipmap.ic_launcher)
+					.setSmallIcon(R.drawable.ic_noti_logo)
 					.setLargeIcon(icon)
 					.setContentTitle(title)
 					.setGroup(String.valueOf(type))
@@ -331,7 +331,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //            }
 		} else {
 			notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFFICATIONS_CHANNEL_DEFAULT)
-					.setSmallIcon(R.mipmap.ic_launcher)
+					.setSmallIcon(R.drawable.ic_noti_logo)
 					.setLargeIcon(icon)
 					.setContentTitle(title)
 					.setAutoCancel(true)
