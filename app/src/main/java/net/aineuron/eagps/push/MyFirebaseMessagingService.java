@@ -48,7 +48,6 @@ import org.androidannotations.annotations.EService;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
@@ -66,6 +65,7 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 
 @EService
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+	// Push Types
 	public static final int PUSH_TENDER_NEW = 1;
 	public static final int PUSH_ORDER_UPDATED = 2;
 	public static final int PUSH_ORDER_ACCEPTED = 3;
@@ -77,6 +77,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	public static final int PUSH_ORDER_FINISHED = 9;
 	public static final int PUSH_ORDER_SENT = 10;
 	public static final int PUSH_USER_LOGGED_OUT = 11;
+	// Push static ID - to ensure only one notification
+	public static final int PUSH_ID_KICKED_FROM_CAR = Integer.MAX_VALUE - 1;
+	public static final int PUSH_ID_USER_LOGOUT = Integer.MAX_VALUE - 2;
 	private static final String TAG = "FCM Service";
 	@Bean
 	UserManager userManager;
@@ -86,8 +89,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	ClientProvider clientProvider;
 	@App
 	Appl app;
-	private int currentNotificationID = 1;
-	private int tenderId = 0;
 	private boolean wasInBackground = false;
 	private int type = -1;
 
@@ -131,29 +132,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 	private void handleNewTender(RemoteMessage remoteMessage) {
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
-		Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
-		if (tenderId == Integer.MAX_VALUE - 1) {
-			tenderId = 0;
-		}
-		tender.setPushId(tenderId++);
-		tender.setIncomeTime(Calendar.getInstance().getTime());
-		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
-		notificationIntent.putExtra("tenderId", tender.getTenderId());
+		Long tenderId = tender.getTenderId();
 
-		boolean hasSameTender = tendersManager.isNextTender(tender.getTenderId());
+		// Still not sure how to deal with the same tenders, for now lets ignore this
+		//boolean hasSameTender = tendersManager.isNextTender(tender.getTenderId());
+		boolean hasSameTender = false;
 
 		tendersManager.addTender(tender);
 
+		Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
+		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
 		if (wasInBackground || app.getActiveActivity() instanceof NewTenderActivity_) {
 			if ((app.getActiveActivity() instanceof NewTenderActivity_ && ((NewTenderActivity) app.getActiveActivity()).getTenderId().equals(tender.getTenderId())) || hasSameTender) {
 				return;
 			}
-			sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+			sendNotification(tender.getTenderId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
 		} else {
-			sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
-			notificationIntent.putExtra("pushId", currentNotificationID);
+			sendNotification(tenderId.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
 			getApplicationContext().startActivity(notificationIntent);
 		}
 	}
@@ -168,7 +165,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		notificationIntent.putExtra("id", id);
 		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 //        if (wasInBackground) {
-		sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+		sendNotification(id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
 //        } else {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
@@ -185,7 +182,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
 		notificationIntent.putExtra("messageId", id);
 //        if (wasInBackground) {
-		sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+		sendNotification(message.getId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
 //        } else {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
@@ -209,7 +206,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		notificationIntent.putExtra("id", id);
 		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 //        if (wasInBackground) {
-		sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+		sendNotification(id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
 //        } else {
 //            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //            getApplicationContext().startActivity(notificationIntent);
@@ -219,17 +216,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 	private void handleNotWonTender(RemoteMessage remoteMessage) {
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
-		final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
+		final Order order = tender.getOrder();
 		Long id = order.getId();
 		Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
 		notificationIntent.putExtra("id", id);
 		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 
-		tendersManager.deleteAllOtherTenders(tender.getTenderId());
+		tendersManager.deleteTender(tender.getTenderEntityUniId());
 
 		NotificationManager notificationManager =
 				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(currentNotificationID);
+		notificationManager.cancel(tender.getTenderId().intValue());
+
+		sendNotification(tender.getTenderId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
 	}
 
 	private void handleCarStatusChange(RemoteMessage remoteMessage) {
@@ -251,7 +250,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		} else {
 			userManager.setSelectedStateId(newStatus);
 			EventBus.getDefault().post(new StateSelectedEvent(newStatus));
-			sendNotification(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+			sendNotification(tender.getEntityId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
 		}
 	}
 
@@ -266,7 +265,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		userManager.setSelectedCarId(null);
 		userManager.setSelectedStateId(STATE_ID_NO_CAR);
 		if (wasInBackground) {
-			sendNotification("Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
+			sendNotification(PUSH_ID_KICKED_FROM_CAR, "Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
 		} else {
 			EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
 		}
@@ -280,7 +279,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		final UserWhoKickedMeFromCar user = Tender.getUser(remoteMessage.getData().get("message"));
 		if (user.getUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
 			if (wasInBackground) {
-				sendNotification("Odhlášení z vozidla", "Byl jste odhlášen", null);
+				sendNotification(PUSH_ID_USER_LOGOUT, "Odhlášení z vozidla", "Byl jste odhlášen", null);
 			} else {
 				EventBus.getDefault().post(new UserLoggedOutFromAnotherDeviceEvent());
 			}
@@ -295,15 +294,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	 * @param title       FCM message title received.
 	 * @param messageBody FCM message body received.
 	 */
-	private void sendNotification(String title, String messageBody, Intent notificationIntent) {
+	private void sendNotification(int pushId, String title, String messageBody, Intent notificationIntent) {
 		NotificationManager notificationManager =
 				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-		currentNotificationID++;
+		if (notificationManager == null) {
+			Log.e(TAG, "Notification manager null");
+			return;
+		}
 
 		if (notificationIntent != null) {
 			if (type == PUSH_TENDER_NEW) {
-				notificationIntent.putExtra("pushId", currentNotificationID);
+				notificationIntent.putExtra("pushId", pushId);
 			}
 		}
 
@@ -362,9 +363,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			notification.flags |= Notification.FLAG_INSISTENT;
 		}
 
-		int notificationId = currentNotificationID;
-		if (notificationId == Integer.MAX_VALUE - 1)
-			notificationId = 1;
+		int notificationId = pushId;
 
 		// Showing only one state change push
 		if (type == PUSH_CAR_STATUS_CHANGE) {

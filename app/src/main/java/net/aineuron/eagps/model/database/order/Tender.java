@@ -12,6 +12,7 @@ import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.UserWhoKickedMeFromCar;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 import io.realm.RealmList;
@@ -23,131 +24,141 @@ import io.realm.annotations.PrimaryKey;
  */
 
 public class Tender extends RealmObject implements Serializable {
-    @PrimaryKey
-    private int pushId;
-    private Order Order;
-    private Message Message;
-    private Long Status;
-    private Long TenderId;
-    private Car Entity;
-    private UserWhoKickedMeFromCar AssignedUser;
-    private UserWhoKickedMeFromCar User;
-    private Long EntityId;
-    private Date incomeTime;
+	@PrimaryKey
+	private String tenderEntityUniId;
+	private Order Order;
+	private Message Message;
+	private Long Status;
+	private Long TenderId;
+	private Car Entity;
+	private UserWhoKickedMeFromCar AssignedUser;
+	private UserWhoKickedMeFromCar User;
+	private Long EntityId;
+	private Date incomeTime;
 
-    public static Order getOrderFromJson(String json) {
-	    Tender tender = getTender(json);
-        return tender.getOrder();
-    }
+	public static Order getOrderFromJson(String json) {
+		Tender tender = getTender(json);
+		return tender.getOrder();
+	}
 
-    public static Message getMessageFromJson(String json) {
-	    Tender tender = getTender(json);
-        return tender.getMessage();
-    }
+	public static Message getMessageFromJson(String json) {
+		Tender tender = getTender(json);
+		return tender.getMessage();
+	}
 
-    public static Long getNewStatusFromJson(String json) {
-	    Tender tender = getTender(json);
-        return tender.getStatus();
-    }
+	public static Long getNewStatusFromJson(String json) {
+		Tender tender = getTender(json);
+		return tender.getStatus();
+	}
 
-    public static UserWhoKickedMeFromCar getUserWhoKickedMeFromCar(String json) {
-	    Tender tender = getTender(json);
-        return tender.getAssignedUser();
-    }
+	public static UserWhoKickedMeFromCar getUserWhoKickedMeFromCar(String json) {
+		Tender tender = getTender(json);
+		return tender.getAssignedUser();
+	}
 
-    public static UserWhoKickedMeFromCar getUser(String json) {
-	    Tender tender = getTender(json);
-        return tender.getUser();
-    }
+	public static UserWhoKickedMeFromCar getUser(String json) {
+		Tender tender = getTender(json);
+		return tender.getUser();
+	}
 
-    public static Tender getTender(String json) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-                        }.getType(),
-                        RealmStringListTypeAdapter.INSTANCE)
-                .create();
-        return gson.fromJson(json, Tender.class);
-    }
+	public static Tender getTender(String json) {
+		Gson gson = new GsonBuilder()
+				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
+				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
+						}.getType(),
+						RealmStringListTypeAdapter.INSTANCE)
+				.create();
+		Tender tender = gson.fromJson(json, Tender.class);
+		tender.setIncomeTime(Calendar.getInstance().getTime());
 
-    public net.aineuron.eagps.model.database.order.Order getOrder() {
-        return Order;
-    }
 
-    public void setOrder(net.aineuron.eagps.model.database.order.Order order) {
-        Order = order;
-    }
+		Long entityId = 0L;
+		if (tender.getEntity() != null) {
+			entityId = tender.getEntity().getId();
+		}
 
-    public net.aineuron.eagps.model.database.Message getMessage() {
-        return Message;
-    }
+		tender.setTenderEntityUniId(tender.getTenderId() + "_" + entityId);
+		return tender;
+	}
 
-    public void setMessage(net.aineuron.eagps.model.database.Message message) {
-        Message = message;
-    }
+	public net.aineuron.eagps.model.database.order.Order getOrder() {
+		return Order;
+	}
 
-    public Long getTenderId() {
-        return TenderId;
-    }
+	public void setOrder(net.aineuron.eagps.model.database.order.Order order) {
+		Order = order;
+	}
 
-    public void setTenderId(Long tenderId) {
-        TenderId = tenderId;
-    }
+	public net.aineuron.eagps.model.database.Message getMessage() {
+		return Message;
+	}
 
-    public Car getEntity() {
-        return Entity;
-    }
+	public void setMessage(net.aineuron.eagps.model.database.Message message) {
+		Message = message;
+	}
 
-    public void setEntity(Car entity) {
-        Entity = entity;
-    }
+	public Long getTenderId() {
+		return TenderId;
+	}
 
-    public Date getIncomeTime() {
-        return incomeTime;
-    }
+	public void setTenderId(Long tenderId) {
+		TenderId = tenderId;
+	}
 
-    public void setIncomeTime(Date incomeTime) {
-        this.incomeTime = incomeTime;
-    }
+	public Car getEntity() {
+		return Entity;
+	}
 
-    public int getPushId() {
-        return pushId;
-    }
+	public void setEntity(Car entity) {
+		Entity = entity;
+	}
 
-    public void setPushId(int pushId) {
-        this.pushId = pushId;
-    }
+	public Date getIncomeTime() {
+		return incomeTime;
+	}
 
-    public UserWhoKickedMeFromCar getAssignedUser() {
-        return AssignedUser;
-    }
+	public void setIncomeTime(Date incomeTime) {
+		this.incomeTime = incomeTime;
+	}
 
-    public void setAssignedUser(UserWhoKickedMeFromCar assignedUser) {
-        AssignedUser = assignedUser;
-    }
+	public String getTenderEntityUniId() {
+		return tenderEntityUniId;
+	}
 
-    public Long getStatus() {
-        return Status;
-    }
+	public void setTenderEntityUniId(String tenderEntityUniId) {
+		this.tenderEntityUniId = tenderEntityUniId;
+	}
 
-    public void setStatus(Long status) {
-        Status = status;
-    }
+	public UserWhoKickedMeFromCar getAssignedUser() {
+		return AssignedUser;
+	}
 
-    public Long getEntityId() {
-        return EntityId;
-    }
+	public void setAssignedUser(UserWhoKickedMeFromCar assignedUser) {
+		AssignedUser = assignedUser;
+	}
 
-    public void setEntityId(Long entityId) {
-        EntityId = entityId;
-    }
+	public Long getStatus() {
+		return Status;
+	}
 
-    public UserWhoKickedMeFromCar getUser() {
-        return User;
-    }
+	public void setStatus(Long status) {
+		Status = status;
+	}
 
-    public void setUser(UserWhoKickedMeFromCar user) {
-        User = user;
-    }
+	public Long getEntityId() {
+		return EntityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		EntityId = entityId;
+	}
+
+	public UserWhoKickedMeFromCar getUser() {
+		return User;
+	}
+
+	public void setUser(UserWhoKickedMeFromCar user) {
+		User = user;
+	}
 }

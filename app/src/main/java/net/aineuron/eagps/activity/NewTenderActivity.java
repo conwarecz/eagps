@@ -1,5 +1,6 @@
 package net.aineuron.eagps.activity;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
@@ -77,13 +78,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 //	OrderSerializable orderSerializable;
 	@Extra
 	String title;
-	@Extra
-	Long tenderId;
+
 	//	@Extra
-//	Car car;
 	@Nullable
 	@Extra
 	int pushId;
+	//	Car car;
 	@App
 	Appl appl;
 	@ViewById(R.id.clientCar)
@@ -115,7 +115,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	private NumberPicker minutePicker;
 	private boolean buttonClicked = false;
 	private Tender tender;
+	private Long tenderId = -1L;
 
+	@SuppressLint("RestrictedApi")
 	@AfterViews
 	void afterViews() {
 		ActionBar actionBar = getSupportActionBar();
@@ -125,9 +127,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			header.setText(title);
 		}
 
-//		if (orderSerializable != null) {
-//			makeRealmOrder();
-//		}
+////		if (orderSerializable != null) {
+////			makeRealmOrder();
+////		}
 
 		setUi();
 	}
@@ -176,24 +178,24 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOfferCanceledEvent(OrderCanceledEvent e) {
-		tendersManager.deleteAllOtherTenders(tenderId);
+		tendersManager.deleteAllOtherTenders(getTenderId());
 		finishTenderActivity();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
-		tendersManager.deleteAllOtherTenders(tenderId);
+		tendersManager.deleteAllOtherTenders(getTenderId());
 		finishTenderActivity();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTenderRejectSuccessEvent(TenderRejectSuccessEvent e) {
-		if (tendersManager.isNextTender(tenderId)) {
-			tendersManager.deleteTender(tenderId, tender.getIncomeTime());
+		if (tendersManager.getNextTender() != null) {
+			tendersManager.deleteTender(tender.getTenderEntityUniId());
 			hideProgress();
 			setUi();
 		} else {
-			tendersManager.deleteAllOtherTenders(tenderId);
+			tendersManager.deleteAllOtherTenders(getTenderId());
 			finishTenderActivity();
 		}
 	}
@@ -231,7 +233,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 					}
 					showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
 					tenderRejectModel.setRejectReason((long) which);
-					clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
+					clientProvider.getEaClient().rejectTender(getTenderId(), tenderRejectModel);
 					return true;
 				})
 				.positiveText("OK")
@@ -254,19 +256,20 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	}
 
 	private void setUi() {
-		tender = tendersManager.getNextTender(tenderId);
+		tender = tendersManager.getNextTender();
 
-		if (tenderId == null || tender == null) {
-			finish();
+		if (tender == null) {
+			finishTenderActivity();
 			return;
 		}
 
+		tenderId = tender.getTenderId();
 		order = tender.getOrder();
 
 		User user = userManager.getUser();
 		if (user == null) {
 			clientProvider.postUnauthorisedError();
-			finish();
+			finishTenderActivity();
 			return;
 		}
 
@@ -487,9 +490,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	private void trySendAgain() {
 		retryCounter++;
 		if (accepting) {
-			clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
+			clientProvider.getEaClient().acceptTender(getTenderId(), tenderAcceptModel);
 		} else {
-			clientProvider.getEaClient().rejectTender(tenderId, tenderRejectModel);
+			clientProvider.getEaClient().rejectTender(getTenderId(), tenderRejectModel);
 		}
 	}
 
@@ -528,7 +531,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			d.dismiss();
 			tenderAcceptModel.setDepartureDelayMinutes(duration);
 			showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
-			clientProvider.getEaClient().acceptTender(tenderId, tenderAcceptModel);
+			clientProvider.getEaClient().acceptTender(getTenderId(), tenderAcceptModel);
 		});
 		d.show();
 	}
