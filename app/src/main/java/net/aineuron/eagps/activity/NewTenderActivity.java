@@ -186,18 +186,15 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		hideProgress();
 		setUi();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTenderRejectSuccessEvent(TenderRejectSuccessEvent e) {
-		if (tendersManager.getNextTenderCopy() != null) {
-			tendersManager.deleteTender(tender.getTenderEntityUniId());
-			hideProgress();
-			setUi();
-		} else {
-			finishTenderActivity();
-		}
+		tendersManager.deleteTender(tender.getTenderEntityUniId());
+		hideProgress();
+		setUi();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -448,7 +445,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	private void finishTenderActivity() {
 		hideProgress();
 		if (!appl.isInBackground()) {
-			IntentUtils.openMainActivity(this);
+			IntentUtils.openMainActivity(this, true);
 		}
 		finish();
 	}

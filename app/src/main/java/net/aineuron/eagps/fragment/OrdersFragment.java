@@ -25,6 +25,7 @@ import net.aineuron.eagps.view.EndlessRecyclerViewScrollListener;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -53,13 +54,16 @@ public class OrdersFragment extends BaseFragment {
 	@Bean
 	OrdersManager ordersManager;
 
+	@FragmentArg
+	boolean forceRefresh;
+
 	private Realm db;
 	private RealmResults<Order> ordersRealmQuery;
 	private OrdersAdapter adapter;
 	private Paging paging;
 
-	public static OrdersFragment newInstance() {
-		return OrdersFragment_.builder().build();
+	public static OrdersFragment newInstance(boolean forceRefresh) {
+		return OrdersFragment_.builder().forceRefresh(forceRefresh).build();
 	}
 
 	@AfterViews
@@ -69,15 +73,10 @@ public class OrdersFragment extends BaseFragment {
 
 		paging = new Paging();
 
-		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				refresh();
-			}
-		});
+		swipeRefreshLayout.setOnRefreshListener(() -> refresh());
 
 		db = RealmHelper.getDb();
-        ordersRealmQuery = db.where(Order.class).findAllSorted("timeCreated", Sort.DESCENDING);
+		ordersRealmQuery = db.where(Order.class).findAllSorted("timeCreated", Sort.DESCENDING);
 
 //		ordersRealmQuery = db.where(Order.class).equalTo("status", ORDER_STATE_ASSIGNED).findAllSorted("timeCreated", Sort.DESCENDING);
 //		buffer = db.where(Order.class).equalTo("status", ORDER_STATE_FINISHED).findAllSorted("timeCreated", Sort.DESCENDING);
@@ -110,6 +109,10 @@ public class OrdersFragment extends BaseFragment {
 				clientProvider.getEaClient().updateOrders(paging);
 			}
 		});
+
+		if (forceRefresh) {
+			refresh();
+		}
 	}
 
 	@Override

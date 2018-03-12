@@ -24,27 +24,31 @@ import java.util.List;
 
 public class IntentUtils {
 	public static void openMainActivity(Context context) {
-        MainActivity_.intent(context).start();
-    }
+		MainActivity_.intent(context).start();
+	}
 
-    public static void openMainActivityWithStateSelect(Context context) {
-        MainActivity_.intent(context).extra("stateSelect", true).start();
-    }
+	public static void openMainActivity(Context context, boolean forceRefresh) {
+		MainActivity_.intent(context).extra("forceRefresh", forceRefresh).start();
+	}
 
-    public static void openNewMainActivity(Context context) {
-        MainActivity_.intent(context).flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK).start();
-    }
+	public static void openMainActivityWithStateSelect(Context context) {
+		MainActivity_.intent(context).extra("stateSelect", true).start();
+	}
 
-    public static Intent mainActivityIntent(Context context, Long messageId) {
-        return MainActivity_.intent(context)
-                .extra("messageId", messageId).get();
-    }
+	public static void openNewMainActivity(Context context) {
+		MainActivity_.intent(context).flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK).start();
+	}
 
-    public static Intent mainActivityIntent(Context context, Long messageId, boolean cancelTender) {
-        return MainActivity_.intent(context)
-                .extra("messageId", messageId)
-                .extra("cancelTender", cancelTender).get();
-    }
+	public static Intent mainActivityIntent(Context context, Long messageId) {
+		return MainActivity_.intent(context)
+				.extra("messageId", messageId).get();
+	}
+
+	public static Intent mainActivityIntent(Context context, Long messageId, boolean cancelTender) {
+		return MainActivity_.intent(context)
+				.extra("messageId", messageId)
+				.extra("cancelTender", cancelTender).get();
+	}
 
 	public static void openUrl(Context context, String url) {
 		Intent i = new Intent(Intent.ACTION_VIEW);
@@ -53,8 +57,8 @@ public class IntentUtils {
 			context.startActivity(i);
 		} catch (Exception e) {
 			e.printStackTrace();
-            Toast.makeText(context, R.string.intent_browser, Toast.LENGTH_SHORT).show();
-        }
+			Toast.makeText(context, R.string.intent_browser, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public static boolean shareText(Context context, String text) {
@@ -65,15 +69,15 @@ public class IntentUtils {
 			context.startActivity(Intent.createChooser(sharingIntent, context.getString(R.string.share_text)));
 		} catch (Exception e) {
 			e.printStackTrace();
-            Toast.makeText(context, R.string.intent_text, Toast.LENGTH_LONG).show();
-        }
+			Toast.makeText(context, R.string.intent_text, Toast.LENGTH_LONG).show();
+		}
 		return false;
 	}
 
 	public static void copyToClipboard(Context context, String text) {
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(context.getResources().getString(R.string.app_name), text);
-        try {
+		ClipData clip = ClipData.newPlainText(context.getResources().getString(R.string.app_name), text);
+		try {
 			clipboard.setPrimaryClip(clip);
 			Toast.makeText(context, R.string.share_copy, Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
@@ -83,12 +87,12 @@ public class IntentUtils {
 
 	public static void dialPhone(Context context, @NonNull String phoneNumber) {
 		try {
-            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
-            context.startActivity(intent);
+			Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+			context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
-            Toast.makeText(context, R.string.intent_dialer, Toast.LENGTH_LONG).show();
-        }
+			Toast.makeText(context, R.string.intent_dialer, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	public static void openCamera(Context context) {
@@ -97,8 +101,8 @@ public class IntentUtils {
 			context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
-            Toast.makeText(context, R.string.intent_camera, Toast.LENGTH_LONG).show();
-        }
+			Toast.makeText(context, R.string.intent_camera, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	public static void openMapLocation(Context context, Location location, String label) {
@@ -114,8 +118,8 @@ public class IntentUtils {
 			context.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
-            Toast.makeText(context, R.string.intent_gmaps, Toast.LENGTH_LONG).show();
-        }
+			Toast.makeText(context, R.string.intent_gmaps, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	public static void openRoute(Context context, @NonNull Location destination, @NonNull Location waypoint) {
@@ -153,7 +157,7 @@ public class IntentUtils {
 			context.startActivity(i);
 		} catch (Exception e) {
 			e.printStackTrace();
-            Toast.makeText(context, R.string.intent_gmaps, Toast.LENGTH_LONG).show();
-        }
+			Toast.makeText(context, R.string.intent_gmaps, Toast.LENGTH_LONG).show();
+		}
 	}
 }

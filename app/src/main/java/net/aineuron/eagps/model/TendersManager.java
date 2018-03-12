@@ -25,7 +25,7 @@ public class TendersManager {
 
 	public void deleteTendersByTenderId(Long tenderId) {
 		Realm db = RealmHelper.getTenderDb();
-		db.executeTransactionAsync(realm -> {
+		db.executeTransaction(realm -> {
 			RealmResults<Tender> tenders = realm.where(Tender.class).equalTo("TenderId", tenderId).findAll();
 			tenders.deleteAllFromRealm();
 		});
@@ -34,7 +34,7 @@ public class TendersManager {
 
 	public void deleteTendersByEntityId(Long entityId) {
 		Realm db = RealmHelper.getTenderDb();
-		db.executeTransactionAsync(realm -> {
+		db.executeTransaction(realm -> {
 			RealmResults<Tender> tenders = realm.where(Tender.class).equalTo("Entity.id", entityId).findAll();
 			tenders.deleteAllFromRealm();
 		});

@@ -93,6 +93,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Extra
 	boolean cancelTender;
 
+	@Extra
+	boolean forceRefresh;
+
 	@EventBusGreenRobot
 	EventBus eventBus;
 
@@ -107,7 +110,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			clientProvider.postUnauthorisedError();
 		}
 
-        initBottomNavigation();
+		initBottomNavigation();
 
 		if (messageId != null) {
 			bottomNavigation.selectTab(MAIN_TAB_ID, false);
@@ -134,6 +137,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		super.onResume();
 		userManager.haveActiveOrder();
 	}
+
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
@@ -203,9 +207,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Override
 	public void onTabSelected(int position) {
-        if (currentFragment != null && !(currentFragment instanceof MessageDetailFragment_ || currentFragment instanceof OrderDetailFragment_ || currentFragment instanceof OrderAttachmentsFragment_)) {
-            pushFragmentToBackStack(currentTabId, currentFragment);
-        }
+		if (currentFragment != null && !(currentFragment instanceof MessageDetailFragment_ || currentFragment instanceof OrderDetailFragment_ || currentFragment instanceof OrderAttachmentsFragment_)) {
+			pushFragmentToBackStack(currentTabId, currentFragment);
+		}
 		currentTabId = position;
 		Fragment fragment = popFragmentFromBackStack(currentTabId);
 		if (fragment == null) {
@@ -377,7 +381,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 						return StateFragment_.newInstance();
 					}
 				case 1:
-					return OrdersFragment_.newInstance();
+					return OrdersFragment_.newInstance(forceRefresh);
 				case 2:
 					return MessagesFragment_.newInstance();
 				default:
@@ -387,13 +391,13 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			// Dispatcher mode
 			switch (tabId) {
 				case 0:
-					return OrdersFragment_.newInstance();
+					return OrdersFragment_.newInstance(forceRefresh);
 				case 1:
 					return DispatcherSelectCarFragment_.newInstance();
 				case 2:
 					return MessagesFragment_.newInstance();
 				default:
-					return OrdersFragment_.newInstance();
+					return OrdersFragment_.newInstance(forceRefresh);
 			}
 		}
 	}
@@ -417,10 +421,10 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		}
 	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
-        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
-    }
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+		Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOrderAccepted(OrderAcceptedEvent e) {
