@@ -2,9 +2,7 @@ package net.aineuron.eagps.activity;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
-import android.content.DialogInterface;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -35,6 +33,7 @@ import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Tender;
+import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 import net.aineuron.eagps.util.FormatUtil;
@@ -74,16 +73,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	EventBus bus;
 	@Bean
 	ClientProvider clientProvider;
-	//	@Extra
-//	OrderSerializable orderSerializable;
 	@Extra
 	String title;
-
-	//	@Extra
-	@Nullable
-	@Extra
-	int pushId;
-	//	Car car;
 	@App
 	Appl appl;
 	@ViewById(R.id.clientCar)
@@ -126,12 +117,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			actionBar.setDefaultDisplayHomeAsUpEnabled(false);
 			header.setText(title);
 		}
-
-////		if (orderSerializable != null) {
-////			makeRealmOrder();
-////		}
-
-
 	}
 
 	@Override
@@ -154,8 +139,15 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onApiErrorEvent(ApiErrorEvent e) {
-		Toast.makeText(getApplicationContext(), e.message, Toast.LENGTH_SHORT).show();
-		finishTenderActivity();
+		new MaterialDialog.Builder(this)
+				.content(e.message)
+				.positiveText(R.string.confirmation_ok)
+				.onPositive((dialog1, which) -> {
+					hideProgress();
+					dialog1.dismiss();
+				})
+				.cancelable(false)
+				.show();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -164,14 +156,17 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			// Retry on 500 errors 3x
 			trySendAgain();
 			return;
+		} else if (retryCounter == 3) {
+			retryCounter = 0;
 		}
 
 		new MaterialDialog.Builder(this)
 				.content(e.knownError.getMessage())
 				.positiveText(R.string.confirmation_ok)
 				.onPositive((dialog1, which) -> {
+					hideProgress();
 					dialog1.dismiss();
-					finishTenderActivity();
+					handleErrorCode(e.knownError);
 				})
 				.cancelable(false)
 				.show();
@@ -179,14 +174,19 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onOfferCanceledEvent(OrderCanceledEvent e) {
-		tendersManager.deleteAllOtherTenders(getTenderId());
+		tendersManager.deleteTendersByTenderId(getTenderId());
 		finishTenderActivity();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
-		tendersManager.deleteAllOtherTenders(getTenderId());
-		finishTenderActivity();
+		tendersManager.deleteTendersByTenderId(getTenderId());
+		try {
+			tendersManager.deleteTendersByEntityId(tender.getEntity().getId());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		setUi();
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -198,6 +198,11 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		} else {
 			finishTenderActivity();
 		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+		Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
 	}
 
 	@Click(R.id.back)
@@ -255,7 +260,32 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		IntentUtils.openMapLocation(this, order.getDestinationAddress().getLocation(), order.getWorkshopName());
 	}
 
+	public Long getTenderId() {
+		return tenderId;
+	}
+
+	public void notWonTender(String tenderEntityUniId, String title) {
+		if (tender == null) {
+			return;
+		}
+
+		if (!tender.getTenderEntityUniId().equals(tenderEntityUniId)) {
+			return;
+		}
+
+		new MaterialDialog.Builder(this)
+				.content(title)
+				.cancelable(false)
+				.positiveText(R.string.confirmation_ok)
+				.onPositive((dialog, which) -> {
+					setUi();
+					dialog.dismiss();
+				})
+				.show();
+	}
+
 	private void setUi() {
+		retryCounter = 0;
 		tender = tendersManager.getNextTenderCopy();
 
 		if (tender == null) {
@@ -333,6 +363,31 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			}
 			this.assignedDriver.setText(string);
 		}
+	}
+
+	private void handleErrorCode(KnownError knownError) {
+		switch (knownError.getCode()) {
+			case 500:
+				// noop
+				return;
+			case 4202:
+				// Tender has invalid status - 12
+				tendersManager.deleteTendersByTenderId(tender.getTenderId());
+				break;
+			case 4203:
+				// Tender entity has invalid status - 13
+				tendersManager.deleteTendersByEntityId(tender.getEntity().getId());
+				break;
+			case 4204:
+				// Tender invitation is not valid - 14
+				tendersManager.deleteTender(tender.getTenderEntityUniId());
+				break;
+			case 4209:
+				// Too late arrival - 15
+				tendersManager.deleteTender(tender.getTenderEntityUniId());
+				break;
+		}
+		setUi();
 	}
 
 	// Building up addresses from what we have
@@ -419,74 +474,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		progressDialog.dismiss();
 	}
 
-//	private void makeRealmOrder() {
-//		order = new Order();
-//		order.setStatus(orderSerializable.getStatus());
-//		order.setClaimSaxCode(orderSerializable.getClaimSaxCode());
-//
-//		if (orderSerializable.getClientAddress() != null) {
-//			Address clientAddress = new Address();
-//			if (orderSerializable.getClientAddress().getAddress() != null) {
-//				AddressDetail clientAddressDetail = new AddressDetail();
-//				clientAddressDetail.setCity(orderSerializable.getClientAddress().getAddress().getCity());
-//				clientAddressDetail.setCountry(orderSerializable.getClientAddress().getAddress().getCountry());
-//				clientAddressDetail.setStreet(orderSerializable.getClientAddress().getAddress().getStreet());
-//				clientAddressDetail.setZipCode(orderSerializable.getClientAddress().getAddress().getZipCode());
-//				clientAddress.setAddress(clientAddressDetail);
-//			}
-//
-//			if (orderSerializable.getClientAddress().getLocation() != null) {
-//				Location clientLocation = new Location();
-//				clientLocation.setLatitude(orderSerializable.getClientAddress().getLocation().getLatitude());
-//				clientLocation.setLongitude(orderSerializable.getClientAddress().getLocation().getLongitude());
-//				clientAddress.setLocation(clientLocation);
-//			}
-//			order.setClientAddress(clientAddress);
-//		}
-//
-//		if (orderSerializable.getDestinationAddress() != null) {
-//			Address destinationAddress = new Address();
-//			if (orderSerializable.getDestinationAddress().getAddress() != null) {
-//				AddressDetail destinationAddressDetail = new AddressDetail();
-//				destinationAddressDetail.setCity(orderSerializable.getDestinationAddress().getAddress().getCity());
-//				destinationAddressDetail.setCountry(orderSerializable.getDestinationAddress().getAddress().getCountry());
-//				destinationAddressDetail.setStreet(orderSerializable.getDestinationAddress().getAddress().getStreet());
-//				destinationAddressDetail.setZipCode(orderSerializable.getDestinationAddress().getAddress().getZipCode());
-//				destinationAddress.setAddress(destinationAddressDetail);
-//			}
-//
-//			if (orderSerializable.getDestinationAddress().getLocation() != null) {
-//				Location destinationLocation = new Location();
-//				destinationLocation.setLatitude(orderSerializable.getDestinationAddress().getLocation().getLatitude());
-//				destinationLocation.setLongitude(orderSerializable.getDestinationAddress().getLocation().getLongitude());
-//				destinationAddress.setLocation(destinationLocation);
-//			}
-//			order.setClientAddress(destinationAddress);
-//		}
-//
-//		order.setDestinationType(orderSerializable.getDestinationType());
-//		order.setClientCarLicencePlate(orderSerializable.getClientCarLicencePlate());
-//		order.setClientCarModel(orderSerializable.getClientCarModel());
-//		order.setClientCarWeight(orderSerializable.getClientCarWeight());
-//		RealmList<RealmString> eventDescription = new RealmList<>();
-//		for (int i = 0; i < orderSerializable.getEventDescription().size(); i++) {
-//			RealmString event = new RealmString();
-//			event.setValue(orderSerializable.getEventDescription().get(i));
-//			eventDescription.add(event);
-//		}
-//		order.setEventDescription(eventDescription);
-//		order.setClientFirstName(orderSerializable.getClientFirstName());
-//		order.setClientLastName(orderSerializable.getClientLastName());
-//		order.setClientPhone(orderSerializable.getClientPhone());
-//
-//		Limitation limitation = new Limitation();
-//		limitation.setLimit(orderSerializable.getLimitation().getLimit());
-//		order.setLimitation(limitation);
-//
-//		order.setId(orderSerializable.getId());
-//		order.setWorkshopName(orderSerializable.getWorkshopName());
-//	}
-
 	private void trySendAgain() {
 		retryCounter++;
 		if (accepting) {
@@ -497,7 +484,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	}
 
 
-	public void showDurationDialog() {
+	private void showDurationDialog() {
 		final MaterialDialog.Builder builder = new MaterialDialog.Builder(NewTenderActivity.this);
 		builder.customView(R.layout.widget_delay_picker, false);
 		builder.title(R.string.widget_delay_title);
@@ -521,12 +508,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		minutePicker.setDisplayedValues(new String[]{"0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"});
 		minutePicker.setWrapSelectorWheel(false);
 		minutePicker.setOnValueChangedListener(this);
-		d.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialogInterface) {
-				accepting = false;
-			}
-		});
+		d.setOnCancelListener(dialogInterface -> accepting = false);
 		confirmationButton.setOnClickListener(v -> {
 			d.dismiss();
 			tenderAcceptModel.setDepartureDelayMinutes(duration);
@@ -548,45 +530,12 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
 	}
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
-		Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
-	}
-
-	public boolean isAccepting() {
-		return accepting;
-	}
-
 	private void cancelNotification() {
 		try {
 			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			notificationManager.cancel(pushId);
+			notificationManager.cancel(tender.getTenderId().intValue());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public Long getTenderId() {
-		return tenderId;
-	}
-
-	public void notWonTender(String tenderEntityUniId, String title) {
-		if (tender == null) {
-			return;
-		}
-
-		if (!tender.getTenderEntityUniId().equals(tenderEntityUniId)) {
-			return;
-		}
-
-		new MaterialDialog.Builder(this)
-				.content(title)
-				.cancelable(false)
-				.positiveText(R.string.confirmation_ok)
-				.onPositive((dialog, which) -> {
-					setUi();
-					dialog.dismiss();
-				})
-				.show();
 	}
 }
