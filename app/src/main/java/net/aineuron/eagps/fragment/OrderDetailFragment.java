@@ -54,6 +54,8 @@ public class OrderDetailFragment extends BaseFragment {
 	IcoLabelTextView destinationAddress;
 	@ViewById(R.id.eventDescription)
 	IcoLabelTextView eventDescription;
+	@ViewById(R.id.assignedEntity)
+	IcoLabelTextView assignedEntity;
 	@ViewById(R.id.limit)
 	IcoLabelTextView limit;
 
@@ -137,45 +139,45 @@ public class OrderDetailFragment extends BaseFragment {
 	}
 
 	private void setUi() {
-        if (order.getClaimSaxCode() != null) {
-            this.header.setText("Detail objednávky " + order.getClaimSaxCode());
-        }
+		if (order.getClaimSaxCode() != null) {
+			this.header.setText("Detail objednávky " + order.getClaimSaxCode());
+		}
 
-        String client = "";
-        if (order.getClientFirstName() != null) {
-            client = client + order.getClientFirstName();
-        }
-        if (order.getClientLastName() != null) {
-            if (client.length() > 0) {
-                client = client + " ";
-            }
-            client = client + order.getClientLastName();
-        }
-        if (order.getClientPhone() != null) {
-            if (client.length() > 0) {
-                client = client + ", ";
-            }
-            client = client + order.getClientPhone();
-        }
-        this.client.setText(client);
+		String client = "";
+		if (order.getClientFirstName() != null) {
+			client = client + order.getClientFirstName();
+		}
+		if (order.getClientLastName() != null) {
+			if (client.length() > 0) {
+				client = client + " ";
+			}
+			client = client + order.getClientLastName();
+		}
+		if (order.getClientPhone() != null) {
+			if (client.length() > 0) {
+				client = client + ", ";
+			}
+			client = client + order.getClientPhone();
+		}
+		this.client.setText(client);
 
-        String clientCar = "";
-        if (order.getClientCarModel() != null) {
-            clientCar = clientCar + order.getClientCarModel();
-        }
-        if (order.getClientCarWeight() != null) {
-            if (clientCar.length() > 0) {
-                clientCar = clientCar + ", ";
-            }
+		String clientCar = "";
+		if (order.getClientCarModel() != null) {
+			clientCar = clientCar + order.getClientCarModel();
+		}
+		if (order.getClientCarWeight() != null) {
+			if (clientCar.length() > 0) {
+				clientCar = clientCar + ", ";
+			}
 			clientCar = clientCar + order.getClientCarWeight() + " kg";
 		}
-        if (order.getClientCarLicencePlate() != null) {
-            if (clientCar.length() > 0) {
-                clientCar = clientCar + ", ";
-            }
-            clientCar = clientCar + order.getClientCarLicencePlate();
-        }
-        this.clientCar.setText(clientCar);
+		if (order.getClientCarLicencePlate() != null) {
+			if (clientCar.length() > 0) {
+				clientCar = clientCar + ", ";
+			}
+			clientCar = clientCar + order.getClientCarLicencePlate();
+		}
+		this.clientCar.setText(clientCar);
 
 		Address clientAddress = order.getClientAddress();
 		if (clientAddress != null) {
@@ -192,6 +194,10 @@ public class OrderDetailFragment extends BaseFragment {
 
 		if (order.getEventDescription() != null) {
 			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		}
+
+		if (order.getEntityName() != null) {
+			this.assignedEntity.setText(order.getEntityName());
 		}
 
 		if (order.getLimitation() != null && order.getLimitation().getLimit() != null) {

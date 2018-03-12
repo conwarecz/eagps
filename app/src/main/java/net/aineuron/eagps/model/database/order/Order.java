@@ -20,10 +20,10 @@ import io.realm.annotations.PrimaryKey;
  * as a part of Android-EAGPS project.
  */
 public class Order extends RealmObject {
-    public static final int ORDER_STATE_CREATED = 1;
-    public static final int ORDER_STATE_ASSIGNED = 2;
-    public static final int ORDER_STATE_ENTITY_FINISHED = 3;
-    public static final int ORDER_STATE_FINISHED = 4;
+	public static final int ORDER_STATE_CREATED = 1;
+	public static final int ORDER_STATE_ASSIGNED = 2;
+	public static final int ORDER_STATE_ENTITY_FINISHED = 3;
+	public static final int ORDER_STATE_FINISHED = 4;
 	public static final int ORDER_STATE_SENT = 5;
 	public static final int ORDER_STATE_CANCELLED = 6;
 
@@ -39,22 +39,24 @@ public class Order extends RealmObject {
 	private String clientCarModel;
 	private String clientCarWeight;
 	private String clientCarLicencePlate;
-    @SerializedName("Location")
-    private Address clientAddress;
-    private RealmList<RealmString> eventDescription;
+	@SerializedName("Location")
+	private Address clientAddress;
+	private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
 	private RealmList<Photo> photos = new RealmList<>();
 	private Date estimatedDepartureTime;
 
 	private String workshopName;
 	private int destinationType;
-    @SerializedName("Destination")
-    private Address destinationAddress;
+	@SerializedName("Destination")
+	private Address destinationAddress;
+
+	private String entityName;
 
 	private String reasonForNoDocuments;
 	private String reasonForNoPhotos;
-    private Boolean photosProvided;
-    private Boolean orderSheetProvided;
+	private Boolean photosProvided;
+	private Boolean orderSheetProvided;
 
 	private boolean isSent;
 
@@ -197,13 +199,13 @@ public class Order extends RealmObject {
 		this.destinationType = destinationType;
 	}
 
-    public Address getDestinationAddress() {
-        return destinationAddress;
-    }
+	public Address getDestinationAddress() {
+		return destinationAddress;
+	}
 
-    public void setDestinationAddress(Address destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
+	public void setDestinationAddress(Address destinationAddress) {
+		this.destinationAddress = destinationAddress;
+	}
 
 	public boolean isSent() {
 		return isSent;
@@ -213,13 +215,13 @@ public class Order extends RealmObject {
 		isSent = sent;
 	}
 
-    public RealmList<Photo> getPhotos() {
-        return photos;
-    }
+	public RealmList<Photo> getPhotos() {
+		return photos;
+	}
 
-    public void setPhotos(RealmList<Photo> photos) {
-        this.photos = photos;
-    }
+	public void setPhotos(RealmList<Photo> photos) {
+		this.photos = photos;
+	}
 
 	public String getReasonForNoDocuments() {
 		return reasonForNoDocuments;
@@ -245,20 +247,28 @@ public class Order extends RealmObject {
 		this.estimatedDepartureTime = estimatedDepartureTime;
 	}
 
-    public Boolean getPhotosProvided() {
-        return photosProvided;
-    }
+	public Boolean getPhotosProvided() {
+		return photosProvided;
+	}
 
-    public void setPhotosProvided(Boolean photosProvided) {
-        this.photosProvided = photosProvided;
-    }
+	public void setPhotosProvided(Boolean photosProvided) {
+		this.photosProvided = photosProvided;
+	}
 
-    public Boolean getOrderSheetProvided() {
-        return orderSheetProvided;
-    }
+	public Boolean getOrderSheetProvided() {
+		return orderSheetProvided;
+	}
 
-    public void setOrderSheetProvided(Boolean orderSheetProvided) {
-        this.orderSheetProvided = orderSheetProvided;
-    }
+	public void setOrderSheetProvided(Boolean orderSheetProvided) {
+		this.orderSheetProvided = orderSheetProvided;
+	}
+
+	public String getEntityName() {
+		return entityName;
+	}
+
+	public void setEntityName(String entityName) {
+		this.entityName = entityName;
+	}
 }
 
