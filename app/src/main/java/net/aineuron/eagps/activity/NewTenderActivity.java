@@ -131,13 +131,14 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 ////			makeRealmOrder();
 ////		}
 
-		setUi();
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		isVisible = true;
+		setUi();
 	}
 
 	@Override
@@ -190,12 +191,11 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTenderRejectSuccessEvent(TenderRejectSuccessEvent e) {
-		if (tendersManager.getNextTender() != null) {
+		if (tendersManager.getNextTenderCopy() != null) {
 			tendersManager.deleteTender(tender.getTenderEntityUniId());
 			hideProgress();
 			setUi();
 		} else {
-			tendersManager.deleteAllOtherTenders(getTenderId());
 			finishTenderActivity();
 		}
 	}
@@ -256,7 +256,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	}
 
 	private void setUi() {
-		tender = tendersManager.getNextTender();
+		tender = tendersManager.getNextTenderCopy();
 
 		if (tender == null) {
 			finishTenderActivity();
@@ -392,7 +392,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	private void finishTenderActivity() {
 		hideProgress();
-		if (!appl.wasInBackground()) {
+		if (!appl.isInBackground()) {
 			IntentUtils.openMainActivity(this);
 		}
 		finish();
@@ -568,5 +568,25 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	public Long getTenderId() {
 		return tenderId;
+	}
+
+	public void notWonTender(String tenderEntityUniId, String title) {
+		if (tender == null) {
+			return;
+		}
+
+		if (!tender.getTenderEntityUniId().equals(tenderEntityUniId)) {
+			return;
+		}
+
+		new MaterialDialog.Builder(this)
+				.content(title)
+				.cancelable(false)
+				.positiveText(R.string.confirmation_ok)
+				.onPositive((dialog, which) -> {
+					setUi();
+					dialog.dismiss();
+				})
+				.show();
 	}
 }

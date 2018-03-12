@@ -50,11 +50,11 @@ public class TendersManager {
 		db.close();
 	}
 
-	public Tender getNextTender() {
+	public Tender getNextTenderCopy() {
 		Realm db = RealmHelper.getTenderDb();
 		RealmResults<Tender> tenders = db.where(Tender.class).findAllSorted("incomeTime", Sort.ASCENDING);
 		if (tenders.size() > 0) {
-			return tenders.get(0);
+			return db.copyFromRealm(tenders.get(0));
 		} else {
 			return null;
 		}

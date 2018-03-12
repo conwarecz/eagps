@@ -46,7 +46,7 @@ public class Appl extends MultiDexApplication implements
     public static final String NOTIFFICATIONS_CHANNEL_DEFAULT_NAME = "DEFAULT NOTIFICATION";
     public static final String NOTIFFICATIONS_CHANNEL_TENDER_NAME = "TENDER NOTIFICATION";
     public static String stateOfLifeCycle = "";
-    public static boolean wasInBackground = true;
+    public static boolean isInBackground = true;
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static RealmConfiguration dbConfig;
@@ -130,7 +130,7 @@ public class Appl extends MultiDexApplication implements
 
     @Override
     public void onActivityCreated(Activity activity, Bundle arg1) {
-        wasInBackground = false;
+        isInBackground = false;
         stateOfLifeCycle = "Create";
     }
 
@@ -142,14 +142,14 @@ public class Appl extends MultiDexApplication implements
     @Override
     public void onActivityResumed(Activity activity) {
         stateOfLifeCycle = "Resume";
-        wasInBackground = false;
+        isInBackground = false;
         activeActivity = activity;
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
         stateOfLifeCycle = "Pause";
-        wasInBackground = true;
+        isInBackground = true;
         activeActivity = null;
     }
 
@@ -164,20 +164,20 @@ public class Appl extends MultiDexApplication implements
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        wasInBackground = false;
+        isInBackground = false;
         stateOfLifeCycle = "Destroy";
     }
 
     @Override
     public void onTrimMemory(int level) {
         if (stateOfLifeCycle.equals("Stop")) {
-            wasInBackground = true;
+            isInBackground = true;
         }
         super.onTrimMemory(level);
     }
 
-    public boolean wasInBackground() {
-        return wasInBackground;
+    public boolean isInBackground() {
+        return isInBackground;
     }
 
     public Activity getActiveActivity() {
