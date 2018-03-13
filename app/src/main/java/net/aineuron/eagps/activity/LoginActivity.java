@@ -3,7 +3,6 @@ package net.aineuron.eagps.activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -74,26 +73,11 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	private Validator validator;
 	private MaterialDialog progressDialog;
 
-	public static boolean isStoreVersion(Context context) {
-		boolean result = false;
-
-		try {
-			String installer = context.getPackageManager()
-					.getInstallerPackageName(context.getPackageName());
-			result = !TextUtils.isEmpty(installer);
-		} catch (Throwable e) {
-		}
-
-		return result;
-	}
-
 	@AfterViews
 	public void afterViews() {
 		getSupportActionBar().hide();
 
-		if (isStoreVersion(this)) {
-			new GoogleChecker(this, false);
-		}
+		new GoogleChecker(this, false);
 
 		validator = new Validator(this);
 		validator.setValidationListener(this);
@@ -167,16 +151,16 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLoginFailed(ApiErrorEvent e) {
-        dismissDialog();
-        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
-    }
+	public void onLoginFailed(ApiErrorEvent e) {
+		dismissDialog();
+		Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
+	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onKnownError(KnownErrorEvent e) {
-        dismissDialog();
-        Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
-    }
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onKnownError(KnownErrorEvent e) {
+		dismissDialog();
+		Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
+	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTokenSet(UserTokenSet e) {
@@ -193,10 +177,10 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		userManager.setFirebaseToken(e.token);
 	}
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
-        Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
-    }
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onUserLoggedOut(UserLoggedOutFromAnotherDeviceEvent e) {
+		Toast.makeText(this, "Byl jste odhlášen", Toast.LENGTH_LONG).show();
+	}
 
 	private void setFirebaseToken() {
 		String token = FirebaseInstanceId.getInstance().getToken();
@@ -216,9 +200,9 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		}
 		if ((user.getUserRole() != null && user.getUserRole() == WORKER_ID) && (user.getEntity() == null || user.getEntity().getEntityId() == null)) {
 			CarSettingsActivity_.intent(this).start();
-        } else {
-            IntentUtils.openMainActivity(this);
-        }
+		} else {
+			IntentUtils.openMainActivity(this);
+		}
 		finish();
 	}
 
