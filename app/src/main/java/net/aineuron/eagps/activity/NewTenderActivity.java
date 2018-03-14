@@ -483,6 +483,10 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 
 	private void showDurationDialog() {
+		duration = 0L;
+		days = 0;
+		hours = 0;
+		minutes = 0;
 		final MaterialDialog.Builder builder = new MaterialDialog.Builder(NewTenderActivity.this);
 		builder.customView(R.layout.widget_delay_picker, false);
 		builder.title(R.string.widget_delay_title);
