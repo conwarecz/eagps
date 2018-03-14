@@ -7,6 +7,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
@@ -52,13 +53,19 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
+
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity(R.layout.activity_new_tender)
 public class NewTenderActivity extends AppCompatActivity implements NumberPicker.OnValueChangeListener {
 
-	public static boolean isVisible = false;
+	private static final String TAG = NewTenderActivity.class.getSimpleName();
 	@ViewById(R.id.back)
 	Button accept;
 	@ViewById(R.id.decline)
@@ -91,6 +98,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	ConstraintLayout map;
 	@ViewById(R.id.header)
 	TextView header;
+	PublishSubject<Integer> cancelNotificationsDebounceAction = PublishSubject.create();
 	private MaterialDialog progressDialog;
 	private Order order;
 	private TenderAcceptModel tenderAcceptModel;
@@ -117,19 +125,24 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			actionBar.setDefaultDisplayHomeAsUpEnabled(false);
 			header.setText(title);
 		}
+		Disposable subscribe = cancelNotificationsDebounceAction.throttleFirst(4, TimeUnit.SECONDS).subscribe(aInt -> cancelNotifications());
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		isVisible = true;
 		setUi();
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
-		isVisible = false;
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+			if (tender != null) {
+				cancelNotificationsDebounceAction.onNext(0);
+			}
+		}
+		// Your code here
+		return super.dispatchTouchEvent(ev);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -204,7 +217,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Click(R.id.back)
 	void acceptClicked() {
-		cancelNotification();
 		if (!NetworkUtil.isConnected(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
@@ -216,7 +228,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Click(R.id.decline)
 	void declineClicked() {
-		cancelNotification();
 		if (!NetworkUtil.isConnected(getApplicationContext())) {
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
@@ -237,6 +248,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 					showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
 					tenderRejectModel.setRejectReason((long) which);
 					clientProvider.getEaClient().rejectTender(getTenderId(), tenderRejectModel);
+					dialog.dismiss();
 					return true;
 				})
 				.positiveText("OK")
@@ -532,10 +544,13 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
 	}
 
-	private void cancelNotification() {
+	private void cancelNotifications() {
 		try {
+			List<Long> tenderIds = tendersManager.getTenderIds();
 			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			notificationManager.cancel(tender.getTenderId().intValue());
+			for (Long id : tenderIds) {
+				notificationManager.cancel(id.intValue());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

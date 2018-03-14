@@ -5,6 +5,9 @@ import net.aineuron.eagps.util.RealmHelper;
 
 import org.androidannotations.annotations.EBean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -61,12 +64,23 @@ public class TendersManager {
 
 	public Tender getNextTenderCopy() {
 		Realm db = RealmHelper.getTenderDb();
-		RealmResults<Tender> tenders = db.where(Tender.class).findAllSorted("incomeTime", Sort.ASCENDING);
+		RealmResults<Tender> tenders = db.where(Tender.class).sort("incomeTime", Sort.ASCENDING).findAll();
 		if (tenders.size() > 0) {
 			return db.copyFromRealm(tenders.get(0));
 		} else {
 			return null;
 		}
+	}
+
+	public List<Long> getTenderIds() {
+		Realm db = RealmHelper.getTenderDb();
+		RealmResults<Tender> all = db.where(Tender.class).findAll();
+		List<Long> tenderIds = new ArrayList<>();
+		for (Tender tender : all) {
+			tenderIds.add(tender.getTenderId());
+		}
+		db.close();
+		return tenderIds;
 	}
 
 	public boolean hasTender(String tenderEntityUniId) {

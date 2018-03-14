@@ -151,6 +151,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			}
 			sendNotification(tender.getTenderId().intValue(), title, body, notificationIntent);
 		} else {
+			sendNotification(tender.getTenderId().intValue(), title, body, null);
 			getApplicationContext().startActivity(notificationIntent);
 		}
 	}

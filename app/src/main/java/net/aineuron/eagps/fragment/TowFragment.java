@@ -130,6 +130,7 @@ public class TowFragment extends BaseFragment {
 						alreadyBacked = true;
 						showProgress("Ruším zakázku", getString(R.string.dialog_wait_content));
 						ordersManager.cancelOrder(order.getId(), (long) which + 1);
+						dialog.dismiss();
 					}
 					return true;
 				})
