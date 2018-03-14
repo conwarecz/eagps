@@ -649,6 +649,7 @@ public class EaClient {
 
 			if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
 				clientProvider.postUnauthorisedError();
+				return;
 			} else if (error.getResponse().code() == 400) {
 				try {
 					RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());

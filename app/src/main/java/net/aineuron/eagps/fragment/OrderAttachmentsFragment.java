@@ -123,11 +123,13 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Override
 	public void onPause() {
-		removeListener();
-		alreadyBacked = true;
-		dismissProgress();
-		checkReasons();
-		saveReasonsToDb();
+		if (order != null && order.isValid() && order.isLoaded()) {
+			removeListener();
+			alreadyBacked = true;
+			dismissProgress();
+			checkReasons();
+			saveReasonsToDb();
+		}
 		super.onPause();
 	}
 
