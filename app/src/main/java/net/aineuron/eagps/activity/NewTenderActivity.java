@@ -228,6 +228,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 				.title("Důvod zrušení")
 				.items(R.array.order_reject_choices)
 				.itemsIds(R.array.order_reject_choice_ids)
+				.autoDismiss(false)
 				.itemsCallbackSingleChoice(-1, (dialog, view, which, text) -> {
 					if (which < 0) {
 						Toast.makeText(getApplicationContext(), "Vyberte důvod", Toast.LENGTH_SHORT).show();
