@@ -60,10 +60,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.ObjectChangeSet;
 import io.realm.Realm;
-import io.realm.RealmModel;
-import io.realm.RealmObjectChangeListener;
+import io.realm.RealmResults;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
@@ -107,7 +105,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	private Order order;
 	private Realm db;
-	private RealmObjectChangeListener objectListener;
+	private RealmResults<Order> orderQuery;
 	private int uploadedPhotos = 0;
 	private LocalPhotos localPhotos;
 	private LocalReasons localReasons;
@@ -123,13 +121,15 @@ public class OrderAttachmentsFragment extends BaseFragment {
 
 	@Override
 	public void onPause() {
+		removeListener();
+
 		if (order != null && order.isValid() && order.isLoaded()) {
-			removeListener();
 			alreadyBacked = true;
 			dismissProgress();
 			checkReasons();
 			saveReasonsToDb();
 		}
+
 		super.onPause();
 	}
 
@@ -331,7 +331,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 				localPhotos = db.where(LocalPhotos.class).equalTo("orderId", orderId).findFirst();
 			}
 
-			order = ordersManager.getOrderById(orderId);
+			order = ordersManager.getOrderByIdCopy(orderId);
 			if (order != null) {
 //				if(order.getStatus() != ORDER_STATE_FINISHED /*&& !alreadyBacked*/){
 //					orderChanged();
@@ -429,27 +429,23 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	}
 
 	private void setOrderListener() {
-		order = ordersManager.getOrderById(orderId);
-		if (order != null) {
-			objectListener = new RealmObjectChangeListener() {
-				@Override
-				public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
-					db = RealmHelper.getDb();
-					order = ordersManager.getOrderById(orderId);
-					if (order != null && order.getStatus() != ORDER_STATE_FINISHED) {
-						dismissProgress();
-						if (!alreadyBacked) {
-							orderChanged();
-						}
-					} else if (order != null && orderDetailHeader != null) {
-						setContent();
-						dismissProgress();
-					}
+		removeListener();
+		db = RealmHelper.getDb();
+
+		orderQuery = db.where(Order.class).equalTo("id", orderId).findAll();
+		orderQuery.addChangeListener((orders, changeSet) -> {
+			db = RealmHelper.getDb();
+			order = ordersManager.getOrderByIdCopy(orderId);
+			if (order != null && order.getStatus() != ORDER_STATE_FINISHED) {
+				dismissProgress();
+				if (!alreadyBacked) {
+					orderChanged();
 				}
-			};
-			removeListener();
-			order.addChangeListener(objectListener);
-		}
+			} else if (order != null && orderDetailHeader != null) {
+				setContent();
+				dismissProgress();
+			}
+		});
 	}
 
 	void uploadPhotos() {
@@ -538,9 +534,11 @@ public class OrderAttachmentsFragment extends BaseFragment {
 	}
 
 	private void removeListener() {
+		if (orderQuery == null) {
+			return;
+		}
 		try {
-//			order.removeChangeListener(objectListener);
-			order.removeAllChangeListeners();
+			orderQuery.removeAllChangeListeners();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}

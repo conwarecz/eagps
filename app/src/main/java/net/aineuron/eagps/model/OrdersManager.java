@@ -25,9 +25,6 @@ import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ENTITY_F
 
 @EBean(scope = EBean.Scope.Singleton)
 public class OrdersManager {
-
-	private static Order order;
-
 	@Pref
 	Pref_ pref;
 
@@ -35,10 +32,21 @@ public class OrdersManager {
 	ClientProvider clientProvider;
 
 	public Order getOrderById(Long orderId) {
-        Realm db = RealmHelper.getDb();
-        Order order = db.where(Order.class).equalTo("id", orderId).findFirst();
-        return order;
-    }
+		Realm db = RealmHelper.getDb();
+		Order order = db.where(Order.class).equalTo("id", orderId).findFirst();
+		return order;
+	}
+
+	public Order getOrderByIdCopy(Long orderId) {
+		Realm db = RealmHelper.getDb();
+		Order order = db.where(Order.class).equalTo("id", orderId).findFirst();
+		if (order == null) {
+			return null;
+		}
+		Order orderCopy = db.copyFromRealm(order);
+		db.close();
+		return orderCopy;
+	}
 
 	public void updateOrder(Long orderId) {
 		clientProvider.getEaClient().getOrderDetail(orderId);
@@ -66,31 +74,37 @@ public class OrdersManager {
 		db.close();
 	}
 
-    public void sendOrder(Long orderId, Reasons reasons) {
-        clientProvider.getEaClient().sendOrder(orderId, reasons);
-    }
+	public void sendOrder(Long orderId, Reasons reasons) {
+		clientProvider.getEaClient().sendOrder(orderId, reasons);
+	}
 
-    public void deleteOrderFromRealm(Long orderId) {
-        Realm db = RealmHelper.getDb();
+	public void deleteOrderFromRealm(Long orderId) {
+		Realm db = RealmHelper.getDb();
 		db.executeTransactionAsync(realm -> {
 			Order order = realm.where(Order.class).equalTo("id", orderId).findFirst();
 			if (order != null && order.isValid()) {
 				order.deleteFromRealm();
 			}
 		});
-        db.close();
-    }
+		db.close();
+	}
 
 	@Nullable
 	public Order getFirstActiveOrder() {
 		Realm db = RealmHelper.getDb();
-		return db.where(Order.class)
+		Order order = db.where(Order.class)
 				.beginGroup()
 				.equalTo("status", ORDER_STATE_ASSIGNED)
 				.or()
-                .equalTo("status", ORDER_STATE_ENTITY_FINISHED)
-                .endGroup()
+				.equalTo("status", ORDER_STATE_ENTITY_FINISHED)
+				.endGroup()
 				.findFirst();
+		if (order == null) {
+			return null;
+		}
+		Order orderCopy = db.copyFromRealm(order);
+		db.close();
+		return orderCopy;
 	}
 
 	public void addOrder(Order order) {

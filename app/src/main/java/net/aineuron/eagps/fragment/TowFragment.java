@@ -35,10 +35,8 @@ import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import io.realm.ObjectChangeSet;
 import io.realm.Realm;
-import io.realm.RealmModel;
-import io.realm.RealmObjectChangeListener;
+import io.realm.RealmResults;
 
 import static net.aineuron.eagps.activity.MainActivityBase.MAIN_TAB_ID;
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
@@ -86,7 +84,7 @@ public class TowFragment extends BaseFragment {
 
 	private Order order;
 	private Realm db;
-	private RealmObjectChangeListener objectListener;
+	private RealmResults<Order> orderQuery;
 	private boolean alreadyBacked = false;
 
 	public static TowFragment newInstance(Long orderId) {
@@ -105,8 +103,22 @@ public class TowFragment extends BaseFragment {
 		} else if (userManager.getSelectedStateId() == STATE_ID_BUSY_ORDER) {
 			setAppbarTitle(getString(R.string.car_on_order));
 		}
+	}
 
-//		loadOrder();
+	@Override
+	public void onResume() {
+		super.onResume();
+		alreadyBacked = false;
+		dismissProgress();
+		loadOrder();
+	}
+
+	@Override
+	public void onPause() {
+		removeListener();
+		dismissProgress();
+		alreadyBacked = true;
+		super.onPause();
 	}
 
 	@Click(R.id.finishOrder)
@@ -143,22 +155,6 @@ public class TowFragment extends BaseFragment {
 				})
 				.positiveText("OK")
 				.show();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		alreadyBacked = false;
-		dismissProgress();
-		loadOrder();
-	}
-
-	@Override
-	public void onPause() {
-		removeListener();
-		dismissProgress();
-		alreadyBacked = true;
-		super.onPause();
 	}
 
 	@Click({R.id.photosStep, R.id.documentPhotos})
@@ -234,7 +230,7 @@ public class TowFragment extends BaseFragment {
 			}
 		} else {
 			if (order == null || !order.getId().equals(orderId)) {
-				order = ordersManager.getOrderById(orderId);
+				order = ordersManager.getOrderByIdCopy(orderId);
 			}
 		}
 
@@ -270,35 +266,32 @@ public class TowFragment extends BaseFragment {
 	}
 
 	private void setOrderListener() {
-		order = ordersManager.getOrderById(orderId);
-		objectListener = new RealmObjectChangeListener() {
-			@Override
-			public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
-				db = RealmHelper.getDb();
-				order = ordersManager.getOrderById(orderId);
-				if (order == null) {
-					return;
-				}
-				if (order.getStatus() != ORDER_STATE_ASSIGNED && order.getStatus() != ORDER_STATE_ENTITY_FINISHED) {
-					dismissProgress();
-					if (!alreadyBacked) {
-						alreadyBacked = true;
-						// TODO: Switch fragment to State Fragment
-						Toast.makeText(getContext(), OrderToastComposer.getOrderChangedToastMessage(getContext(), order.getStatus()), Toast.LENGTH_LONG).show();
-						if (userManager.getUser().getRoleId() == WORKER_ID) {
-							IntentUtils.openMainActivity(getContext());
-						} else {
-							getActivity().onBackPressed();
-						}
-					}
-				} else if (orderDetailHeader != null) {
-					setContent();
-					dismissProgress();
-				}
-			}
-		};
 		removeListener();
-		order.addChangeListener(objectListener);
+		db = RealmHelper.getDb();
+		orderQuery = db.where(Order.class).equalTo("id", orderId).findAll();
+
+		orderQuery.addChangeListener((orders, changeSet) -> {
+			order = ordersManager.getOrderByIdCopy(orderId);
+			if (order == null) {
+				return;
+			}
+			if (order.getStatus() != ORDER_STATE_ASSIGNED && order.getStatus() != ORDER_STATE_ENTITY_FINISHED) {
+				dismissProgress();
+				if (!alreadyBacked) {
+					alreadyBacked = true;
+					// TODO: Switch fragment to State Fragment
+					Toast.makeText(getContext(), OrderToastComposer.getOrderChangedToastMessage(getContext(), order.getStatus()), Toast.LENGTH_LONG).show();
+					if (userManager.getUser().getRoleId() == WORKER_ID) {
+						IntentUtils.openMainActivity(getContext());
+					} else {
+						getActivity().onBackPressed();
+					}
+				}
+			} else if (orderDetailHeader != null) {
+				setContent();
+				dismissProgress();
+			}
+		});
 	}
 
 	// Building up addresses from what we have
@@ -358,9 +351,11 @@ public class TowFragment extends BaseFragment {
 	}
 
 	private void removeListener() {
+		if (orderQuery == null) {
+			return;
+		}
 		try {
-//			order.removeChangeListener(objectListener);
-			order.removeAllChangeListeners();
+			orderQuery.removeAllChangeListeners();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}

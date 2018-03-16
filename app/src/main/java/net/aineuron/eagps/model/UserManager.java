@@ -44,9 +44,9 @@ public class UserManager {
 	public static final int WORKER_ID = 2;
 	public static final int DISPATCHER_ID = 1;
 
-    public static final Long STATE_ID_UNAVAILABLE = 1L;
-    public static final Long STATE_ID_READY = 2L;
-    public static final Long STATE_ID_BUSY = 3L;
+	public static final Long STATE_ID_UNAVAILABLE = 1L;
+	public static final Long STATE_ID_READY = 2L;
+	public static final Long STATE_ID_BUSY = 3L;
 	public static final Long STATE_ID_BUSY_ORDER = 4L;
 	public static final Long STATE_ID_NO_CAR = 90L;
 	@Pref
@@ -55,11 +55,11 @@ public class UserManager {
 	Appl app;
 	@Bean
 	ClientProvider clientProvider;
-    @Bean
-    OrdersManager ordersManager;
-    @Bean
-    TendersManager tendersManager;
-    private Map<Long, String> states = new HashMap<Long, String>() {
+	@Bean
+	OrdersManager ordersManager;
+	@Bean
+	TendersManager tendersManager;
+	private Map<Long, String> states = new HashMap<Long, String>() {
 		{
 			put(STATE_ID_READY, "Ready");
 			put(STATE_ID_BUSY, "Busy");
@@ -75,8 +75,8 @@ public class UserManager {
 		gson = new Gson();
 	}
 
-    public User getUser() {
-        String userObjectSerialized = pref.userObjectSerialized().get();
+	public User getUser() {
+		String userObjectSerialized = pref.userObjectSerialized().get();
 
 		if (userObjectSerialized.isEmpty()) {
 			return null;
@@ -85,14 +85,14 @@ public class UserManager {
 		return gson.fromJson(userObjectSerialized, User.class);
 	}
 
-    public void setUser(User user) {
-        String userObjectSerialized = "";
+	public void setUser(User user) {
+		String userObjectSerialized = "";
 		if (user != null) {
 			userObjectSerialized = gson.toJson(user);
 			pref.token().put(user.getToken());
 		}
-        pref.userObjectSerialized().put(userObjectSerialized);
-    }
+		pref.userObjectSerialized().put(userObjectSerialized);
+	}
 
 	public Long getSelectedCarId() {
 		Long value = pref.selectedCar().get();
@@ -134,15 +134,15 @@ public class UserManager {
 
 	public void setStateNoCar() {
 		if (!getSelectedStateId().equals(STATE_ID_NO_CAR)) {
-            releaseCar(null);
-        }
-        setSelectedStateId(STATE_ID_NO_CAR);
-        EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
-    }
+			releaseCar(null);
+		}
+		setSelectedStateId(STATE_ID_NO_CAR);
+		EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
+	}
 
-    public void releaseCar(Long selectedCarId) {
-        clientProvider.getEaClient().releaseCar(selectedCarId);
-    }
+	public void releaseCar(Long selectedCarId) {
+		clientProvider.getEaClient().releaseCar(selectedCarId);
+	}
 
 	public Long getSelectedStateId() {
 		Long value = pref.selectedState().get();
@@ -161,14 +161,14 @@ public class UserManager {
 	}
 
 	private void selectState(Long stateId) {
-        clientProvider.getEaClient().setUserState(stateId);
-    }
+		clientProvider.getEaClient().setUserState(stateId);
+	}
 
 	public void setFirebaseToken(String token) {
-        if (pref.token().get() != null && !pref.token().get().isEmpty()) {
-            clientProvider.rebuildRetrofit();
-        }
-        clientProvider.getEaClient().setUserFirebaseToken(token);
+		if (pref.token().get() != null && !pref.token().get().isEmpty()) {
+			clientProvider.rebuildRetrofit();
+		}
+		clientProvider.getEaClient().setUserFirebaseToken(token);
 	}
 
 	public void login(LoginInfo info) {
@@ -196,8 +196,8 @@ public class UserManager {
 		}
 		pref.clear();
 		ordersManager.clearDatabase();
-        tendersManager.deleteAllTenders();
-        try {
+		tendersManager.deleteAllTenders();
+		try {
 			NotificationManager notificationManager =
 					(NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancelAll();
@@ -220,10 +220,10 @@ public class UserManager {
 			activeOrder = true;
 //            setSelectedStateId(STATE_ID_BUSY_ORDER);
 		}
-        return activeOrder;
-    }
+		return activeOrder;
+	}
 
-    public void getUserData(Long userId) {
-        clientProvider.getEaClient().getUser(userId);
-    }
+	public void getUserData(Long userId) {
+		clientProvider.getEaClient().getUser(userId);
+	}
 }

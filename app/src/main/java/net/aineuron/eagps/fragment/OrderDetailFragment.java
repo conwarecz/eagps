@@ -28,10 +28,8 @@ import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 
 import io.reactivex.annotations.Nullable;
-import io.realm.ObjectChangeSet;
 import io.realm.Realm;
-import io.realm.RealmModel;
-import io.realm.RealmObjectChangeListener;
+import io.realm.RealmResults;
 
 /**
  * Created by Vit Veres on 07-Jun-17
@@ -78,7 +76,7 @@ public class OrderDetailFragment extends BaseFragment {
 
 	private Order order;
 	private Realm db;
-	private RealmObjectChangeListener objectListener;
+	private RealmResults<Order> orderQuery;
 
 	public static OrderDetailFragment newInstance(Long orderId, String title) {
 		return OrderDetailFragment_.builder().orderId(orderId).title(title).build();
@@ -139,6 +137,9 @@ public class OrderDetailFragment extends BaseFragment {
 	}
 
 	private void setUi() {
+		if (order == null) {
+			return;
+		}
 		if (order.getClaimSaxCode() != null) {
 			this.header.setText("Detail objednávky " + order.getClaimSaxCode());
 		}
@@ -267,27 +268,25 @@ public class OrderDetailFragment extends BaseFragment {
 	}
 
 	private void setOrderListener() {
-		order = ordersManager.getOrderById(orderId);
-		if (order != null) {
-			objectListener = new RealmObjectChangeListener() {
-				@Override
-				public void onChange(RealmModel realmModel, ObjectChangeSet changeSet) {
-					db = RealmHelper.getDb();
-					order = ordersManager.getOrderById(orderId);
-					if (header != null && order != null) {
-						setUi();
-						dismissProgress();
-					}
-				}
-			};
-			removeListeners();
-			order.addChangeListener(objectListener);
-		}
+		removeListeners();
+		db = RealmHelper.getDb();
+		orderQuery = db.where(Order.class).equalTo("id", orderId).findAll();
+
+		orderQuery.addChangeListener((orders, changeSet) -> {
+			order = ordersManager.getOrderByIdCopy(orderId);
+			if (header != null && order != null) {
+				setUi();
+				dismissProgress();
+			}
+		});
 	}
 
 	private void removeListeners() {
+		if (orderQuery == null) {
+			return;
+		}
 		try {
-			order.removeAllChangeListeners();
+			orderQuery.removeAllChangeListeners();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

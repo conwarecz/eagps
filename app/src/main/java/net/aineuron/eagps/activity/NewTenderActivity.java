@@ -392,6 +392,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 				// Tender invitation is not valid - 14
 				tendersManager.deleteTender(tender.getTenderEntityUniId());
 				break;
+			case 4207:
+				tendersManager.deleteTender(tender.getTenderEntityUniId());
+				break;
 			case 4209:
 				// Too late arrival - 15
 				tendersManager.deleteTender(tender.getTenderEntityUniId());
