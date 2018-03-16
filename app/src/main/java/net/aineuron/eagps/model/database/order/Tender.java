@@ -26,6 +26,7 @@ import io.realm.annotations.PrimaryKey;
 public class Tender extends RealmObject implements Serializable {
 	@PrimaryKey
 	private String tenderEntityUniId;
+	private int pushId;
 	private Order Order;
 	private Message Message;
 	private Long Status;
@@ -72,10 +73,11 @@ public class Tender extends RealmObject implements Serializable {
 		Tender tender = gson.fromJson(json, Tender.class);
 		tender.setIncomeTime(Calendar.getInstance().getTime());
 
-
 		Long entityId = 0L;
 		if (tender.getEntity() != null) {
 			entityId = tender.getEntity().getId();
+		} else if (tender.getOrder() != null && tender.getOrder().getEntityId() != null) {
+			entityId = tender.getOrder().getEntityId();
 		}
 
 		tender.setTenderEntityUniId(tender.getTenderId() + "_" + entityId);
@@ -160,5 +162,13 @@ public class Tender extends RealmObject implements Serializable {
 
 	public void setUser(UserWhoKickedMeFromCar user) {
 		User = user;
+	}
+
+	public int getPushId() {
+		return pushId;
+	}
+
+	public void setPushId(int pushId) {
+		this.pushId = pushId;
 	}
 }

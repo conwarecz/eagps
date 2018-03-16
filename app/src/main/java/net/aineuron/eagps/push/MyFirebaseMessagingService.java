@@ -137,6 +137,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		boolean hasSameTender = tendersManager.hasTender(tender.getTenderEntityUniId());
 
 		tendersManager.addTender(tender);
+		tender = tendersManager.getTenderCopy(tender.getTenderEntityUniId());
 
 		String title = remoteMessage.getData().get("title");
 		String body = remoteMessage.getData().get("body");
@@ -149,30 +150,48 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			if (app.getActiveActivity() instanceof NewTenderActivity_ || hasSameTender) {
 				return;
 			}
-			sendNotification(tender.getTenderId().intValue(), title, body, notificationIntent);
+			sendNotification(tender.getPushId(), title, body, notificationIntent);
 		} else {
-			sendNotification(tender.getTenderId().intValue(), title, body, null);
+			sendNotification(tender.getPushId(), title, body, null);
 			getApplicationContext().startActivity(notificationIntent);
 		}
 	}
 
 	private void handleAcceptedOrder(RemoteMessage remoteMessage) {
-		final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
+		final Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
+		final Order order = tender.getOrder();
+
 		Long id = order.getId();
 		Realm realm = RealmHelper.getDb();
 		realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
 		realm.close();
+
+		String title = remoteMessage.getData().get("title");
+		String body = remoteMessage.getData().get("body");
+
+		// Make sure no Tender left on stack from this order
+		if (tendersManager.hasTenderByTenderId(tender.getTenderId())) {
+			cancelTenderNotifications(tendersManager.getPushIdsByTenderId(tender.getTenderId()));
+
+			tendersManager.deleteTendersByTenderId(tender.getTenderId());
+			tendersManager.deleteTendersByEntityId(tender.getOrder().getEntityId());
+			if (app.getActiveActivity() != null && app.getActiveActivity() instanceof NewTenderActivity_) {
+				// When app is in foreground we just show a dialog
+				NewTenderActivity newTenderActivity = (NewTenderActivity) app.getActiveActivity();
+				new Handler(getMainLooper()).post(() -> newTenderActivity.notWonTender(tender.getTenderEntityUniId(), title));
+			}
+		}
+
 		Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
 		notificationIntent.putExtra("id", id);
-		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
-//        if (isInBackground) {
-		sendNotification(id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
-//        } else {
-//            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            getApplicationContext().startActivity(notificationIntent);
+
+		notificationIntent.putExtra("title", title);
+
+		sendNotification(id.intValue(), title, body, notificationIntent);
+
 		userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+
 		EventBus.getDefault().post(new OrderAcceptedEvent(id));
-//        }
 	}
 
 	private void handleMessage(RemoteMessage remoteMessage) {
@@ -217,28 +236,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 	private void handleNotWonTender(RemoteMessage remoteMessage) {
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
-		final Order order = tender.getOrder();
-		Long id = order.getId();
+		Tender dbCopyTender = tendersManager.getTenderCopy(tender.getTenderEntityUniId());
+
+		if (dbCopyTender == null) {
+			// no show notification
+			return;
+		}
+
 		String title = remoteMessage.getData().get("title");
+		String body = remoteMessage.getData().get("body");
 
 		Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
-		notificationIntent.putExtra("id", id);
+		notificationIntent.putExtra("id", tender.getOrder().getId());
 		notificationIntent.putExtra("title", title);
 
-		tendersManager.deleteTender(tender.getTenderEntityUniId());
+		tendersManager.deleteTender(dbCopyTender.getTenderEntityUniId());
 
-		// Cancel any notification for this tender
-		NotificationManager notificationManager =
-				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(tender.getTenderId().intValue());
+		cancelNotification(dbCopyTender.getPushId());
 
 		if (app.getActiveActivity() != null && app.getActiveActivity() instanceof NewTenderActivity_) {
 			// When app is in foreground we just show a dialog
 			NewTenderActivity newTenderActivity = (NewTenderActivity) app.getActiveActivity();
-			new Handler(getMainLooper()).post(() -> newTenderActivity.notWonTender(tender.getTenderEntityUniId(), title));
+			new Handler(getMainLooper()).post(() -> newTenderActivity.notWonTender(dbCopyTender.getTenderEntityUniId(), title));
 		} else {
 			// If app in background we show notification
-			sendNotification(tender.getTenderId().intValue(), title, remoteMessage.getData().get("body"), notificationIntent);
+			sendNotification(dbCopyTender.getPushId(), title, body, notificationIntent);
 		}
 	}
 
@@ -383,6 +405,32 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		}
 
 		notificationManager.notify(notificationId, notification);
+	}
+
+	private void cancelNotification(int pushId) {
+		NotificationManager notificationManager =
+				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+		if (notificationManager == null) {
+			Log.e(TAG, "Notification manager null");
+			return;
+		}
+
+		notificationManager.cancel(pushId);
+	}
+
+	private void cancelTenderNotifications(List<Integer> pushIds) {
+		NotificationManager notificationManager =
+				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+		if (notificationManager == null) {
+			Log.e(TAG, "Notification manager null");
+			return;
+		}
+
+		for (int pushId : pushIds) {
+			notificationManager.cancel(pushId);
+		}
 	}
 
 	private OrderSerializable makeSerializableOrder(Order order) {

@@ -52,6 +52,7 @@ public class Order extends RealmObject {
 	private Address destinationAddress;
 
 	private String entityName;
+	private Long entityId;
 
 	private String reasonForNoDocuments;
 	private String reasonForNoPhotos;
@@ -269,6 +270,14 @@ public class Order extends RealmObject {
 
 	public void setEntityName(String entityName) {
 		this.entityName = entityName;
+	}
+
+	public Long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		this.entityId = entityId;
 	}
 }
 

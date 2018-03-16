@@ -549,10 +549,10 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	private void cancelNotifications() {
 		try {
-			List<Long> tenderIds = tendersManager.getTenderIds();
+			List<Integer> tenderPushIds = tendersManager.getAllPushIds();
 			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			for (Long id : tenderIds) {
-				notificationManager.cancel(id.intValue());
+			for (int id : tenderPushIds) {
+				notificationManager.cancel(id);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
