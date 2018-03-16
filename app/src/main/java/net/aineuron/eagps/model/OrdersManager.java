@@ -40,10 +40,11 @@ public class OrdersManager {
 	public Order getOrderByIdCopy(Long orderId) {
 		Realm db = RealmHelper.getDb();
 		Order order = db.where(Order.class).equalTo("id", orderId).findFirst();
-		if (order == null) {
-			return null;
+
+		Order orderCopy = null;
+		if (order != null) {
+			orderCopy = db.copyFromRealm(order);
 		}
-		Order orderCopy = db.copyFromRealm(order);
 		db.close();
 		return orderCopy;
 	}
@@ -99,10 +100,10 @@ public class OrdersManager {
 				.equalTo("status", ORDER_STATE_ENTITY_FINISHED)
 				.endGroup()
 				.findFirst();
-		if (order == null) {
-			return null;
+		Order orderCopy = null;
+		if (order != null) {
+			orderCopy = db.copyFromRealm(order);
 		}
-		Order orderCopy = db.copyFromRealm(order);
 		db.close();
 		return orderCopy;
 	}

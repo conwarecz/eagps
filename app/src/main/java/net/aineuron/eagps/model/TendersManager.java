@@ -83,7 +83,11 @@ public class TendersManager {
 		boolean hasTender = false;
 		Realm db = RealmHelper.getTenderDb();
 		Tender tender = db.where(Tender.class).equalTo("tenderEntityUniId", tenderEntityUniId).findFirst();
-		Tender tenderCopy = db.copyFromRealm(tender);
+		Tender tenderCopy = null;
+
+		if (tender != null) {
+			tenderCopy = db.copyFromRealm(tender);
+		}
 		db.close();
 		return tenderCopy;
 	}
