@@ -376,7 +376,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction tr = fm.beginTransaction();
 
-		tr.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+		// Animations caused problems with app blinking - data reloaded and caused other views to be seen trough
+		//tr.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
 		tr.replace(R.id.fragmentContainer, fragment);
 		tr.commitNow();
 		currentFragment = fragment;
