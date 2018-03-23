@@ -108,7 +108,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@AfterViews
 	public void afterViewsLocal() {
 		new GoogleChecker(this, false);
-		
+
 		if (userManager.getUser() == null) {
 			clientProvider.postUnauthorisedError();
 		}
