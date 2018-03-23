@@ -46,6 +46,7 @@ import net.aineuron.eagps.fragment.StateFragment_;
 import net.aineuron.eagps.fragment.TowFragment_;
 import net.aineuron.eagps.model.MessagesManager;
 import net.aineuron.eagps.model.OrdersManager;
+import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
 
 import org.androidannotations.annotations.AfterViews;
@@ -85,6 +86,9 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@Bean
 	MessagesManager messagesManager;
+
+	@Bean
+	TendersManager tendersManager;
 
 	@Nullable
 	@Extra
@@ -139,6 +143,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	protected void onResume() {
 		super.onResume();
 		userManager.haveActiveOrder();
+
+		if (tendersManager.hasNextTender()) {
+			// Has unanswered tender, launch new tender activity
+			Intent tenderIntent = new Intent(this, NewTenderActivity_.class);
+			tenderIntent.putExtra("title", "Nová objednávka");
+			tenderIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			startActivity(tenderIntent);
+		}
 	}
 
 	@Override

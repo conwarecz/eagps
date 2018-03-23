@@ -102,6 +102,16 @@ public class TendersManager {
 		}
 	}
 
+	public boolean hasNextTender() {
+		Realm db = RealmHelper.getTenderDb();
+		long tenders = db.where(Tender.class).count();
+		if (tenders > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public List<Integer> getAllPushIds() {
 		Realm db = RealmHelper.getTenderDb();
 		RealmResults<Tender> all = db.where(Tender.class).findAll();
