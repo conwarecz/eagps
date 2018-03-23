@@ -76,7 +76,7 @@ public class OrdersFragment extends BaseFragment {
 		swipeRefreshLayout.setOnRefreshListener(() -> refresh());
 
 		db = RealmHelper.getDb();
-		ordersRealmQuery = db.where(Order.class).findAllSorted("timeCreated", Sort.DESCENDING);
+		ordersRealmQuery = db.where(Order.class).sort("timeCreated", Sort.DESCENDING).findAll();
 
 //		ordersRealmQuery = db.where(Order.class).equalTo("status", ORDER_STATE_ASSIGNED).findAllSorted("timeCreated", Sort.DESCENDING);
 //		buffer = db.where(Order.class).equalTo("status", ORDER_STATE_FINISHED).findAllSorted("timeCreated", Sort.DESCENDING);

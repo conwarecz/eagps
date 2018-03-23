@@ -22,8 +22,8 @@ android {
 		applicationId "cz.europassistance.assistancepartners"
 		minSdkVersion 16
 		targetSdkVersion 27
-		versionCode 61
-		versionName "0.5.17"
+		versionCode 62
+		versionName "0.5.18"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {
@@ -142,7 +142,7 @@ android {
 		annotationProcessor "com.tmtron:green-annotations:1.0.2"
 		implementation "com.tmtron:green-annotations-api:1.0.2"
 		//Notifications
-		implementation "com.google.firebase:firebase-messaging:11.8.0"
+		implementation "com.google.firebase:firebase-messaging:12.0.0"
 		implementation("com.crashlytics.sdk.android:crashlytics:2.9.1@aar") {
 			transitive = true
 		}

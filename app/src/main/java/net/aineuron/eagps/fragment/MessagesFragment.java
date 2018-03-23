@@ -76,7 +76,7 @@ public class MessagesFragment extends BaseFragment {
 		});
 
 		db = RealmHelper.getDb();
-		messageRealmQuery = db.where(Message.class).findAllSorted("time", Sort.DESCENDING);
+		messageRealmQuery = db.where(Message.class).sort("time", Sort.DESCENDING).findAll();
 
 		adapter = new MessagesAdapter(messageRealmQuery);
 
