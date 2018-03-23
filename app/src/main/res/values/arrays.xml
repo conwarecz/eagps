@@ -35,11 +35,15 @@
 		<item>Zaneprázdněn jinou zakázkou</item>
 		<item>Nedostatečné vybavení pro zásah</item>
 		<item>Technické problémy</item>
+		<item>Nesplnění dojezdové doby</item>
+		<item>Požadavek na jiné vozidlo</item>
 	</string-array>
 	<integer-array name="order_reject_choice_ids">
-		<item>0</item>
 		<item>1</item>
 		<item>2</item>
+		<item>3</item>
+		<item>4</item>
+		<item>5</item>
 	</integer-array>
 	<string-array name="delay_minutes">
 		<item>5</item>

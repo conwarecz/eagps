@@ -5,7 +5,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-    tools:context="net.aineuron.eagps.activity.NewTenderActivity">
+            tools:context="net.aineuron.eagps.activity.NewTenderActivity">
 
 	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
@@ -102,7 +102,7 @@
 				android:layout_marginTop="16dp"
 				app:ilt_icoResource="@drawable/icon_big_notselected_74"
 				app:ilt_labelText="Požadované vozidlo"
-				app:ilt_text="Test" />
+				app:ilt_text="Test"/>
 
 		</LinearLayout>
 

@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.activity.AppBarActivity;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
 import net.aineuron.eagps.event.network.user.UserDataGotEvent;
 import net.aineuron.eagps.model.OrdersManager;
@@ -66,8 +67,10 @@ public class StateFragment extends BaseFragment {
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(false);
-		setAppbarTitle("Zásah");
-//		setContent();
+		AppBarActivity activity = (AppBarActivity) getActivity();
+		if (activity != null) {
+			activity.setUpActionBar();
+		}
 	}
 
 	@Override

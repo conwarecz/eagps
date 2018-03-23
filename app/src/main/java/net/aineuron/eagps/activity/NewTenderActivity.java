@@ -121,7 +121,8 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	void afterViews() {
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null && title != null) {
-			actionBar.setTitle(title);
+			setTitle(title);
+			actionBar.setTitle(getTitle());
 			actionBar.setDefaultDisplayHomeAsUpEnabled(false);
 			header.setText(title);
 		}
@@ -246,7 +247,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 						return false;
 					}
 					showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
-					tenderRejectModel.setRejectReason((long) which);
+					tenderRejectModel.setRejectReason((long) which + 1);
 					clientProvider.getEaClient().rejectTender(getTenderId(), tenderRejectModel);
 					dialog.dismiss();
 					return true;

@@ -45,18 +45,18 @@ public class ProfileActivity extends AppBarActivity {
 	public void afterViews() {
 		user = userManager.getUser();
 
-        if (user == null) {
-            Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
+		if (user == null) {
+			Toast.makeText(this, "No User", Toast.LENGTH_SHORT).show();
 			return;
 		}
 
-        if (user.getRoleName() != null) {
-            roleView.setText(user.getRoleName());
-        }
-        if (user.getUserName() != null) {
-            nameView.setText(user.getUserName());
-        }
-        if (user.getPhone() != null) {
+		if (user.getRoleName() != null) {
+			roleView.setText(user.getRoleName());
+		}
+		if (user.getUserName() != null) {
+			nameView.setText(user.getUserName());
+		}
+		if (user.getPhone() != null) {
 			telephone.setLabelText("Telefon");
 			telephone.setText(user.getPhone());
 			telephone.setVisibility(View.VISIBLE);
@@ -74,25 +74,26 @@ public class ProfileActivity extends AppBarActivity {
 		return true;
 	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setTitle("Uživatel");
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Uživatel");
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-    }
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle(getTitle());
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+	}
 
 	@Click(R.id.logoutButton)
 	public void logoutClicked() {
@@ -128,9 +129,9 @@ public class ProfileActivity extends AppBarActivity {
 		progressDialog = new MaterialDialog.Builder(this)
 				.title("Odhlašuji stav")
 				.content(getString(R.string.dialog_wait_content))
-                .cancelable(false)
-                .progress(true, 0)
-                .show();
+				.cancelable(false)
+				.progress(true, 0)
+				.show();
 	}
 
 	private void dismissDialog() {

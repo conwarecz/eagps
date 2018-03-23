@@ -420,6 +420,7 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 			showFragment(StateFragment_.newInstance(), false);
 		}
 		if (!e.state.equals(STATE_ID_BUSY_ORDER) && userManager.getUser().getRoleId() == WORKER_ID && !userManager.haveActiveOrder() && currentTabId == MAIN_TAB_ID && currentFragment instanceof TowFragment_) {
+			// TODO: Check why Order doesnt close itself when order is finished/canceled (userManager.haveActiveOrder() is true)
 			showFragment(StateFragment_.newInstance(), false);
 		}
 	}

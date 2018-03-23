@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
+import net.aineuron.eagps.activity.AppBarActivity;
 import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 
 import org.androidannotations.annotations.EFragment;
@@ -28,7 +29,13 @@ public class BaseFragment extends Fragment {
 	private MaterialDialog progressDialog;
 
 	protected void setAppbarTitle(String title) {
-		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+		AppCompatActivity activity = (AppCompatActivity) getActivity();
+		if (activity == null) {
+			return;
+		}
+		activity.setTitle(title);
+
+		ActionBar actionBar = activity.getSupportActionBar();
 		if (actionBar == null) {
 			return;
 		}
@@ -43,23 +50,28 @@ public class BaseFragment extends Fragment {
 		}
 
 		actionBar.setDisplayHomeAsUpEnabled(showBackButton);
+
+		AppBarActivity activity = (AppBarActivity) getActivity();
+		if (activity != null) {
+			activity.setUpActionBar();
+		}
 	}
 
 	protected void showProgress(String title, String content) {
-        try {
-            progressDialog = new MaterialDialog.Builder(getContext())
-                    .title(title)
-                    .content(content)
-                    .cancelable(false)
-                    .progress(true, 0)
-                    .show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+		try {
+			progressDialog = new MaterialDialog.Builder(getContext())
+					.title(title)
+					.content(content)
+					.cancelable(false)
+					.progress(true, 0)
+					.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    protected void dismissProgress() {
-        if (progressDialog == null) {
+	protected void dismissProgress() {
+		if (progressDialog == null) {
 			return;
 		}
 
@@ -72,6 +84,6 @@ public class BaseFragment extends Fragment {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void stopRefreshing(StopRefreshingEvent e) {
-        dismissProgress();
-    }
+		dismissProgress();
+	}
 }

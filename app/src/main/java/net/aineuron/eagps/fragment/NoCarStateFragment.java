@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.aineuron.eagps.R;
+import net.aineuron.eagps.activity.AppBarActivity;
 import net.aineuron.eagps.activity.CarSettingsActivity_;
 import net.aineuron.eagps.model.UserManager;
 
@@ -45,7 +46,11 @@ public class NoCarStateFragment extends BaseFragment {
 	@AfterViews
 	void afterViews() {
 		setAppbarUpNavigation(false);
-		setAppbarTitle("Zásah");
+
+		AppBarActivity activity = (AppBarActivity) getActivity();
+		if (activity != null) {
+			activity.setUpActionBar();
+		}
 		setContent();
 	}
 
@@ -73,9 +78,9 @@ public class NoCarStateFragment extends BaseFragment {
 	}
 
 	private void setErrorState() {
-        userManager.logout(userManager.getUser());
-        Log.e("State", "UNKNOWN");
+		userManager.logout(userManager.getUser());
+		Log.e("State", "UNKNOWN");
 //		stateText.setText("Neznámý stav");
 //		stateIcon.setImageResource(R.drawable.icon_big_busy);
-    }
+	}
 }
