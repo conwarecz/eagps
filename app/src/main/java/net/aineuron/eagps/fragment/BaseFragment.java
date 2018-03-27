@@ -51,8 +51,8 @@ public class BaseFragment extends Fragment {
 
 		actionBar.setDisplayHomeAsUpEnabled(showBackButton);
 
-		AppBarActivity activity = (AppBarActivity) getActivity();
-		if (activity != null) {
+		if (getActivity() instanceof AppBarActivity) {
+			AppBarActivity activity = (AppBarActivity) getActivity();
 			activity.setUpActionBar();
 		}
 	}
