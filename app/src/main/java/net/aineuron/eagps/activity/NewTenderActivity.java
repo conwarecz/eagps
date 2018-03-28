@@ -193,14 +193,28 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onTenderAcceptSuccessEvent(TenderAcceptSuccessEvent e) {
-		tendersManager.deleteTendersByTenderId(getTenderId());
-		try {
-			tendersManager.deleteTendersByEntityId(tender.getEntity().getId());
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		User user = userManager.getUser();
+		if (user == null) {
+			clientProvider.postUnauthorisedError();
+			finishTenderActivity();
+			return;
 		}
-		hideProgress();
-		setUi();
+
+		if (user.getRoleId() == WORKER_ID) {
+			tendersManager.deleteAllTenders();
+			finishTenderActivity();
+		} else {
+			tendersManager.deleteTendersByTenderId(getTenderId());
+			try {
+				tendersManager.deleteTendersByEntityId(tender.getEntity().getId());
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			hideProgress();
+			setUi();
+		}
+
+
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

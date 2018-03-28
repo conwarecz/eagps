@@ -28,6 +28,7 @@ import net.aineuron.eagps.event.network.car.StateSelectedEvent;
 import net.aineuron.eagps.event.network.order.OrderAcceptedEvent;
 import net.aineuron.eagps.event.network.order.OrderCanceledEvent;
 import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent;
+import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Message;
@@ -80,6 +81,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	UserManager userManager;
 	@Bean
 	TendersManager tendersManager;
+	@Bean
+	OrdersManager ordersManager;
 	@Bean
 	ClientProvider clientProvider;
 	@App
@@ -156,12 +159,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		final Order order = tender.getOrder();
 
 		Long id = order.getId();
-		Realm realm = RealmHelper.getDb();
-		realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
-		realm.close();
 
 		String title = remoteMessage.getData().get("title");
 		String body = remoteMessage.getData().get("body");
+
+		userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+
+		if (!ordersManager.isActiveOrder(id)) {
+			Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
+			notificationIntent.putExtra("id", id);
+			notificationIntent.putExtra("title", title);
+			sendNotification(id.intValue(), title, body, notificationIntent);
+		}
+
+		Realm realm = RealmHelper.getDb();
+		realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));
+		realm.close();
 
 		// Make sure no Tender left on stack from this order
 		if (tendersManager.hasTenderByTenderId(tender.getTenderId())) {
@@ -175,15 +188,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 				new Handler(getMainLooper()).post(() -> newTenderActivity.notWonTender(tender.getTenderEntityUniId(), title));
 			}
 		}
-
-		Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
-		notificationIntent.putExtra("id", id);
-
-		notificationIntent.putExtra("title", title);
-
-		sendNotification(id.intValue(), title, body, notificationIntent);
-
-		userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
 
 		EventBus.getDefault().post(new OrderAcceptedEvent(id));
 	}

@@ -56,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
@@ -395,15 +396,19 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						order -> {
-							Realm db = RealmHelper.getDb();
-							db.executeTransaction(realm ->
-									realm.copyToRealmOrUpdate(order)
-							);
+						orderResponse -> {
+							Order order = orderResponse.body();
+							if (order != null) {
+								Realm db = RealmHelper.getDb();
+								db.executeTransaction(realm ->
+										realm.copyToRealmOrUpdate(order)
+								);
 
-							setOrderDatesProperTimeZone(order);
+								setOrderDatesProperTimeZone(order);
 
-							db.close();
+								db.close();
+							}
+
 							eventBus.post(new StopRefreshingEvent());
 						}, this::sendError
 				);
@@ -609,14 +614,38 @@ public class EaClient {
 			return;
 		}
 		eaService.acceptTender(tenderId, tenderModel)
+				.flatMap(voidResponse -> {
+					if (voidResponse.isSuccessful()) {
+						return eaService.getOrderDetail(tenderId);
+					} else {
+						return Maybe.just(voidResponse);
+					}
+				})
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						voidResponse -> {
-							if (voidResponse.isSuccessful()) {
+						response -> {
+							if (response.isSuccessful()) {
+								if (response.body() instanceof Order) {
+									// Check whether response came from accept tender or from getOrderDetail
+									Order order = (Order) response.body();
+									if (order != null) {
+										Realm db = RealmHelper.getDb();
+										db.executeTransaction(realm ->
+												realm.copyToRealmOrUpdate(order)
+										);
+
+										setOrderDatesProperTimeZone(order);
+
+										db.close();
+										userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
+									}
+
+								}
+
 								eventBus.post(new TenderAcceptSuccessEvent());
 							} else {
-								sendKnownError(voidResponse);
+								sendKnownError(response);
 							}
 						}
 						,
@@ -681,14 +710,14 @@ public class EaClient {
 		eventBus.post(new StopRefreshingEvent());
 	}
 
-	private void sendKnownError(Response<Void> voidResponse) {
-		if (voidResponse.code() == 401) {
+	private void sendKnownError(Response response) {
+		if (response.code() == 401) {
 			clientProvider.postUnauthorisedError();
 			return;
 		}
 		try {
-			if (voidResponse.code() == 400) {
-				RecognizedError error = RecognizedError.getError(voidResponse.errorBody().string());
+			if (response.code() == 400) {
+				RecognizedError error = RecognizedError.getError(response.errorBody().string());
 				Log.d("KnownError", error.getCode() + error.getMessage());
 				KnownError knownError = new KnownError();
 				knownError.setCode(error.getCode().intValue());
@@ -700,9 +729,9 @@ public class EaClient {
 			e.printStackTrace();
 		}
 		try {
-			Log.d("KnownError", voidResponse.code() + voidResponse.errorBody().toString());
+			Log.d("KnownError", response.code() + response.errorBody().toString());
 			KnownError knownError = new KnownError();
-			knownError.setCode(voidResponse.code());
+			knownError.setCode(response.code());
 			knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
 			ClientProvider.postKnownError(knownError);
 		} catch (Exception e) {

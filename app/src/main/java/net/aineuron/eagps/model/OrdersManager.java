@@ -108,6 +108,23 @@ public class OrdersManager {
 		return orderCopy;
 	}
 
+	public boolean isActiveOrder(Long id) {
+		Realm db = RealmHelper.getDb();
+		Order order = db.where(Order.class)
+				.equalTo("id", id)
+				.beginGroup()
+				.equalTo("status", ORDER_STATE_ASSIGNED)
+				.or()
+				.equalTo("status", ORDER_STATE_ENTITY_FINISHED)
+				.endGroup()
+				.findFirst();
+
+		boolean isActiveOrder = order != null;
+		db.close();
+
+		return isActiveOrder;
+	}
+
 	public void addOrder(Order order) {
 		Realm db = RealmHelper.getDb();
 		db.executeTransaction(realm ->
