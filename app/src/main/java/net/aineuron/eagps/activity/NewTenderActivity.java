@@ -124,7 +124,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			setTitle(title);
 			actionBar.setTitle(getTitle());
 			actionBar.setDefaultDisplayHomeAsUpEnabled(false);
-			header.setText(title);
 		}
 		Disposable subscribe = cancelNotificationsDebounceAction.throttleFirst(4, TimeUnit.SECONDS).subscribe(aInt -> cancelNotifications());
 	}
@@ -304,6 +303,7 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			return;
 		}
 
+		header.setText("Objednávka: " + tender.getOrder().getClaimSaxCode());
 		tenderId = tender.getTenderId();
 		order = tender.getOrder();
 

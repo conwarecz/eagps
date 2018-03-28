@@ -9,12 +9,11 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
+apply plugin: 'realm-android'
 
 repositories {
 	maven { url 'https://maven.fabric.io/public' }
 }
-
-apply plugin: 'realm-android'
 
 android {
 	compileSdkVersion 27
@@ -86,10 +85,6 @@ android {
 	}
 	lintOptions {
 		checkReleaseBuilds false
-	}
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
 	}
 
 	dependencies {
