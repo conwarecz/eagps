@@ -1,5 +1,6 @@
 package net.aineuron.eagps.client.client;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -64,7 +65,6 @@ import retrofit2.Retrofit;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
-import static net.aineuron.eagps.model.UserManager.STATE_ID_READY;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_CANCELLED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
 
@@ -72,6 +72,7 @@ import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED
  * Created by Vit Veres on 31.3.2016
  * as a part of AlTraceabilitySystem project.
  */
+@SuppressLint("CheckResult")
 @EBean(scope = EBean.Scope.Singleton)
 public class EaClient {
 
@@ -213,7 +214,7 @@ public class EaClient {
 							user.setCarId(carId);
 							user.setCar(car);
 							userManager.setUser(user);
-							userManager.setSelectedStateId(car == null ? STATE_ID_NO_CAR : STATE_ID_READY);
+							userManager.setSelectedStateId(car.getStatusId());
 							eventBus.post(new CarSelectedEvent(car.getStatusId()));
 						},
 						this::sendError
