@@ -7,8 +7,10 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.text.format.DateUtils;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -35,11 +37,13 @@ import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Tender;
 import net.aineuron.eagps.model.transfer.KnownError;
+import net.aineuron.eagps.model.transfer.PostponedTime;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.NetworkUtil;
+import net.aineuron.eagps.util.TimeUtil;
 import net.aineuron.eagps.view.widget.IcoLabelTextView;
 
 import org.androidannotations.annotations.AfterViews;
@@ -49,10 +53,12 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.res.ColorRes;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -63,9 +69,13 @@ import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
 @EActivity(R.layout.activity_new_tender)
-public class NewTenderActivity extends AppCompatActivity implements NumberPicker.OnValueChangeListener {
+public class NewTenderActivity extends AppCompatActivity {
 
 	private static final String TAG = NewTenderActivity.class.getSimpleName();
+
+	@ColorRes(R.color.colorPrimaryDark)
+	int colorPrimaryDark;
+
 	@ViewById(R.id.back)
 	Button accept;
 	@ViewById(R.id.decline)
@@ -80,8 +90,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	EventBus bus;
 	@Bean
 	ClientProvider clientProvider;
-	@Extra
-	String title;
 	@App
 	Appl appl;
 	@ViewById(R.id.clientCar)
@@ -92,12 +100,18 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	IcoLabelTextView destinationAddress;
 	@ViewById(R.id.eventDescription)
 	IcoLabelTextView eventDescription;
+	@ViewById(R.id.postponedArrival)
+	IcoLabelTextView postponedArrival;
 	@ViewById(R.id.assignedDriver)
 	IcoLabelTextView assignedDriver;
 	@ViewById(R.id.showOnMap)
 	ConstraintLayout map;
 	@ViewById(R.id.header)
 	TextView header;
+
+	@Extra
+	String title;
+
 	PublishSubject<Integer> cancelNotificationsDebounceAction = PublishSubject.create();
 	private MaterialDialog progressDialog;
 	private Order order;
@@ -105,16 +119,9 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 	private TenderRejectModel tenderRejectModel;
 	private int retryCounter = 0;
 	private boolean accepting = false;
-	private int days = 0;
-	private int hours = 0;
-	private int minutes = 0;
-	private Long duration = 0L;
-	private NumberPicker dayPicker;
-	private NumberPicker hourPicker;
-	private NumberPicker minutePicker;
-	private boolean buttonClicked = false;
 	private Tender tender;
 	private Long tenderId = -1L;
+	private PostponedTime selectedPostponedTime;
 
 	@SuppressLint("RestrictedApi")
 	@AfterViews
@@ -235,9 +242,13 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
 		}
-		buttonClicked = true;
 		accepting = true;
-		showDurationDialog();
+
+		if (order.isPostponedArrival()) {
+			sendAcceptTender();
+		} else {
+			showPostponedDialog();
+		}
 	}
 
 	@Click(R.id.decline)
@@ -246,7 +257,6 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 			Toast.makeText(getApplicationContext(), R.string.connectivity_not_connected, Toast.LENGTH_LONG).show();
 			return;
 		}
-		buttonClicked = true;
 		accepting = false;
 		// State is the same as before
 		new MaterialDialog.Builder(this)
@@ -373,6 +383,17 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 
 		if (order.getEventDescription() != null) {
 			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		}
+
+		if (order.getArrivalTime() != null) {
+			this.postponedArrival.setText(Appl.timeDateFormat.format(order.getArrivalTime()));
+			if (!DateUtils.isToday(order.getArrivalTime().getTime())) {
+				this.postponedArrival.setTextColor(colorPrimaryDark);
+			}
+		}
+
+		if (order.isPostponedArrival()) {
+			this.postponedArrival.setLabelText("Odložený dojezd");
 		}
 
 		if (tender.getEntity() != null) {
@@ -511,55 +532,47 @@ public class NewTenderActivity extends AppCompatActivity implements NumberPicker
 		}
 	}
 
+	private void showPostponedDialog() {
+		selectedPostponedTime = null;
 
-	private void showDurationDialog() {
-		duration = 0L;
-		days = 0;
-		hours = 0;
-		minutes = 0;
+		Date arrivalTime = order.getArrivalTime();
+
+		List<PostponedTime> postponedTimes = TimeUtil.generatePostponedTimes(arrivalTime, tender.getAllowedDepartureDelayMinutes());
+		selectedPostponedTime = postponedTimes.get(0);
+
+		String[] timeNames = new String[postponedTimes.size()];
+		for (int i = 0; i < postponedTimes.size(); i++) {
+			PostponedTime time = postponedTimes.get(i);
+			timeNames[i] = time.getTime();
+		}
+
 		final MaterialDialog.Builder builder = new MaterialDialog.Builder(NewTenderActivity.this);
 		builder.customView(R.layout.widget_delay_picker, false);
 		builder.title(R.string.widget_delay_title);
 		final MaterialDialog d = builder.build();
 		Button confirmationButton = (AppCompatButton) d.findViewById(R.id.widget_duration_confirm);
-		dayPicker = (NumberPicker) d.findViewById(R.id.widget_duration_days);
-		dayPicker.setMaxValue(99);
-		dayPicker.setMinValue(0);
-		dayPicker.setWrapSelectorWheel(false);
-		dayPicker.setOnValueChangedListener(this);
 
-		hourPicker = (NumberPicker) d.findViewById(R.id.widget_duration_hours);
-		hourPicker.setMaxValue(23);
-		hourPicker.setMinValue(0);
-		hourPicker.setWrapSelectorWheel(false);
-		hourPicker.setOnValueChangedListener(this);
-
-		minutePicker = (NumberPicker) d.findViewById(R.id.widget_duration_minutes);
-		minutePicker.setMaxValue(11);
-		minutePicker.setMinValue(0);
-		minutePicker.setDisplayedValues(new String[]{"0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"});
-		minutePicker.setWrapSelectorWheel(false);
-		minutePicker.setOnValueChangedListener(this);
+		NumberPicker timePicker = (NumberPicker) d.findViewById(R.id.widget_time_picker);
+		timePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+		timePicker.setMinValue(0);
+		timePicker.setMaxValue(postponedTimes.size() - 1);
+		timePicker.setDisplayedValues(timeNames);
+		timePicker.setWrapSelectorWheel(false);
+		timePicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+			this.selectedPostponedTime = postponedTimes.get(newVal);
+		});
 		d.setOnCancelListener(dialogInterface -> accepting = false);
 		confirmationButton.setOnClickListener(v -> {
 			d.dismiss();
-			tenderAcceptModel.setDepartureDelayMinutes(duration);
-			showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
-			clientProvider.getEaClient().acceptTender(getTenderId(), tenderAcceptModel);
+			tenderAcceptModel.setDepartureDelayMinutes((long) selectedPostponedTime.getOffsetMinutes());
+			sendAcceptTender();
 		});
 		d.show();
 	}
 
-	@Override
-	public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
-		if (numberPicker == dayPicker) {
-			days = newValue;
-		} else if (numberPicker == hourPicker) {
-			hours = newValue;
-		} else if (numberPicker == minutePicker) {
-			minutes = newValue * 5;
-		}
-		duration = Long.valueOf(minutes + (hours * 60) + (days * 60 * 24));
+	private void sendAcceptTender() {
+		showProgress(getString(R.string.tender_sending_progress_title), getString(R.string.tender_sending_progress_content));
+		clientProvider.getEaClient().acceptTender(getTenderId(), tenderAcceptModel);
 	}
 
 	private void cancelNotifications() {

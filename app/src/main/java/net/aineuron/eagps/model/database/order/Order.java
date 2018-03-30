@@ -45,6 +45,9 @@ public class Order extends RealmObject {
 	private Limitation limitation;
 	private RealmList<Photo> photos = new RealmList<>();
 	private Date estimatedDepartureTime;
+	private Date arrivalTime;
+	private boolean postponedArrival;
+
 
 	private String workshopName;
 	private int destinationType;
@@ -278,6 +281,22 @@ public class Order extends RealmObject {
 
 	public void setEntityId(Long entityId) {
 		this.entityId = entityId;
+	}
+
+	public Date getArrivalTime() {
+		return arrivalTime;
+	}
+
+	public void setArrivalTime(Date arrivalTime) {
+		this.arrivalTime = arrivalTime;
+	}
+
+	public boolean isPostponedArrival() {
+		return postponedArrival;
+	}
+
+	public void setPostponedArrival(boolean postponedArrival) {
+		this.postponedArrival = postponedArrival;
 	}
 }
 

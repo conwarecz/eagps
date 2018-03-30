@@ -94,16 +94,27 @@
 				app:ilt_text="Test"/>
 
 			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/postponedArrival"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/ic_icon_detail_postponed_arrival"
+				app:ilt_labelText="Dojezd"
+				app:ilt_text="23.3. 2017 "/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
 				android:id="@+id/assignedDriver"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginLeft="30dp"
 				android:layout_marginRight="30dp"
 				android:layout_marginTop="16dp"
-				app:ilt_textColor="#184080"
 				app:ilt_icoResource="@drawable/icon_big_notselected_74"
 				app:ilt_labelText="Požadované vozidlo"
-				app:ilt_text="Test"/>
+				app:ilt_text="Test"
+				app:ilt_textColor="#184080"/>
 
 		</LinearLayout>
 

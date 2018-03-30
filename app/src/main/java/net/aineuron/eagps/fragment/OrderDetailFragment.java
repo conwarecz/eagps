@@ -3,10 +3,12 @@ package net.aineuron.eagps.fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.support.annotation.NonNull;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.model.OrdersManager;
@@ -26,6 +28,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.LongClick;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.res.ColorRes;
 
 import io.reactivex.annotations.Nullable;
 import io.realm.Realm;
@@ -42,6 +45,9 @@ public class OrderDetailFragment extends BaseFragment {
 	@SystemService
 	ClipboardManager clipboardManager;
 
+	@ColorRes(R.color.colorPrimaryDark)
+	int colorPrimaryDark;
+
 	@ViewById(R.id.client)
 	IcoLabelTextView client;
 	@ViewById(R.id.clientCar)
@@ -52,6 +58,8 @@ public class OrderDetailFragment extends BaseFragment {
 	IcoLabelTextView destinationAddress;
 	@ViewById(R.id.eventDescription)
 	IcoLabelTextView eventDescription;
+	@ViewById(R.id.postponedArrival)
+	IcoLabelTextView postponedArrival;
 	@ViewById(R.id.assignedEntity)
 	IcoLabelTextView assignedEntity;
 	@ViewById(R.id.limit)
@@ -195,6 +203,13 @@ public class OrderDetailFragment extends BaseFragment {
 
 		if (order.getEventDescription() != null) {
 			this.eventDescription.setText(FormatUtil.formatEvent(order.getEventDescription()));
+		}
+
+		if (order.getArrivalTime() != null) {
+			this.postponedArrival.setText(Appl.timeDateFormat.format(order.getArrivalTime()));
+			if (!DateUtils.isToday(order.getArrivalTime().getTime())) {
+				this.postponedArrival.setTextColor(colorPrimaryDark);
+			}
 		}
 
 		if (order.getEntityName() != null) {

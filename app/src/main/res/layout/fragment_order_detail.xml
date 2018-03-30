@@ -106,6 +106,17 @@
 				app:ilt_text="Test"/>
 
 			<net.aineuron.eagps.view.widget.IcoLabelTextView_
+				android:id="@+id/postponedArrival"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginRight="30dp"
+				android:layout_marginTop="16dp"
+				app:ilt_icoResource="@drawable/ic_icon_detail_postponed_arrival"
+				app:ilt_labelText="Dojezd"
+				app:ilt_text="23.3. 2017 "/>
+
+			<net.aineuron.eagps.view.widget.IcoLabelTextView_
 				android:id="@+id/assignedEntity"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

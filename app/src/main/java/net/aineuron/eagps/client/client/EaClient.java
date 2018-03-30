@@ -68,6 +68,7 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_CANCELLED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
+import static net.aineuron.eagps.util.TimeUtil.fixDateTimeZones;
 
 /**
  * Created by Vit Veres on 31.3.2016
@@ -753,28 +754,12 @@ public class EaClient {
 	}
 
 	private void setOrderDatesProperTimeZone(Order order) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
 		if (order.getEstimatedDepartureTime() != null) {
-			try {
-				simpleDateFormat.setTimeZone(TimeZone.getDefault());
-				String string = simpleDateFormat.format(order.getEstimatedDepartureTime());
-				simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-				Date newDate = simpleDateFormat.parse(string);
-				order.setEstimatedDepartureTime(newDate);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			order.setEstimatedDepartureTime(fixDateTimeZones(order.getEstimatedDepartureTime()));
 		}
 		if (order.getTimeCreated() != null) {
-			try {
-				simpleDateFormat.setTimeZone(TimeZone.getDefault());
-				String string = simpleDateFormat.format(order.getTimeCreated());
-				simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-				Date newDate = simpleDateFormat.parse(string);
-				order.setTimeCreated(newDate);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			order.setTimeCreated(fixDateTimeZones(order.getTimeCreated()));
 		}
 	}
 

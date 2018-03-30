@@ -38,12 +38,14 @@ import net.aineuron.eagps.model.database.order.Tender;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.RealmHelper;
+import net.aineuron.eagps.util.TimeUtil;
 
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -130,6 +132,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 	private void handleNewTender(RemoteMessage remoteMessage) {
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
+		Order order = tender.getOrder();
+
+		if (order != null) {
+			Date newArrivalTime = TimeUtil.fixDateTimeZones(order.getArrivalTime());
+			order.setArrivalTime(newArrivalTime);
+		}
 
 		boolean hasSameTender = tendersManager.hasTender(tender.getTenderEntityUniId());
 

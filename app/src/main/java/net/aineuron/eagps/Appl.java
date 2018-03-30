@@ -49,6 +49,7 @@ public class Appl extends MultiDexApplication implements
     public static boolean isInBackground = true;
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    public static SimpleDateFormat timeDateFormat = new SimpleDateFormat("HH:mm dd.MM.yyyy");
     public static RealmConfiguration dbConfig;
     public static RealmConfiguration tenderDbConfig;
     private static String TAG = Appl.class.getName();

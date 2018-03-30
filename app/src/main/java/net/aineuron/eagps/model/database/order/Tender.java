@@ -36,6 +36,7 @@ public class Tender extends RealmObject implements Serializable {
 	private UserWhoKickedMeFromCar User;
 	private Long EntityId;
 	private Date incomeTime;
+	private int allowedDepartureDelayMinutes;
 
 	public static Order getOrderFromJson(String json) {
 		Tender tender = getTender(json);
@@ -170,5 +171,13 @@ public class Tender extends RealmObject implements Serializable {
 
 	public void setPushId(int pushId) {
 		this.pushId = pushId;
+	}
+
+	public int getAllowedDepartureDelayMinutes() {
+		return allowedDepartureDelayMinutes;
+	}
+
+	public void setAllowedDepartureDelayMinutes(int allowedDepartureDelayMinutes) {
+		allowedDepartureDelayMinutes = allowedDepartureDelayMinutes;
 	}
 }
