@@ -109,7 +109,7 @@ public class EaClient {
 			return;
 		}
 
-		eaService.login(BuildConfig.VERSION_NAME, info)
+		eaService.login(getClearVersionName(), info)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
@@ -683,49 +683,49 @@ public class EaClient {
 		try {
 			RetrofitException error = (RetrofitException) errorThrowable;
 
-            if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
-                clientProvider.postUnauthorisedError();
-            } else if (error.getResponse().code() == 400) {
-	            try {
-		            RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
-		            Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
-		            KnownError knownError = new KnownError();
-		            knownError.setCode(recognizedError.getCode().intValue());
-		            knownError.setMessage(recognizedError.getMessage());
-		            ClientProvider.postKnownError(knownError);
-		            return;
-	            } catch (Exception e) {
-		            e.printStackTrace();
-	            }
-            } else if (error.getResponse().code() == 403) {
-	            RecognizedError recognizedError = new RecognizedError();
-	            try {
-		            recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
-		            Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
-		            return;
-	            } catch (Exception e) {
-		            e.printStackTrace();
-	            }
-	            KnownError knownError = new KnownError();
-	            knownError.setCode(403);
-	            knownError.setMessage(recognizedError.getMessage());
-	            ClientProvider.postKnownError(knownError);
-            }
+			if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
+				clientProvider.postUnauthorisedError();
+			} else if (error.getResponse().code() == 400) {
+				try {
+					RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+					KnownError knownError = new KnownError();
+					knownError.setCode(recognizedError.getCode().intValue());
+					knownError.setMessage(recognizedError.getMessage());
+					ClientProvider.postKnownError(knownError);
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else if (error.getResponse().code() == 403) {
+				RecognizedError recognizedError = new RecognizedError();
+				try {
+					recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				KnownError knownError = new KnownError();
+				knownError.setCode(403);
+				knownError.setMessage(recognizedError.getMessage());
+				ClientProvider.postKnownError(knownError);
+			}
 
 			if (error.getKind() == RetrofitException.Kind.HTTP) {
 				KnownError knownError = error.getErrorBodyAs(KnownError.class);
-                Log.d("KnownError", knownError.getCode() + knownError.getMessage());
-                knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-                ClientProvider.postKnownError(knownError);
-            } else {
-                Log.d("NetworkError", errorThrowable.getMessage());
-                ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-            }
+				Log.d("KnownError", knownError.getCode() + knownError.getMessage());
+				knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+				ClientProvider.postKnownError(knownError);
+			} else {
+				Log.d("NetworkError", errorThrowable.getMessage());
+				ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-            Log.d("NetworkError", errorThrowable.getMessage());
-            ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-        }
+			Log.d("NetworkError", errorThrowable.getMessage());
+			ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+		}
 		eventBus.post(new StopRefreshingEvent());
 	}
 
@@ -749,7 +749,6 @@ public class EaClient {
 				try {
 					recognizedError = RecognizedError.getError(response.errorBody().string());
 					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
-					return;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -757,18 +756,19 @@ public class EaClient {
 				knownError.setCode(403);
 				knownError.setMessage(recognizedError.getMessage());
 				ClientProvider.postKnownError(knownError);
+				return;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-            Log.d("KnownError", code + response.errorBody().toString());
-            KnownError knownError = new KnownError();
+			Log.d("KnownError", code + response.errorBody().toString());
+			KnownError knownError = new KnownError();
 			knownError.setCode(code);
-            knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-            ClientProvider.postKnownError(knownError);
-        } catch (Exception e) {
-            e.printStackTrace();
+			knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+			ClientProvider.postKnownError(knownError);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		eventBus.post(new StopRefreshingEvent());
 	}
@@ -793,6 +793,21 @@ public class EaClient {
 		if (order.getTimeCreated() != null) {
 			order.setTimeCreated(fixDateTimeZones(order.getTimeCreated()));
 		}
+	}
+
+	private String getClearVersionName() {
+		// TODO: REMOVE
+		if (BuildConfig.FLAVOR.equals("flavtest")) {
+			return "0.5.19";
+		}
+
+		String versionName = BuildConfig.VERSION_NAME;
+		try {
+			versionName = versionName.substring(0, versionName.indexOf("-"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return versionName;
 	}
 
 	public void testErrorCode() {
