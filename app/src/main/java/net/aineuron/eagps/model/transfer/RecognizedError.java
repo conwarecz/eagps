@@ -15,8 +15,8 @@ import io.realm.RealmList;
  */
 
 public class RecognizedError {
-    private Long Code;
-    private String Message;
+	private Long Code = -1L;
+	private String Message = "";
 
     public static RecognizedError getError(String json) {
         Gson gson = new GsonBuilder()

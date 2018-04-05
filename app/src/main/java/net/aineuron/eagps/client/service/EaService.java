@@ -18,6 +18,7 @@ import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -31,7 +32,7 @@ public interface EaService {
 
 	// User
     @POST("users/login")
-    Maybe<User> login(@Body LoginInfo loginInfo);
+    Maybe<Response<User>> login(@Header("Version") String version, @Body LoginInfo loginInfo);
 
     @POST("users/{userId}/logout")
     Maybe<Response<Void>> logout(@Path("userId") Long userId);

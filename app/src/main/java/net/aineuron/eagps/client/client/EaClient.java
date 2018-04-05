@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
+import net.aineuron.eagps.BuildConfig;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.RetrofitException;
@@ -104,14 +105,18 @@ public class EaClient {
 			return;
 		}
 
-		eaService.login(info)
+		eaService.login(BuildConfig.VERSION_NAME, info)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						user -> {
-							userManager.setUser(user);
-							clientProvider.rebuildRetrofit();
-							eventBus.post(new UserLoggedInEvent());
+						userResponse -> {
+							if (userResponse.isSuccessful()) {
+								userManager.setUser(userResponse.body());
+								clientProvider.rebuildRetrofit();
+								eventBus.post(new UserLoggedInEvent());
+							} else {
+								sendKnownError(userResponse);
+							}
 						},
 						this::sendError
 				);
@@ -513,9 +518,9 @@ public class EaClient {
 		eaService.setRead(messageId, isRead)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        voidResponse -> {
-                            if (voidResponse.isSuccessful()) {
+				.subscribe(
+						voidResponse -> {
+							if (voidResponse.isSuccessful()) {
 								Log.d("MessageSetRead", "Message Set Read success");
 							} else {
 								sendKnownError(voidResponse);
@@ -562,12 +567,12 @@ public class EaClient {
 	}
 
 	// Pictures
-    public void uploadPhoto(PhotoFile photoFile, Long orderId) {
+	public void uploadPhoto(PhotoFile photoFile, Long orderId) {
 		if (!connectedToInternet()) {
 			return;
 		}
 		eaService.uploadPhoto(orderId, photoFile)
-                .subscribeOn(Schedulers.computation())
+				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						voidResponse ->
@@ -608,19 +613,33 @@ public class EaClient {
 
             if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
                 clientProvider.postUnauthorisedError();
-			} else if (error.getResponse().code() == 400) {
-				try {
-					RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
-					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
-					KnownError knownError = new KnownError();
-					knownError.setCode(recognizedError.getCode().intValue());
-					knownError.setMessage(recognizedError.getMessage());
-					ClientProvider.postKnownError(knownError);
-					return;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+            } else if (error.getResponse().code() == 400) {
+	            try {
+		            RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+		            Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+		            KnownError knownError = new KnownError();
+		            knownError.setCode(recognizedError.getCode().intValue());
+		            knownError.setMessage(recognizedError.getMessage());
+		            ClientProvider.postKnownError(knownError);
+		            return;
+	            } catch (Exception e) {
+		            e.printStackTrace();
+	            }
+            } else if (error.getResponse().code() == 403) {
+	            RecognizedError recognizedError = new RecognizedError();
+	            try {
+		            recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+		            Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+		            return;
+	            } catch (Exception e) {
+		            e.printStackTrace();
+	            }
+	            KnownError knownError = new KnownError();
+	            knownError.setCode(403);
+	            knownError.setMessage(recognizedError.getMessage());
+	            ClientProvider.postKnownError(knownError);
+            }
+
 			if (error.getKind() == RetrofitException.Kind.HTTP) {
 				KnownError knownError = error.getErrorBodyAs(KnownError.class);
                 Log.d("KnownError", knownError.getCode() + knownError.getMessage());
@@ -638,13 +657,14 @@ public class EaClient {
 		eventBus.post(new StopRefreshingEvent());
 	}
 
-	private void sendKnownError(Response<Void> voidResponse) {
-		if (voidResponse.code() == 401) {
+	private void sendKnownError(Response voidResponse) {
+		int code = voidResponse.code();
+		if (code == 401) {
 			clientProvider.postUnauthorisedError();
 			return;
 		}
 		try {
-			if (voidResponse.code() == 400) {
+			if (code == 400) {
 				RecognizedError error = RecognizedError.getError(voidResponse.errorBody().string());
 				Log.d("KnownError", error.getCode() + error.getMessage());
 				KnownError knownError = new KnownError();
@@ -652,6 +672,19 @@ public class EaClient {
 				knownError.setMessage(error.getMessage());
 				ClientProvider.postKnownError(knownError);
 				return;
+			} else if (code == 403) {
+				RecognizedError recognizedError = new RecognizedError();
+				try {
+					recognizedError = RecognizedError.getError(voidResponse.errorBody().string());
+					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				KnownError knownError = new KnownError();
+				knownError.setCode(403);
+				knownError.setMessage(recognizedError.getMessage());
+				ClientProvider.postKnownError(knownError);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

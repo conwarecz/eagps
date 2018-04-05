@@ -103,6 +103,7 @@ public class ProfileActivity extends AppBarActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoggedOutEvent(UserLoggedOutEvent e) {
 		userManager.deleteUser();
+		clientProvider.rebuildRetrofit();
 		dismissDialog();
 		showLogin();
 	}
