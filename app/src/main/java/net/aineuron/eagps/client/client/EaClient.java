@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
+import net.aineuron.eagps.BuildConfig;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.client.RetrofitException;
@@ -108,14 +109,18 @@ public class EaClient {
 			return;
 		}
 
-		eaService.login(info)
+		eaService.login(BuildConfig.VERSION_NAME, info)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						user -> {
-							userManager.setUser(user);
-							clientProvider.rebuildRetrofit();
-							eventBus.post(new UserLoggedInEvent());
+						userResponse -> {
+							if (userResponse.isSuccessful()) {
+								userManager.setUser(userResponse.body());
+								clientProvider.rebuildRetrofit();
+								eventBus.post(new UserLoggedInEvent());
+							} else {
+								sendKnownError(userResponse);
+							}
 						},
 						this::sendError
 				);
@@ -678,46 +683,60 @@ public class EaClient {
 		try {
 			RetrofitException error = (RetrofitException) errorThrowable;
 
-			if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
-				clientProvider.postUnauthorisedError();
-				return;
-			} else if (error.getResponse().code() == 400) {
-				try {
-					RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
-					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
-					KnownError knownError = new KnownError();
-					knownError.setCode(recognizedError.getCode().intValue());
-					knownError.setMessage(recognizedError.getMessage());
-					ClientProvider.postKnownError(knownError);
-					return;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+            if (error.getKind() == RetrofitException.Kind.UNAUTHORISED) {
+                clientProvider.postUnauthorisedError();
+            } else if (error.getResponse().code() == 400) {
+	            try {
+		            RecognizedError recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+		            Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+		            KnownError knownError = new KnownError();
+		            knownError.setCode(recognizedError.getCode().intValue());
+		            knownError.setMessage(recognizedError.getMessage());
+		            ClientProvider.postKnownError(knownError);
+		            return;
+	            } catch (Exception e) {
+		            e.printStackTrace();
+	            }
+            } else if (error.getResponse().code() == 403) {
+	            RecognizedError recognizedError = new RecognizedError();
+	            try {
+		            recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
+		            Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+		            return;
+	            } catch (Exception e) {
+		            e.printStackTrace();
+	            }
+	            KnownError knownError = new KnownError();
+	            knownError.setCode(403);
+	            knownError.setMessage(recognizedError.getMessage());
+	            ClientProvider.postKnownError(knownError);
+            }
+
 			if (error.getKind() == RetrofitException.Kind.HTTP) {
 				KnownError knownError = error.getErrorBodyAs(KnownError.class);
-				Log.d("KnownError", knownError.getCode() + knownError.getMessage());
-				knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-				ClientProvider.postKnownError(knownError);
-			} else {
-				Log.d("NetworkError", errorThrowable.getMessage());
-				ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-			}
+                Log.d("KnownError", knownError.getCode() + knownError.getMessage());
+                knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+                ClientProvider.postKnownError(knownError);
+            } else {
+                Log.d("NetworkError", errorThrowable.getMessage());
+                ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d("NetworkError", errorThrowable.getMessage());
-			ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-		}
+            Log.d("NetworkError", errorThrowable.getMessage());
+            ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+        }
 		eventBus.post(new StopRefreshingEvent());
 	}
 
 	private void sendKnownError(Response response) {
-		if (response.code() == 401) {
+		int code = response.code();
+		if (code == 401) {
 			clientProvider.postUnauthorisedError();
 			return;
 		}
 		try {
-			if (response.code() == 400) {
+			if (code == 400) {
 				RecognizedError error = RecognizedError.getError(response.errorBody().string());
 				Log.d("KnownError", error.getCode() + error.getMessage());
 				KnownError knownError = new KnownError();
@@ -725,18 +744,31 @@ public class EaClient {
 				knownError.setMessage(error.getMessage());
 				ClientProvider.postKnownError(knownError);
 				return;
+			} else if (code == 403) {
+				RecognizedError recognizedError = new RecognizedError();
+				try {
+					recognizedError = RecognizedError.getError(response.errorBody().string());
+					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				KnownError knownError = new KnownError();
+				knownError.setCode(403);
+				knownError.setMessage(recognizedError.getMessage());
+				ClientProvider.postKnownError(knownError);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-			Log.d("KnownError", response.code() + response.errorBody().toString());
-			KnownError knownError = new KnownError();
-			knownError.setCode(response.code());
-			knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
-			ClientProvider.postKnownError(knownError);
-		} catch (Exception e) {
-			e.printStackTrace();
+            Log.d("KnownError", code + response.errorBody().toString());
+            KnownError knownError = new KnownError();
+			knownError.setCode(code);
+            knownError.setMessage("Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
+            ClientProvider.postKnownError(knownError);
+        } catch (Exception e) {
+            e.printStackTrace();
 		}
 		eventBus.post(new StopRefreshingEvent());
 	}

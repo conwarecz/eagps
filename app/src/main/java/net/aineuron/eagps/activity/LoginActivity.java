@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.grisoftware.updatechecker.GoogleChecker;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
@@ -44,6 +44,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+
+import javax.security.auth.login.LoginException;
 
 import static net.aineuron.eagps.model.UserManager.WORKER_ID;
 
@@ -77,8 +79,6 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	public void afterViews() {
 		getSupportActionBar().hide();
 
-		new GoogleChecker(this, false);
-
 		validator = new Validator(this);
 		validator.setValidationListener(this);
 	}
@@ -109,6 +109,8 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 		// Fields ok - attempt login
 		showProgress();
 		LoginInfo info = new LoginInfo(loginField.getText().toString(), passwordField.getText().toString());
+		userManager.deleteUser();
+		clientProvider.rebuildRetrofit();
 		userManager.login(info);
 	}
 
@@ -152,6 +154,8 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onLoginFailed(ApiErrorEvent e) {
+		Crashlytics.logException(e.throwable);
+
 		dismissDialog();
 		Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
 	}
@@ -160,6 +164,16 @@ public class LoginActivity extends AppCompatActivity implements Validator.Valida
 	public void onKnownError(KnownErrorEvent e) {
 		dismissDialog();
 		Toast.makeText(this, "Login se nezdařil", Toast.LENGTH_LONG).show();
+
+		if (e.knownError.getCode() == 403) {
+			new MaterialDialog.Builder(this)
+					.content(e.knownError.getMessage())
+					.title("Upozornění")
+					.positiveText("OK")
+					.show();
+		} else {
+			Crashlytics.logException(new LoginException(e.knownError.getCode() + " " + e.knownError.getMessage()));
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

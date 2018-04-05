@@ -87,6 +87,7 @@ public class ClientProvider {
     @UiThread
     public void postUnauthorisedError() {
         userManager.deleteUser();
+	    rebuildRetrofit();
         Intent intent = new Intent(context, LoginActivity_.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
