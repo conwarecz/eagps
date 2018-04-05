@@ -1,7 +1,7 @@
 package net.aineuron.eagps.activity;
 
 import android.annotation.SuppressLint;
-import android.app.NotificationManager;
+import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -40,6 +40,7 @@ import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.model.transfer.PostponedTime;
 import net.aineuron.eagps.model.transfer.tender.TenderAcceptModel;
 import net.aineuron.eagps.model.transfer.tender.TenderRejectModel;
+import net.aineuron.eagps.push.MyFirebaseMessagingService;
 import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.NetworkUtil;
@@ -123,6 +124,8 @@ public class NewTenderActivity extends AppCompatActivity {
 	private Long tenderId = -1L;
 	private PostponedTime selectedPostponedTime;
 
+	private boolean shouldNotifyNewTender = false;
+
 	@SuppressLint("RestrictedApi")
 	@AfterViews
 	void afterViews() {
@@ -138,6 +141,7 @@ public class NewTenderActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		shouldNotifyNewTender = false;
 		setUi();
 	}
 
@@ -335,6 +339,12 @@ public class NewTenderActivity extends AppCompatActivity {
 		tenderId = tender.getTenderId();
 		order = tender.getOrder();
 
+		// Replay notification for new showing
+		if (shouldNotifyNewTender) {
+			notifyNewTender();
+		}
+		shouldNotifyNewTender = true;
+
 		User user = userManager.getUser();
 		if (user == null) {
 			clientProvider.postUnauthorisedError();
@@ -524,13 +534,15 @@ public class NewTenderActivity extends AppCompatActivity {
 		clientProvider.getEaClient().acceptTender(getTenderId(), tenderAcceptModel);
 	}
 
+	private void notifyNewTender() {
+		Intent intent = MyFirebaseMessagingService.buildNewTenderIntent(this, "Nová objednávka");
+		MyFirebaseMessagingService.sendNotification(appl, MyFirebaseMessagingService.PUSH_TENDER_NEW, tender.getPushId(), "Nová objednávka", "Nová objednávka", intent);
+	}
+
 	private void cancelNotifications() {
 		try {
 			List<Integer> tenderPushIds = tendersManager.getAllPushIds();
-			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			for (int id : tenderPushIds) {
-				notificationManager.cancel(id);
-			}
+			MyFirebaseMessagingService.cancelTenderNotifications(this, tenderPushIds);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

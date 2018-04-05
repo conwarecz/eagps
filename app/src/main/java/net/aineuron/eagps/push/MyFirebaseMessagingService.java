@@ -90,13 +90,111 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	@App
 	Appl app;
 	private boolean isInBackground = false;
-	private int type = -1;
+
+	/**
+	 * Create and show a simple notification containing the received FCM message.
+	 *
+	 * @param title       FCM message title received.
+	 * @param messageBody FCM message body received.
+	 */
+	public static void sendNotification(Appl app, int type, int pushId, String title, String messageBody, Intent notificationIntent) {
+		NotificationManager notificationManager =
+				(NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (notificationManager == null) {
+			Log.e(TAG, "Notification manager null");
+			return;
+		}
+
+		Bitmap icon = BitmapFactory.decodeResource(app.getResources(),
+				R.mipmap.ic_launcher);
+		NotificationCompat.Builder notificationBuilder = null;
+		Notification notification = null;
+		if (type == PUSH_TENDER_NEW) {
+			notificationBuilder = new NotificationCompat.Builder(app.getApplicationContext(), NOTIFFICATIONS_CHANNEL_TENDER)
+					.setSmallIcon(R.drawable.ic_noti_logo)
+					.setLargeIcon(icon)
+					.setContentTitle(title)
+					.setGroup(String.valueOf(type))
+					.setAutoCancel(true)
+					.setContentText(messageBody);
+
+
+			Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+			notificationBuilder.setSound(sound);
+			notificationBuilder.setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400});
+			notificationBuilder.setPriority(Notification.PRIORITY_HIGH);
+			notificationBuilder.setDefaults(Notification.FLAG_SHOW_LIGHTS);
+			notificationBuilder.setLights(0xffff0000, 300, 100);
+		} else {
+			notificationBuilder = new NotificationCompat.Builder(app.getApplicationContext(), NOTIFFICATIONS_CHANNEL_DEFAULT)
+					.setSmallIcon(R.drawable.ic_noti_logo)
+					.setLargeIcon(icon)
+					.setContentTitle(title)
+					.setAutoCancel(true)
+					.setGroup(String.valueOf(type))
+					.setContentText(messageBody);
+
+			Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			notificationBuilder.setSound(sound);
+			notificationBuilder.setPriority(Notification.PRIORITY_DEFAULT);
+			notificationBuilder.setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.FLAG_SHOW_LIGHTS);
+			notificationBuilder.setLights(0xff00ff00, 300, 100);
+		}
+
+		PendingIntent contentIntent = null;
+		if (notificationIntent != null) {
+			contentIntent = PendingIntent.getActivity(app, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+		} else {
+			// Only close notification after clicking
+			contentIntent = PendingIntent.getActivity(app, 0, new Intent(), 0);
+		}
+
+		notificationBuilder.setContentIntent(contentIntent);
+		notification = notificationBuilder.build();
+
+		// Ring repeatedly
+		if (type == PUSH_TENDER_NEW && !(app.getActiveActivity() instanceof NewTenderActivity_)) {
+			notification.flags |= Notification.FLAG_INSISTENT;
+		}
+
+		int notificationId = pushId;
+
+		// Showing only one state change push
+		if (type == PUSH_CAR_STATUS_CHANGE) {
+			notificationId = 0;
+			notificationManager.cancel(notificationId);
+		}
+
+		notificationManager.notify(notificationId, notification);
+	}
+
+	public static Intent buildNewTenderIntent(Context context, String title) {
+		Intent notificationIntent = new Intent(context, NewTenderActivity_.class);
+		notificationIntent.putExtra("title", title);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+		return notificationIntent;
+	}
+
+	public static void cancelTenderNotifications(Context context, List<Integer> pushIds) {
+		NotificationManager notificationManager =
+				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+		if (notificationManager == null) {
+			Log.e(TAG, "Notification manager null");
+			return;
+		}
+
+		for (int pushId : pushIds) {
+			notificationManager.cancel(pushId);
+		}
+	}
 
 	@Override
 	public void onMessageReceived(RemoteMessage remoteMessage) {
 		app = (Appl) getApplication();
 		isInBackground = app.isInBackground();
-		type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		Log.d(TAG, "From: " + remoteMessage.getFrom() + " Not. type:" + type);
 
 		switch (type) {
@@ -131,6 +229,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	}
 
 	private void handleNewTender(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
 		Order order = tender.getOrder();
 
@@ -147,22 +246,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		String title = remoteMessage.getData().get("title");
 		String body = remoteMessage.getData().get("body");
 
-		Intent notificationIntent = new Intent(this, NewTenderActivity_.class);
-		notificationIntent.putExtra("title", title);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		Intent notificationIntent = buildNewTenderIntent(this, title);
 
 		if (isInBackground || app.getActiveActivity() instanceof NewTenderActivity_) {
 			if (app.getActiveActivity() instanceof NewTenderActivity_ || hasSameTender) {
 				return;
 			}
-			sendNotification(tender.getPushId(), title, body, notificationIntent);
+			sendNotification(app, type, tender.getPushId(), title, body, notificationIntent);
 		} else {
-			sendNotification(tender.getPushId(), title, body, null);
+			sendNotification(app, type, tender.getPushId(), title, body, null);
 			getApplicationContext().startActivity(notificationIntent);
 		}
 	}
 
 	private void handleAcceptedOrder(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		final Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
 		final Order order = tender.getOrder();
 
@@ -177,7 +275,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
 			notificationIntent.putExtra("id", id);
 			notificationIntent.putExtra("title", title);
-			sendNotification(id.intValue(), title, body, notificationIntent);
+			sendNotification(app, type, id.intValue(), title, body, notificationIntent);
 		}
 
 		Realm realm = RealmHelper.getDb();
@@ -186,7 +284,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 		// Make sure no Tender left on stack from this order
 		if (tendersManager.hasTenderByTenderId(tender.getTenderId())) {
-			cancelTenderNotifications(tendersManager.getPushIdsByTenderId(tender.getTenderId()));
+			cancelTenderNotifications(this, tendersManager.getPushIdsByTenderId(tender.getTenderId()));
 
 			tendersManager.deleteTendersByTenderId(tender.getTenderId());
 			tendersManager.deleteTendersByEntityId(tender.getOrder().getEntityId());
@@ -201,25 +299,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	}
 
 	private void handleMessage(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		final Message message = Tender.getMessageFromJson(remoteMessage.getData().get("message"));
 		Long id = message.getId();
 		Realm realm = RealmHelper.getDb();
 		realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(message));
 		Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
 		notificationIntent.putExtra("messageId", id);
-//        if (isInBackground) {
-		sendNotification(message.getId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
-//        } else {
-//            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            getApplicationContext().startActivity(notificationIntent);
-//        }
-	}
 
-	private void handleUpdatedOrder(RemoteMessage remoteMessage) {
-
+		sendNotification(app, type, message.getId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
 	}
 
 	private void handleCancelledOrder(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		final Order order = Tender.getOrderFromJson(remoteMessage.getData().get("message"));
 		Long id = order.getId();
 		Realm realm = RealmHelper.getDb();
@@ -231,16 +323,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
 		notificationIntent.putExtra("id", id);
 		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
-//        if (isInBackground) {
-		sendNotification(id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
-//        } else {
-//            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            getApplicationContext().startActivity(notificationIntent);
+
+		sendNotification(app, type, id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+
 		EventBus.getDefault().post(new OrderCanceledEvent(id));
-//        }
 	}
 
 	private void handleNotWonTender(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
 		Tender dbCopyTender = tendersManager.getTenderCopy(tender.getTenderEntityUniId());
 
@@ -266,11 +356,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			new Handler(getMainLooper()).post(() -> newTenderActivity.notWonTender(dbCopyTender.getTenderEntityUniId(), title));
 		} else {
 			// If app in background we show notification
-			sendNotification(dbCopyTender.getPushId(), title, body, notificationIntent);
+			sendNotification(app, type, dbCopyTender.getPushId(), title, body, notificationIntent);
 		}
 	}
 
 	private void handleCarStatusChange(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
 		if (userManager.getUser() == null) {
 			return;
@@ -289,11 +380,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		} else {
 			userManager.setSelectedStateId(newStatus);
 			EventBus.getDefault().post(new StateSelectedEvent(newStatus));
-			sendNotification(tender.getEntityId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+			sendNotification(app, type, tender.getEntityId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
 		}
 	}
 
 	private void handleUserKickedFromCar(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		if (userManager.getUser() == null) {
 			return;
 		}
@@ -304,13 +396,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		userManager.setSelectedCarId(null);
 		userManager.setSelectedStateId(STATE_ID_NO_CAR);
 		if (isInBackground) {
-			sendNotification(PUSH_ID_KICKED_FROM_CAR, "Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
+			sendNotification(app, type, PUSH_ID_KICKED_FROM_CAR, "Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
 		} else {
 			EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
 		}
 	}
 
 	private void handleUserLoggedOut(RemoteMessage remoteMessage) {
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
 		if (userManager.getUser() == null) {
 			return;
 		}
@@ -318,99 +411,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		final UserWhoKickedMeFromCar user = Tender.getUser(remoteMessage.getData().get("message"));
 		if (user.getUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
 			if (isInBackground) {
-				sendNotification(PUSH_ID_USER_LOGOUT, "Odhlášení z vozidla", "Byl jste odhlášen", null);
+				sendNotification(app, type, PUSH_ID_USER_LOGOUT, "Odhlášení z vozidla", "Byl jste odhlášen", null);
 			} else {
 				EventBus.getDefault().post(new UserLoggedOutFromAnotherDeviceEvent());
 			}
 			clientProvider.postUnauthorisedError();
 		}
-	}
-
-
-	/**
-	 * Create and show a simple notification containing the received FCM message.
-	 *
-	 * @param title       FCM message title received.
-	 * @param messageBody FCM message body received.
-	 */
-	private void sendNotification(int pushId, String title, String messageBody, Intent notificationIntent) {
-		NotificationManager notificationManager =
-				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		if (notificationManager == null) {
-			Log.e(TAG, "Notification manager null");
-			return;
-		}
-
-		if (notificationIntent != null) {
-			if (type == PUSH_TENDER_NEW) {
-				notificationIntent.putExtra("pushId", pushId);
-			}
-		}
-
-		Bitmap icon = BitmapFactory.decodeResource(this.getResources(),
-				R.mipmap.ic_launcher);
-		NotificationCompat.Builder notificationBuilder = null;
-		Notification notification = null;
-		if (type == PUSH_TENDER_NEW) {
-			notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFFICATIONS_CHANNEL_TENDER)
-					.setSmallIcon(R.drawable.ic_noti_logo)
-					.setLargeIcon(icon)
-					.setContentTitle(title)
-					.setGroup(String.valueOf(type))
-					.setAutoCancel(true)
-					.setContentText(messageBody);
-
-//            if (Build.VERSION.SDK_INT < 26) {
-			Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-			notificationBuilder.setSound(sound);
-			notificationBuilder.setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400, 100, 200, 300, 400, 500, 400, 300, 200, 400});
-			notificationBuilder.setPriority(Notification.PRIORITY_HIGH);
-			notificationBuilder.setDefaults(Notification.FLAG_SHOW_LIGHTS);
-			notificationBuilder.setLights(0xffff0000, 300, 100);
-//            }
-		} else {
-			notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFFICATIONS_CHANNEL_DEFAULT)
-					.setSmallIcon(R.drawable.ic_noti_logo)
-					.setLargeIcon(icon)
-					.setContentTitle(title)
-					.setAutoCancel(true)
-					.setGroup(String.valueOf(type))
-					.setContentText(messageBody);
-
-//            if (Build.VERSION.SDK_INT < 26) {
-			Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-			notificationBuilder.setSound(sound);
-			notificationBuilder.setPriority(Notification.PRIORITY_DEFAULT);
-			notificationBuilder.setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.FLAG_SHOW_LIGHTS);
-			notificationBuilder.setLights(0xff00ff00, 300, 100);
-//            }
-		}
-
-		PendingIntent contentIntent = null;
-		if (notificationIntent != null) {
-			contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
-		} else {
-			// Only close notification after clicking
-			contentIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
-		}
-
-		notificationBuilder.setContentIntent(contentIntent);
-		notification = notificationBuilder.build();
-
-//         Ring repeatedly
-		if (type == PUSH_TENDER_NEW && !(app.getActiveActivity() instanceof NewTenderActivity_)) {
-			notification.flags |= Notification.FLAG_INSISTENT;
-		}
-
-		int notificationId = pushId;
-
-		// Showing only one state change push
-		if (type == PUSH_CAR_STATUS_CHANGE) {
-			notificationId = 0;
-			notificationManager.cancel(notificationId);
-		}
-
-		notificationManager.notify(notificationId, notification);
 	}
 
 	private void cancelNotification(int pushId) {
@@ -423,19 +429,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		}
 
 		notificationManager.cancel(pushId);
-	}
-
-	private void cancelTenderNotifications(List<Integer> pushIds) {
-		NotificationManager notificationManager =
-				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-		if (notificationManager == null) {
-			Log.e(TAG, "Notification manager null");
-			return;
-		}
-
-		for (int pushId : pushIds) {
-			notificationManager.cancel(pushId);
-		}
 	}
 }
