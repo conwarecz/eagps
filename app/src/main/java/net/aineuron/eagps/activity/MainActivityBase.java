@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
-import com.grisoftware.updatechecker.GoogleChecker;
 import com.jetradar.multibackstack.BackStackActivity;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
@@ -111,7 +110,6 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@AfterViews
 	public void afterViewsLocal() {
-		new GoogleChecker(this, false);
 
 		if (userManager.getUser() == null) {
 			clientProvider.postUnauthorisedError();
