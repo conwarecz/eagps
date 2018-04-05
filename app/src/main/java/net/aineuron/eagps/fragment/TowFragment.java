@@ -1,6 +1,5 @@
 package net.aineuron.eagps.fragment;
 
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,8 +16,8 @@ import net.aineuron.eagps.event.network.order.OrderFinalizedEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
-import net.aineuron.eagps.model.database.order.Address;
 import net.aineuron.eagps.model.database.order.Order;
+import net.aineuron.eagps.util.FormatUtil;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.NetworkUtil;
 import net.aineuron.eagps.util.OrderToastComposer;
@@ -253,13 +252,13 @@ public class TowFragment extends BaseFragment {
 
 		if (order.getClientAddress() != null) {
 			this.clientAddress.setVisibility(View.VISIBLE);
-			this.clientAddress.setText(formatClientAddress(order.getClientAddress()));
+			this.clientAddress.setText(FormatUtil.formatClientAddress(order.getClientAddress(), order.getClientLocationComment()));
 		} else {
 			this.clientAddress.setVisibility(View.GONE);
 		}
 		if (order.getDestinationAddress() != null) {
 			this.destinationAddress.setVisibility(View.VISIBLE);
-			this.destinationAddress.setText(formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));
+			this.destinationAddress.setText(FormatUtil.formatDestinationAddress(order.getDestinationAddress(), order.getWorkshopName()));
 		} else {
 			this.destinationAddress.setVisibility(View.GONE);
 		}
@@ -292,62 +291,6 @@ public class TowFragment extends BaseFragment {
 				dismissProgress();
 			}
 		});
-	}
-
-	// Building up addresses from what we have
-	@NonNull
-	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
-		String addressResult = "";
-		if (destinationAddress != null) {
-			if (workshopName != null) {
-				addressResult += workshopName;
-			}
-			if (destinationAddress.getAddress().getStreet() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getStreet();
-			}
-			if (destinationAddress.getAddress().getCity() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getCity();
-			}
-			if (destinationAddress.getAddress().getZipCode() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getZipCode();
-			}
-			this.destinationAddress.setText(addressResult);
-		}
-		return addressResult;
-	}
-
-	@NonNull
-	private String formatClientAddress(Address clientAddress) {
-		String addressResult = "";
-		// Building up addresses from what we have
-		if (order.getClientAddress() != null) {
-			if (clientAddress.getAddress().getStreet() != null) {
-				addressResult += clientAddress.getAddress().getStreet();
-			}
-			if (clientAddress.getAddress().getCity() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += clientAddress.getAddress().getCity();
-			}
-			if (clientAddress.getAddress().getZipCode() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += clientAddress.getAddress().getZipCode();
-			}
-			this.clientAddress.setText(addressResult);
-		}
-		return addressResult;
 	}
 
 	private void removeListener() {

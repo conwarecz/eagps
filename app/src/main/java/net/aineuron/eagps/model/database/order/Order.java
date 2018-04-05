@@ -45,6 +45,7 @@ public class Order extends RealmObject {
 	private String clientCarLicencePlate;
 	@SerializedName("Location")
 	private Address clientAddress;
+	private String clientLocationComment;
 	private RealmList<RealmString> eventDescription;
 	private Limitation limitation;
 	private RealmList<Photo> photos = new RealmList<>();
@@ -301,6 +302,14 @@ public class Order extends RealmObject {
 
 	public void setPostponedArrival(boolean postponedArrival) {
 		this.postponedArrival = postponedArrival;
+	}
+
+	public String getClientLocationComment() {
+		return clientLocationComment;
+	}
+
+	public void setClientLocationComment(String clientLocationComment) {
+		this.clientLocationComment = clientLocationComment;
 	}
 }
 

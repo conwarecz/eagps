@@ -2,7 +2,6 @@ package net.aineuron.eagps.fragment;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -190,12 +189,12 @@ public class OrderDetailFragment extends BaseFragment {
 
 		Address clientAddress = order.getClientAddress();
 		if (clientAddress != null) {
-			this.clientAddress.setText(formatClientAddress(clientAddress));
+			this.clientAddress.setText(FormatUtil.formatClientAddress(clientAddress, order.getClientLocationComment()));
 		}
 
 		Address destinationAddress = order.getDestinationAddress();
 		if (destinationAddress != null) {
-			this.destinationAddress.setText(formatDestinationAddress(destinationAddress, order.getWorkshopName()));
+			this.destinationAddress.setText(FormatUtil.formatDestinationAddress(destinationAddress, order.getWorkshopName()));
 			this.destinationAddress.setVisibility(View.VISIBLE);
 		} else {
 			this.destinationAddress.setVisibility(View.GONE);
@@ -219,61 +218,6 @@ public class OrderDetailFragment extends BaseFragment {
 		if (order.getLimitation() != null && order.getLimitation().getLimit() != null) {
 			this.limit.setText(order.getLimitation().getLimit());
 		}
-	}
-
-	// Building up addresses from what we have
-	@NonNull
-	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
-		String addressResult = "";
-		if (destinationAddress != null) {
-			if (workshopName != null) {
-				addressResult += workshopName;
-			}
-			if (destinationAddress.getAddress().getStreet() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getStreet();
-			}
-			if (destinationAddress.getAddress().getCity() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getCity();
-			}
-			if (destinationAddress.getAddress().getZipCode() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getZipCode();
-			}
-			this.destinationAddress.setText(addressResult);
-		}
-		return addressResult;
-	}
-
-	@NonNull
-	private String formatClientAddress(Address clientAddress) {
-		String addressResult = "";
-		if (order.getClientAddress() != null) {
-			if (clientAddress.getAddress().getStreet() != null) {
-				addressResult += clientAddress.getAddress().getStreet();
-			}
-			if (clientAddress.getAddress().getCity() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += clientAddress.getAddress().getCity();
-			}
-			if (clientAddress.getAddress().getZipCode() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += clientAddress.getAddress().getZipCode();
-			}
-			this.clientAddress.setText(addressResult);
-		}
-		return addressResult;
 	}
 
 	private void copyToClipboard(String text) {

@@ -2,7 +2,6 @@ package net.aineuron.eagps.activity;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -366,7 +365,7 @@ public class NewTenderActivity extends AppCompatActivity {
 
 		Address clientAddress = order.getClientAddress();
 		if (clientAddress != null) {
-			this.clientAddress.setText(formatClientAddress(clientAddress));
+			this.clientAddress.setText(FormatUtil.formatClientAddress(clientAddress, order.getClientLocationComment()));
 			this.clientAddress.setVisibility(View.VISIBLE);
 		} else {
 			this.clientAddress.setVisibility(View.GONE);
@@ -374,7 +373,7 @@ public class NewTenderActivity extends AppCompatActivity {
 
 		Address destinationAddress = order.getDestinationAddress();
 		if (destinationAddress != null) {
-			this.destinationAddress.setText(formatDestinationAddress(destinationAddress, order.getWorkshopName()));
+			this.destinationAddress.setText(FormatUtil.formatDestinationAddress(destinationAddress, order.getWorkshopName()));
 			this.destinationAddress.setVisibility(View.VISIBLE);
 		} else {
 			this.destinationAddress.setVisibility(View.GONE);
@@ -442,61 +441,6 @@ public class NewTenderActivity extends AppCompatActivity {
 				break;
 		}
 		setUi();
-	}
-
-	// Building up addresses from what we have
-	@NonNull
-	private String formatDestinationAddress(Address destinationAddress, String workshopName) {
-		String addressResult = "";
-		if (order.getDestinationAddress() != null) {
-			if (order.getWorkshopName() != null) {
-				addressResult += order.getWorkshopName();
-			}
-			if (destinationAddress.getAddress().getStreet() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getStreet();
-			}
-			if (destinationAddress.getAddress().getCity() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getCity();
-			}
-			if (destinationAddress.getAddress().getZipCode() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += destinationAddress.getAddress().getZipCode();
-			}
-			this.destinationAddress.setText(addressResult);
-		}
-		return addressResult;
-	}
-
-	@NonNull
-	private String formatClientAddress(Address clientAddress) {
-		String addressResult = "";
-		if (order.getClientAddress() != null) {
-			if (clientAddress.getAddress().getStreet() != null) {
-				addressResult += clientAddress.getAddress().getStreet();
-			}
-			if (clientAddress.getAddress().getCity() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += clientAddress.getAddress().getCity();
-			}
-			if (clientAddress.getAddress().getZipCode() != null) {
-				if (addressResult.length() > 0) {
-					addressResult += ", ";
-				}
-				addressResult += clientAddress.getAddress().getZipCode();
-			}
-			this.clientAddress.setText(addressResult);
-		}
-		return addressResult;
 	}
 
 	private void finishTenderActivity() {
