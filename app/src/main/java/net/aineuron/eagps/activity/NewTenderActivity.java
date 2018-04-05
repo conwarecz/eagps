@@ -536,13 +536,13 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	private void notifyNewTender() {
 		Intent intent = MyFirebaseMessagingService.buildNewTenderIntent(this, "Nová objednávka");
-		MyFirebaseMessagingService.sendNotification(appl, MyFirebaseMessagingService.PUSH_TENDER_NEW, tender.getPushId(), "Nová objednávka", "Nová objednávka", intent);
+		MyFirebaseMessagingService.sendNotification(appl, MyFirebaseMessagingService.PUSH_TENDER_NEW, tender.getPushId(), "Nová objednávka", "Nová objednávka", intent, true);
 	}
 
 	private void cancelNotifications() {
 		try {
 			List<Integer> tenderPushIds = tendersManager.getAllPushIds();
-			MyFirebaseMessagingService.cancelTenderNotifications(this, tenderPushIds);
+			MyFirebaseMessagingService.cancelNotifications(this, tenderPushIds);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

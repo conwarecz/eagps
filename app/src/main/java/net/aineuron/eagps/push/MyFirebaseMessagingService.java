@@ -78,6 +78,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	// Push static ID - to ensure only one notification
 	public static final int PUSH_ID_KICKED_FROM_CAR = Integer.MAX_VALUE - 1;
 	public static final int PUSH_ID_USER_LOGOUT = Integer.MAX_VALUE - 2;
+	public static final int PUSH_ID_USER_STATE_CHANGE = Integer.MAX_VALUE - 3;
 	private static final String TAG = "FCM Service";
 	@Bean
 	UserManager userManager;
@@ -97,7 +98,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	 * @param title       FCM message title received.
 	 * @param messageBody FCM message body received.
 	 */
-	public static void sendNotification(Appl app, int type, int pushId, String title, String messageBody, Intent notificationIntent) {
+	public static void sendNotification(Appl app, int type, int pushId, String title, String messageBody, Intent notificationIntent, boolean intense) {
 		NotificationManager notificationManager =
 				(NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
 		if (notificationManager == null) {
@@ -109,7 +110,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 				R.mipmap.ic_launcher);
 		NotificationCompat.Builder notificationBuilder = null;
 		Notification notification = null;
-		if (type == PUSH_TENDER_NEW) {
+		if (intense) {
 			notificationBuilder = new NotificationCompat.Builder(app.getApplicationContext(), NOTIFFICATIONS_CHANNEL_TENDER)
 					.setSmallIcon(R.drawable.ic_noti_logo)
 					.setLargeIcon(icon)
@@ -153,19 +154,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		notification = notificationBuilder.build();
 
 		// Ring repeatedly
-		if (type == PUSH_TENDER_NEW && !(app.getActiveActivity() instanceof NewTenderActivity_)) {
+		if (intense) {
 			notification.flags |= Notification.FLAG_INSISTENT;
 		}
 
-		int notificationId = pushId;
-
-		// Showing only one state change push
-		if (type == PUSH_CAR_STATUS_CHANGE) {
-			notificationId = 0;
-			notificationManager.cancel(notificationId);
-		}
-
-		notificationManager.notify(notificationId, notification);
+		notificationManager.notify(pushId, notification);
 	}
 
 	public static Intent buildNewTenderIntent(Context context, String title) {
@@ -176,7 +169,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		return notificationIntent;
 	}
 
-	public static void cancelTenderNotifications(Context context, List<Integer> pushIds) {
+	public static void cancelNotifications(Context context, List<Integer> pushIds) {
 		NotificationManager notificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -252,9 +245,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			if (app.getActiveActivity() instanceof NewTenderActivity_ || hasSameTender) {
 				return;
 			}
-			sendNotification(app, type, tender.getPushId(), title, body, notificationIntent);
+			sendNotification(app, type, tender.getPushId(), title, body, notificationIntent, true);
 		} else {
-			sendNotification(app, type, tender.getPushId(), title, body, null);
+			sendNotification(app, type, tender.getPushId(), title, body, null, true);
 			getApplicationContext().startActivity(notificationIntent);
 		}
 	}
@@ -271,11 +264,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 		userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
 
+		boolean intense = false;
+		if (userManager.getUser() != null && userManager.getUser().getRoleId() != null) {
+			intense = userManager.getUser().getRoleId() == UserManager.WORKER_ID;
+		}
+
 		if (!ordersManager.isActiveOrder(id)) {
 			Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
 			notificationIntent.putExtra("id", id);
 			notificationIntent.putExtra("title", title);
-			sendNotification(app, type, id.intValue(), title, body, notificationIntent);
+			sendNotification(app, type, id.intValue(), title, body, notificationIntent, intense);
 		}
 
 		Realm realm = RealmHelper.getDb();
@@ -284,7 +282,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 		// Make sure no Tender left on stack from this order
 		if (tendersManager.hasTenderByTenderId(tender.getTenderId())) {
-			cancelTenderNotifications(this, tendersManager.getPushIdsByTenderId(tender.getTenderId()));
+			cancelNotifications(this, tendersManager.getPushIdsByTenderId(tender.getTenderId()));
 
 			tendersManager.deleteTendersByTenderId(tender.getTenderId());
 			tendersManager.deleteTendersByEntityId(tender.getOrder().getEntityId());
@@ -307,7 +305,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		Intent notificationIntent = IntentUtils.mainActivityIntent(this, id);
 		notificationIntent.putExtra("messageId", id);
 
-		sendNotification(app, type, message.getId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+		sendNotification(app, type, message.getId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent, false);
 	}
 
 	private void handleCancelledOrder(RemoteMessage remoteMessage) {
@@ -324,7 +322,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		notificationIntent.putExtra("id", id);
 		notificationIntent.putExtra("title", remoteMessage.getData().get("title"));
 
-		sendNotification(app, type, id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent);
+		sendNotification(app, type, id.intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), notificationIntent, false);
 
 		EventBus.getDefault().post(new OrderCanceledEvent(id));
 	}
@@ -356,7 +354,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			new Handler(getMainLooper()).post(() -> newTenderActivity.notWonTender(dbCopyTender.getTenderEntityUniId(), title));
 		} else {
 			// If app in background we show notification
-			sendNotification(app, type, dbCopyTender.getPushId(), title, body, notificationIntent);
+			sendNotification(app, type, dbCopyTender.getPushId(), title, body, notificationIntent, false);
 		}
 	}
 
@@ -380,7 +378,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		} else {
 			userManager.setSelectedStateId(newStatus);
 			EventBus.getDefault().post(new StateSelectedEvent(newStatus));
-			sendNotification(app, type, tender.getEntityId().intValue(), remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null);
+			sendNotification(app, type, PUSH_ID_USER_STATE_CHANGE, remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null, false);
 		}
 	}
 
@@ -396,7 +394,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		userManager.setSelectedCarId(null);
 		userManager.setSelectedStateId(STATE_ID_NO_CAR);
 		if (isInBackground) {
-			sendNotification(app, type, PUSH_ID_KICKED_FROM_CAR, "Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null);
+			sendNotification(app, type, PUSH_ID_KICKED_FROM_CAR, "Odhlášení z vozidla", "Byl jste odhlášen z vozidla uživatelem " + user.getUsername(), null, false);
 		} else {
 			EventBus.getDefault().post(new StateSelectedEvent(STATE_ID_NO_CAR));
 		}
@@ -411,7 +409,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		final UserWhoKickedMeFromCar user = Tender.getUser(remoteMessage.getData().get("message"));
 		if (user.getUsername().equalsIgnoreCase(userManager.getUser().getUserName())) {
 			if (isInBackground) {
-				sendNotification(app, type, PUSH_ID_USER_LOGOUT, "Odhlášení z vozidla", "Byl jste odhlášen", null);
+				sendNotification(app, type, PUSH_ID_USER_LOGOUT, "Odhlášení z vozidla", "Byl jste odhlášen", null, false);
 			} else {
 				EventBus.getDefault().post(new UserLoggedOutFromAnotherDeviceEvent());
 			}

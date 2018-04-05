@@ -12,8 +12,12 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.annotations.Nullable;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ASSIGNED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_ENTITY_FINISHED;
@@ -130,5 +134,16 @@ public class OrdersManager {
 		db.executeTransaction(realm ->
 				realm.copyToRealm(order)
 		);
+	}
+
+	public List<Integer> getAllPushIds() {
+		Realm db = RealmHelper.getDb();
+		RealmResults<Order> all = db.where(Order.class).findAll();
+		List<Integer> pushIds = new ArrayList<>();
+		for (Order order : all) {
+			pushIds.add(order.getId().intValue());
+		}
+		db.close();
+		return pushIds;
 	}
 }

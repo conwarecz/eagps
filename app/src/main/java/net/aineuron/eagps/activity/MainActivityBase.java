@@ -47,6 +47,7 @@ import net.aineuron.eagps.model.MessagesManager;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.push.MyFirebaseMessagingService;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -56,6 +57,12 @@ import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
 
 import static net.aineuron.eagps.model.UserManager.DISPATCHER_ID;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
@@ -108,8 +115,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	private int currentTabId;
 //	private ShapeBadgeItem shapeBadgeItem;
 
+	PublishSubject<Integer> cancelNotificationsDebounceAction = PublishSubject.create();
+
 	@AfterViews
 	public void afterViewsLocal() {
+		Disposable subscribe = cancelNotificationsDebounceAction.throttleFirst(4, TimeUnit.SECONDS).subscribe(aInt -> cancelNotifications());
 
 		if (userManager.getUser() == null) {
 			clientProvider.postUnauthorisedError();
@@ -244,6 +254,8 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			cancelNotificationsDebounceAction.onNext(0);
+
 			View v = getCurrentFocus();
 			if (v instanceof EditText) {
 				Rect outRect = new Rect();
@@ -466,5 +478,14 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onKnownError(KnownErrorEvent e) {
 		Toast.makeText(this, e.knownError.getMessage(), Toast.LENGTH_LONG).show();
+	}
+
+	private void cancelNotifications() {
+		try {
+			List<Integer> ordersPushIds = this.ordersManager.getAllPushIds();
+			MyFirebaseMessagingService.cancelNotifications(this, ordersPushIds);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
