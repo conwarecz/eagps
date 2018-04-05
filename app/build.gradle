@@ -3,9 +3,9 @@ buildscript {
 		maven { url 'https://maven.fabric.io/public' }
 	}
 
-    dependencies {
-        classpath 'io.fabric.tools:gradle:1.25.2'
-    }
+	dependencies {
+		classpath 'io.fabric.tools:gradle:1.25.2'
+	}
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
@@ -37,6 +37,10 @@ android {
 		}
 	}
 	buildTypes {
+		debug {
+			ext.alwaysUpdateBuildId = false
+			ext.enableCrashlytics = false
+		}
 		release {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

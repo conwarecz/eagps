@@ -122,16 +122,18 @@ public class IntentUtils {
 		}
 	}
 
-	public static void openRoute(Context context, @NonNull Location destination, @NonNull Location waypoint) {
+	public static void openRoute(Context context, @NonNull Location destination, Location waypoint) {
 		List<Location> waypoints = new ArrayList<>();
-		waypoints.add(waypoint);
+
+		if (waypoint != null) {
+			waypoints.add(waypoint);
+		}
 
 		openRoute(context, destination, waypoints);
 	}
 
 	public static void openRoute(Context context, @NonNull Location destination, List<Location> waypoints) {
 		Uri.Builder builder = new Uri.Builder();
-
 
 		builder.scheme("https")
 				.authority("www.google.com").appendPath("maps").appendPath("dir").appendPath("").appendQueryParameter("api", "1")

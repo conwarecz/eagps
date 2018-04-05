@@ -34,6 +34,7 @@ import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Address;
+import net.aineuron.eagps.model.database.order.Location;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Tender;
 import net.aineuron.eagps.model.transfer.KnownError;
@@ -281,6 +282,10 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	@Click(R.id.showOnMap)
 	void openMap() {
+		if (order.getServiceType() == Order.ORDER_SERVICE_TYPE_VYPROSTENI || order.getServiceType() == Order.ORDER_SERVICE_TYPE_ASISTENCE) {
+			IntentUtils.openRoute(this, order.getClientAddress().getLocation(), (Location) null);
+			return;
+		}
 		IntentUtils.openRoute(this, order.getDestinationAddress().getLocation(), order.getClientAddress().getLocation());
 	}
 
@@ -375,7 +380,7 @@ public class NewTenderActivity extends AppCompatActivity {
 			this.destinationAddress.setVisibility(View.GONE);
 		}
 
-		if (order.getClientAddress() == null || order.getDestinationAddress() == null) {
+		if (clientAddress == null && destinationAddress == null) {
 			this.map.setVisibility(View.INVISIBLE);
 		} else {
 			this.map.setVisibility(View.VISIBLE);

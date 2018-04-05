@@ -27,6 +27,10 @@ public class Order extends RealmObject {
 	public static final int ORDER_STATE_SENT = 5;
 	public static final int ORDER_STATE_CANCELLED = 6;
 
+	public static final int ORDER_SERVICE_TYPE_ODTAH = 1;
+	public static final int ORDER_SERVICE_TYPE_VYPROSTENI = 2;
+	public static final int ORDER_SERVICE_TYPE_ASISTENCE = 3;
+
 	@PrimaryKey
 	private Long id;
 	private String claimSaxCode;
