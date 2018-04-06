@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -80,9 +81,11 @@ public class FileUtils {
             bm = Glide.with(context).load(file).asBitmap().atMost().override(1500, 1500).fitCenter().into(SimpleTarget.SIZE_ORIGINAL, SimpleTarget.SIZE_ORIGINAL).get();
         } catch (InterruptedException e) {
             bm = BitmapFactory.decodeFile(file.getAbsolutePath());
+            Crashlytics.logException(e);
             e.printStackTrace();
         } catch (ExecutionException e) {
             bm = BitmapFactory.decodeFile(file.getAbsolutePath());
+            Crashlytics.logException(e);
             e.printStackTrace();
         }
         try {
@@ -91,6 +94,7 @@ public class FileUtils {
             byte[] b = baos.toByteArray();
             return Base64.encodeToString(b, Base64.DEFAULT);
         } catch (Exception e) {
+            Crashlytics.logException(e);
             e.printStackTrace();
             Toast.makeText(context, "Fotografii se nepodařilo zpracovat", Toast.LENGTH_LONG).show();
             return null;

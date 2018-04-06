@@ -6,6 +6,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
+
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.AppBarActivity;
 import net.aineuron.eagps.activity.StateSettingsActivity_;
@@ -79,6 +81,7 @@ public class StateFragment extends BaseFragment {
 		try {
 			setContent();
 		} catch (Exception e) {
+			Crashlytics.logException(e);
 			e.printStackTrace();
 		}
 	}

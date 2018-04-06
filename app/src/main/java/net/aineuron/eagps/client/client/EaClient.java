@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.tmtron.greenannotations.EventBusGreenRobot;
 
 import net.aineuron.eagps.BuildConfig;
@@ -695,6 +696,7 @@ public class EaClient {
 					ClientProvider.postKnownError(knownError);
 					return;
 				} catch (Exception e) {
+					Crashlytics.logException(e);
 					e.printStackTrace();
 				}
 			} else if (error.getResponse().code() == 403) {
@@ -702,16 +704,18 @@ public class EaClient {
 				try {
 					recognizedError = RecognizedError.getError(error.getResponse().errorBody().string());
 					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
-					return;
 				} catch (Exception e) {
+					Crashlytics.logException(e);
 					e.printStackTrace();
 				}
 				KnownError knownError = new KnownError();
 				knownError.setCode(403);
 				knownError.setMessage(recognizedError.getMessage());
 				ClientProvider.postKnownError(knownError);
+				return;
 			}
 
+			Crashlytics.logException(error);
 			if (error.getKind() == RetrofitException.Kind.HTTP) {
 				KnownError knownError = error.getErrorBodyAs(KnownError.class);
 				Log.d("KnownError", knownError.getCode() + knownError.getMessage());
@@ -723,6 +727,7 @@ public class EaClient {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			Crashlytics.logException(e);
 			Log.d("NetworkError", errorThrowable.getMessage());
 			ClientProvider.postNetworkError(errorThrowable, "Požadovaná operace se nezdařila, prosím zkontrolujte své připojení a zkuste to znovu");
 		}
@@ -751,6 +756,7 @@ public class EaClient {
 					Log.d("KnownError", recognizedError.getCode() + recognizedError.getMessage());
 				} catch (Exception e) {
 					e.printStackTrace();
+					Crashlytics.logException(e);
 				}
 				KnownError knownError = new KnownError();
 				knownError.setCode(403);
@@ -760,6 +766,7 @@ public class EaClient {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			Crashlytics.logException(e);
 		}
 		try {
 			Log.d("KnownError", code + response.errorBody().toString());
@@ -769,6 +776,7 @@ public class EaClient {
 			ClientProvider.postKnownError(knownError);
 		} catch (Exception e) {
 			e.printStackTrace();
+			Crashlytics.logException(e);
 		}
 		eventBus.post(new StopRefreshingEvent());
 	}

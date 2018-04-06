@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.SelectionSpecBuilder;
@@ -459,6 +460,7 @@ public class OrderAttachmentsFragment extends BaseFragment {
 //			photoFile.setFileString(fileToByteArray2(file));
 		} catch (Exception e) {
 			e.printStackTrace();
+			Crashlytics.logException(e);
 			Log.d("PhotoFile file", "Couldn't create byte stream from file");
 		}
 	}
