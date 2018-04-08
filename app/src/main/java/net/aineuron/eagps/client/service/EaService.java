@@ -43,6 +43,9 @@ public interface EaService {
 	@GET("users/{userId}/cars/available")
 	Maybe<List<Car>> getCars(@Path("userId") Long userId);
 
+	@GET("users/{userId}/entity")
+	Maybe<Car> getUserEntity(@Path("userId") Long userId);
+
 	@PUT("users/{userId}/entity/{entityId}")
 	Maybe<Car> setCarToUser(@Path("userId") Long userId, @Path("entityId") long entityId);
 

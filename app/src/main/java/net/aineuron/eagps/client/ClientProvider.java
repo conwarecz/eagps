@@ -211,10 +211,6 @@ public class ClientProvider {
 //		OkHttpClient client = clientBuilder.build();
         retrofit = builder.build();
 
-		initClients();
-	}
-
-	private void initClients() {
 		eaClient = EaClient_.getInstance_(context).withRetrofit(retrofit);
 	}
 

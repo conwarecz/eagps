@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -22,6 +23,7 @@ import net.aineuron.eagps.activity.NewTenderActivity;
 import net.aineuron.eagps.activity.NewTenderActivity_;
 import net.aineuron.eagps.activity.OrderConfirmationActivity_;
 import net.aineuron.eagps.client.ClientProvider;
+import net.aineuron.eagps.client.service.EaService;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.event.network.car.DispatcherRefreshCarsEvent;
 import net.aineuron.eagps.event.network.car.StateSelectedEvent;
@@ -31,7 +33,9 @@ import net.aineuron.eagps.event.network.user.UserLoggedOutFromAnotherDeviceEvent
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.TendersManager;
 import net.aineuron.eagps.model.UserManager;
+import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.Message;
+import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.UserWhoKickedMeFromCar;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.Tender;
@@ -48,6 +52,9 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
 import static net.aineuron.eagps.Appl.NOTIFFICATIONS_CHANNEL_DEFAULT;
@@ -359,25 +366,45 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 	}
 
 	private void handleCarStatusChange(RemoteMessage remoteMessage) {
-		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
-		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
-		if (userManager.getUser() == null) {
+		EaService service = clientProvider.getEaClient().getEaService();
+
+		User user = userManager.getUser();
+		if (user == null) {
 			return;
 		}
-		final Long newStatus = Tender.getNewStatusFromJson(remoteMessage.getData().get("message"));
+
+		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
 		if (userManager.getUser().getRoleId() == DISPATCHER_ID) {
 			EventBus.getDefault().post(new DispatcherRefreshCarsEvent(tender.getEntityId(), tender.getStatus()));
 			return;
 		}
-		if (userManager.getSelectedStateId().equals(newStatus)) {
+
+		Disposable d = service.getUserEntity(user.getUserId())
+				.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						car -> continueHandleStatusChange(remoteMessage, car),
+						Crashlytics::logException
+				);
+	}
+
+	private void continueHandleStatusChange(RemoteMessage remoteMessage, Car entity) {
+		if (entity == null) {
 			return;
-		} else if (userManager.getSelectedStateId().equals(STATE_ID_BUSY_ORDER) && newStatus.equals(STATE_ID_BUSY)) {
+		}
+		int type = Integer.valueOf((remoteMessage.getData().get("notificationtype")));
+
+		Long localStatusId = userManager.getSelectedStateId();
+		Long remoteStatusId = entity.getStatusId();
+		if (userManager.getSelectedStateId().equals(remoteStatusId)) {
 			return;
-		} else if (userManager.getSelectedStateId().equals(STATE_ID_NO_CAR)) {
+		} else if (localStatusId.equals(STATE_ID_BUSY_ORDER) && remoteStatusId.equals(STATE_ID_BUSY)) {
+			return;
+		} else if (localStatusId.equals(STATE_ID_NO_CAR)) {
 			return;
 		} else {
-			userManager.setSelectedStateId(newStatus);
-			EventBus.getDefault().post(new StateSelectedEvent(newStatus));
+			userManager.setSelectedStateId(remoteStatusId);
+			EventBus.getDefault().post(new StateSelectedEvent(remoteStatusId));
 			sendNotification(app, type, PUSH_ID_USER_STATE_CHANGE, remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), null, false);
 		}
 	}

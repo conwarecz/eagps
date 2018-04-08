@@ -102,6 +102,10 @@ public class EaClient {
 		return this;
 	}
 
+	public EaService getEaService() {
+		return eaService;
+	}
+
 	public void login(LoginInfo info) {
 		if (!connectedToInternet()) {
 			return;
@@ -152,6 +156,7 @@ public class EaClient {
 		if (!connectedToInternet()) {
 			return;
 		}
+		// TODO: Consider adding call to get user details, to avoid copying state from previous login info
 		eaService.getUser(userId)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -804,11 +809,6 @@ public class EaClient {
 	}
 
 	private String getClearVersionName() {
-		// TODO: REMOVE
-		if (BuildConfig.FLAVOR.equals("flavtest")) {
-			return "0.5.19";
-		}
-
 		String versionName = BuildConfig.VERSION_NAME;
 		try {
 			versionName = versionName.substring(0, versionName.indexOf("-"));
