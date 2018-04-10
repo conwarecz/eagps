@@ -64,6 +64,7 @@ public class Appl extends MultiDexApplication implements
 
 		dateFormat.setTimeZone(TimeZone.getDefault());
 		timeFormat.setTimeZone(TimeZone.getDefault());
+		timeDateFormat.setTimeZone(TimeZone.getDefault());
 
 		initChannels();
 		registerActivityLifecycleCallbacks(this);

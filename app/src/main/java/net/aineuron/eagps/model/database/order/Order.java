@@ -1,12 +1,7 @@
 package net.aineuron.eagps.model.database.order;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 
-import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
 import net.aineuron.eagps.model.database.RealmString;
 
 import java.util.Date;
@@ -68,17 +63,6 @@ public class Order extends RealmObject {
 	private Boolean orderSheetProvided;
 
 	private boolean isSent;
-
-	public static Order getFromJson(String json) {
-		Gson gson = new GsonBuilder()
-				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-						}.getType(),
-						RealmStringListTypeAdapter.INSTANCE)
-				.create();
-		return gson.fromJson(json, Order.class);
-	}
 
 	public Long getId() {
 		return id;

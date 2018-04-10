@@ -32,7 +32,6 @@ import net.aineuron.eagps.event.ui.StopRefreshingEvent;
 import net.aineuron.eagps.model.OrdersManager;
 import net.aineuron.eagps.model.UserManager;
 import net.aineuron.eagps.model.database.Entity;
-import net.aineuron.eagps.model.database.Message;
 import net.aineuron.eagps.model.database.User;
 import net.aineuron.eagps.model.database.order.Order;
 import net.aineuron.eagps.model.database.order.PhotoFile;
@@ -53,11 +52,6 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 import org.greenrobot.eventbus.EventBus;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -70,7 +64,6 @@ import static net.aineuron.eagps.model.UserManager.STATE_ID_BUSY_ORDER;
 import static net.aineuron.eagps.model.UserManager.STATE_ID_NO_CAR;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_CANCELLED;
 import static net.aineuron.eagps.model.database.order.Order.ORDER_STATE_FINISHED;
-import static net.aineuron.eagps.util.TimeUtil.fixDateTimeZones;
 
 /**
  * Created by Vit Veres on 31.3.2016
@@ -384,10 +377,6 @@ public class EaClient {
 								return;
 							}
 
-							for (Order order : orders) {
-								setOrderDatesProperTimeZone(order);
-							}
-
 							Realm db = RealmHelper.getDb();
 							db.executeTransaction(realm ->
 									realm.copyToRealmOrUpdate(orders)
@@ -416,7 +405,6 @@ public class EaClient {
 										realm.copyToRealmOrUpdate(order)
 								);
 
-								setOrderDatesProperTimeZone(order);
 
 								db.close();
 							}
@@ -554,26 +542,9 @@ public class EaClient {
 				.subscribe(
 						messages -> {
 							Realm db = RealmHelper.getDb();
-
-							for (Message message : messages) {
-								if (message.getTime() != null) {
-									try {
-										SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-										simpleDateFormat.setTimeZone(TimeZone.getDefault());
-										String string = simpleDateFormat.format(message.getTime());
-
-										simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-										Date newDate = simpleDateFormat.parse(string);
-										message.setTime(newDate);
-									} catch (ParseException e) {
-										e.printStackTrace();
-									}
-								}
-							}
-
 							db.executeTransaction(realm -> realm.copyToRealmOrUpdate(messages));
-
 							db.close();
+
 							eventBus.post(new StopRefreshingEvent());
 						},
 						this::sendError
@@ -647,7 +618,6 @@ public class EaClient {
 												realm.copyToRealmOrUpdate(order)
 										);
 
-										setOrderDatesProperTimeZone(order);
 
 										db.close();
 										userManager.setSelectedStateId(STATE_ID_BUSY_ORDER);
@@ -796,16 +766,6 @@ public class EaClient {
 			connected = false;
 		}
 		return connected;
-	}
-
-	private void setOrderDatesProperTimeZone(Order order) {
-
-		if (order.getEstimatedDepartureTime() != null) {
-			order.setEstimatedDepartureTime(fixDateTimeZones(order.getEstimatedDepartureTime()));
-		}
-		if (order.getTimeCreated() != null) {
-			order.setTimeCreated(fixDateTimeZones(order.getTimeCreated()));
-		}
 	}
 
 	private String getClearVersionName() {

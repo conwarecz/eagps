@@ -1,4 +1,4 @@
-package net.aineuron.eagps.adapter;
+package net.aineuron.eagps.client.client;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

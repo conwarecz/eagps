@@ -42,14 +42,12 @@ import net.aineuron.eagps.model.database.order.Tender;
 import net.aineuron.eagps.model.transfer.KnownError;
 import net.aineuron.eagps.util.IntentUtils;
 import net.aineuron.eagps.util.RealmHelper;
-import net.aineuron.eagps.util.TimeUtil;
 
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Date;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -233,11 +231,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 		Tender tender = Tender.getTender(remoteMessage.getData().get("message"));
 		Order order = tender.getOrder();
 
-		if (order != null) {
-			Date newArrivalTime = TimeUtil.fixDateTimeZones(order.getArrivalTime());
-			order.setArrivalTime(newArrivalTime);
-		}
-
 		boolean hasSameTender = tendersManager.hasTender(tender.getTenderEntityUniId());
 
 		tendersManager.addTender(tender);
@@ -276,12 +269,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			intense = userManager.getUser().getRoleId() == UserManager.WORKER_ID;
 		}
 
-		if (!ordersManager.isActiveOrder(id)) {
-			Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
-			notificationIntent.putExtra("id", id);
-			notificationIntent.putExtra("title", title);
-			sendNotification(app, type, id.intValue(), title, body, notificationIntent, intense);
-		}
+		Intent notificationIntent = new Intent(this, OrderConfirmationActivity_.class);
+		notificationIntent.putExtra("id", id);
+		notificationIntent.putExtra("title", title);
+		sendNotification(app, type, id.intValue(), title, body, notificationIntent, intense);
 
 		Realm realm = RealmHelper.getDb();
 		realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(order));

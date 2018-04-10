@@ -14,9 +14,10 @@ import net.aineuron.eagps.BuildConfig;
 import net.aineuron.eagps.Pref_;
 import net.aineuron.eagps.R;
 import net.aineuron.eagps.activity.LoginActivity_;
-import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
 import net.aineuron.eagps.client.client.EaClient;
 import net.aineuron.eagps.client.client.EaClient_;
+import net.aineuron.eagps.client.client.GsonUTCDateAdapter;
+import net.aineuron.eagps.client.client.RealmStringListTypeAdapter;
 import net.aineuron.eagps.event.network.ApiErrorEvent;
 import net.aineuron.eagps.event.network.KnownErrorEvent;
 import net.aineuron.eagps.model.UserManager;
@@ -40,6 +41,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -63,18 +65,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @EBean(scope = EBean.Scope.Singleton)
 public class ClientProvider {
 
+	public static Gson gson;
+
 	@RootContext
 	Context context;
 
 	@Pref
 	Pref_ pref;
 
-    @Bean
+	@Bean
     UserManager userManager;
 
 	private Retrofit retrofit;
 	private EaClient eaClient;
-	private Gson gson;
 
     public static void postNetworkError(Throwable errorThrowable, String message) {
         EventBus.getDefault().post(new ApiErrorEvent(errorThrowable, message));
@@ -139,9 +142,8 @@ public class ClientProvider {
 		String token = pref.token().get();
 
 		gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+				.registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
 				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
 						}.getType(),
 						RealmStringListTypeAdapter.INSTANCE)

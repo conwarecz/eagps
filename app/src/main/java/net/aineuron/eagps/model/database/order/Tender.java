@@ -1,21 +1,14 @@
 package net.aineuron.eagps.model.database.order;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import net.aineuron.eagps.adapter.RealmStringListTypeAdapter;
+import net.aineuron.eagps.client.ClientProvider;
 import net.aineuron.eagps.model.database.Car;
 import net.aineuron.eagps.model.database.Message;
-import net.aineuron.eagps.model.database.RealmString;
 import net.aineuron.eagps.model.database.UserWhoKickedMeFromCar;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -64,14 +57,7 @@ public class Tender extends RealmObject implements Serializable {
 	}
 
 	public static Tender getTender(String json) {
-		Gson gson = new GsonBuilder()
-				.setDateFormat("yyyy-MM-dd'T'HH:mm:sss")
-				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-				.registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {
-						}.getType(),
-						RealmStringListTypeAdapter.INSTANCE)
-				.create();
-		Tender tender = gson.fromJson(json, Tender.class);
+		Tender tender = ClientProvider.gson.fromJson(json, Tender.class);
 		tender.setIncomeTime(Calendar.getInstance().getTime());
 
 		Long entityId = 0L;
