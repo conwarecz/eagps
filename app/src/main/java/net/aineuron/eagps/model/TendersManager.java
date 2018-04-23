@@ -72,10 +72,13 @@ public class TendersManager {
 
 	public void deleteTender(String tenderEntityUniId) {
 		Realm db = RealmHelper.getTenderDb();
-		Tender tender = db.where(Tender.class).equalTo("tenderEntityUniId", tenderEntityUniId).findFirst();
-		if (tender != null) {
-			db.executeTransaction(realm -> tender.deleteFromRealm());
-		}
+		db.executeTransaction(realm -> {
+			Tender tender = realm.where(Tender.class).equalTo("tenderEntityUniId", tenderEntityUniId).findFirst();
+			if (tender != null) {
+				tender.deleteFromRealm();
+			}
+		});
+
 		db.close();
 	}
 

@@ -163,7 +163,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 			notification.flags |= Notification.FLAG_INSISTENT;
 		}
 
-		notificationManager.notify(pushId, notification);
+		try {
+			notificationManager.notify(pushId, notification);
+		} catch (Exception e) {
+			Crashlytics.logException(e);
+			e.printStackTrace();
+		}
 	}
 
 	public static Intent buildNewTenderIntent(Context context, String title) {

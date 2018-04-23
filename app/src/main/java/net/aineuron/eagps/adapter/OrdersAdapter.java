@@ -64,7 +64,7 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 				ClientProvider.postKnownError(knownError);
 				return;
 			}
-			if (obj != null) {
+			if (obj != null && obj.isValid()) {
 				switch (obj.getStatus()) {
 					case ORDER_STATE_ASSIGNED:
 						UserManager_.getInstance_(holder.getView().getContext()).setSelectedStateId(STATE_ID_BUSY_ORDER);
@@ -80,6 +80,8 @@ public class OrdersAdapter extends RealmRecyclerViewAdapter<Order, ItemViewWrapp
 						mMainActivityBase.showFragment(OrderDetailFragment.newInstance(obj.getId(), null));
 						break;
 				}
+			} else {
+				notifyDataSetChanged();
 			}
 		});
 

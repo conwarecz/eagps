@@ -3,8 +3,10 @@ package net.aineuron.eagps.model;
 import android.app.NotificationManager;
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import net.aineuron.eagps.Appl;
 import net.aineuron.eagps.Pref_;
@@ -82,7 +84,15 @@ public class UserManager {
 			return null;
 		}
 
-		return gson.fromJson(userObjectSerialized, User.class);
+		User user = null;
+		try {
+			user = gson.fromJson(userObjectSerialized, User.class);
+		} catch (JsonSyntaxException e) {
+			Crashlytics.logException(e);
+			e.printStackTrace();
+		}
+
+		return user;
 	}
 
 	public void setUser(User user) {

@@ -155,6 +155,12 @@ public class EaClient {
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
 						user -> {
+							if (userManager.getUser() == null) {
+								// Currently not logged user
+								clientProvider.postUnauthorisedError();
+								return;
+							}
+
 							// Need to keep some user info stored in User after login response
 							user.setUserId(user.getId());
 							user.setToken(userManager.getUser().getToken());
@@ -427,12 +433,16 @@ public class EaClient {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(
-						voidResponse ->
+						(Response<Void> voidResponse) ->
 						{
 							if (voidResponse.isSuccessful()) {
 								Realm db = RealmHelper.getDb();
-								db.executeTransaction(realm ->
-										realm.where(Order.class).equalTo("id", orderId).findFirst().setStatus(ORDER_STATE_CANCELLED)
+								db.executeTransaction(realm -> {
+											Order order = realm.where(Order.class).equalTo("id", orderId).findFirst();
+											if (order != null) {
+												order.setStatus(ORDER_STATE_CANCELLED);
+											}
+										}
 								);
 								db.close();
 								eventBus.post(new OrderCanceledEvent(orderId));
@@ -461,8 +471,10 @@ public class EaClient {
 							if (voidResponse.isSuccessful()) {
 								Realm db = RealmHelper.getDb();
 								db.executeTransaction(realm -> {
-									Order order = ordersManager.getOrderById(orderId);
-									order.setStatus(ORDER_STATE_FINISHED);
+									Order order = realm.where(Order.class).equalTo("id", orderId).findFirst();
+									if (order != null) {
+										order.setStatus(ORDER_STATE_FINISHED);
+									}
 								});
 								db.close();
 								eventBus.post(new OrderFinalizedEvent(orderId));

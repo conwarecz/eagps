@@ -3,6 +3,8 @@ package net.aineuron.eagps.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 import android.widget.Toast;
 
@@ -88,6 +90,10 @@ public class FileUtils {
             Crashlytics.logException(e);
             e.printStackTrace();
         }
+        if (bm == null) {
+            return null;
+        }
+
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bm.compress(Bitmap.CompressFormat.JPEG, 85, baos);
@@ -96,7 +102,7 @@ public class FileUtils {
         } catch (Exception e) {
             Crashlytics.logException(e);
             e.printStackTrace();
-            Toast.makeText(context, "Fotografii se nepodařilo zpracovat", Toast.LENGTH_LONG).show();
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "Fotografii se nepodařilo zpracovat", Toast.LENGTH_LONG).show());
             return null;
         }
     }

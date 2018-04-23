@@ -395,7 +395,11 @@ public class MainActivityBase extends BackStackActivity implements BottomNavigat
 
 	@NonNull
 	private Fragment rootTabFragment(int tabId) {
-		if (userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
+		if (userManager.getUser() == null) {
+			clientProvider.postUnauthorisedError();
+		}
+
+		if (userManager.getUser() != null && userManager.getUser().getUserRole() != null && userManager.getUser().getUserRole() == WORKER_ID) {
 			// Driver mode
 			switch (tabId) {
 				case 0:
