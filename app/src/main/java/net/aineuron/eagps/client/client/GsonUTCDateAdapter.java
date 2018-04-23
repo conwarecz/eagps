@@ -1,16 +1,15 @@
 package net.aineuron.eagps.client.client;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -26,7 +25,7 @@ public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserialize
 	private static DateFormat dateFormat;
 
 	static {
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 
@@ -39,8 +38,9 @@ public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserialize
 	public synchronized Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
 		try {
 			return dateFormat.parse(jsonElement.getAsString());
-		} catch (ParseException e) {
-			throw new JsonParseException(e);
+		} catch (Exception e) {
+			Crashlytics.logException(e);
+			return new Date(0);
 		}
 	}
 }
