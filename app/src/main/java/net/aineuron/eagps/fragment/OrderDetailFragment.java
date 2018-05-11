@@ -211,6 +211,10 @@ public class OrderDetailFragment extends BaseFragment {
 			}
 		}
 
+		if (order.isPostponedArrival()) {
+			this.postponedArrival.setLabelText("Odložený dojezd");
+		}
+
 		if (order.getEntityName() != null) {
 			this.assignedEntity.setText(order.getEntityName());
 		}
