@@ -2,7 +2,6 @@ package net.aineuron.eagps.fragment;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,8 +43,8 @@ public class OrderDetailFragment extends BaseFragment {
 	@SystemService
 	ClipboardManager clipboardManager;
 
-	@ColorRes(R.color.colorPrimaryDark)
-	int colorPrimaryDark;
+	@ColorRes(R.color.highlightAlert)
+	int colorHighlightAlert;
 
 	@ViewById(R.id.client)
 	IcoLabelTextView client;
@@ -206,13 +205,11 @@ public class OrderDetailFragment extends BaseFragment {
 
 		if (order.getArrivalTime() != null) {
 			this.postponedArrival.setText(Appl.timeDateFormat.format(order.getArrivalTime()));
-			if (!DateUtils.isToday(order.getArrivalTime().getTime())) {
-				this.postponedArrival.setTextColor(colorPrimaryDark);
-			}
 		}
 
 		if (order.isPostponedArrival()) {
 			this.postponedArrival.setLabelText("Odložený dojezd");
+			this.postponedArrival.setTextColor(colorHighlightAlert);
 		}
 
 		if (order.getEntityName() != null) {

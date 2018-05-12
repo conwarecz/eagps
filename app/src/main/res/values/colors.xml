@@ -6,6 +6,7 @@
 	<color name="grayText">#9B9B9B</color>
 	<color name="grayTextLight">#c7c7cd</color>
 	<color name="hintText">#90BAFF</color>
+	<color name="highlightAlert">#E67E22</color>
 
 	<!-- Tab bar -->
 	<color name="backgroundWhite">#FFFFFF</color>

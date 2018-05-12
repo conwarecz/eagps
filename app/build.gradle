@@ -21,8 +21,8 @@ android {
 		applicationId "cz.europassistance.assistancepartners"
 		minSdkVersion 16
 		targetSdkVersion 27
-		versionCode 69
-		versionName "0.6.2"
+		versionCode 70
+		versionName "0.6.3"
 		multiDexEnabled true
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 		compileOptions {

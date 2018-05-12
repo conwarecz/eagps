@@ -6,7 +6,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
-import android.text.format.DateUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,8 +73,8 @@ public class NewTenderActivity extends AppCompatActivity {
 
 	private static final String TAG = NewTenderActivity.class.getSimpleName();
 
-	@ColorRes(R.color.colorPrimaryDark)
-	int colorPrimaryDark;
+	@ColorRes(R.color.highlightAlert)
+	int colorHighlightAlert;
 
 	@ViewById(R.id.back)
 	Button accept;
@@ -401,13 +400,11 @@ public class NewTenderActivity extends AppCompatActivity {
 
 		if (order.getArrivalTime() != null) {
 			this.postponedArrival.setText(Appl.timeDateFormat.format(order.getArrivalTime()));
-			if (!DateUtils.isToday(order.getArrivalTime().getTime())) {
-				this.postponedArrival.setTextColor(colorPrimaryDark);
-			}
 		}
 
 		if (order.isPostponedArrival()) {
 			this.postponedArrival.setLabelText("Odložený dojezd");
+			this.postponedArrival.setTextColor(colorHighlightAlert);
 		}
 
 		if (tender.getEntity() != null) {
